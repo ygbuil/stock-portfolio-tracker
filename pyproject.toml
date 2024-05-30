@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "stock-portfolio-tracker"
+version = "0.1.0"
+description = ""
+authors = ["Llorenc Buil"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "^2.32.2"
+pandas = "^2.2.2"
+yfinance = "^0.2.40"
+pandas-datareader = "^0.10.0"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
