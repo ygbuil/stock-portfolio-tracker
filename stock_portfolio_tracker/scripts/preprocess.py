@@ -1,4 +1,3 @@
-import requests
 import os
 import pandas as pd
 import yfinance as yf
@@ -13,103 +12,109 @@ API_KEY = os.getenv("API_KEY")
 @dataclass
 class PortfolioData:
     transactions: pd.DataFrame
-    tickers: list[list]
+    tickers: list[str]
+    currencies: list[str]
     start_date: pd.Timestamp
     end_date: pd.Timestamp
 
 
 def preprocess():
     portfolio_data = _load_portfolio_data()
+    print(portfolio_data)
 
-    stock_prices = _load_historical_stock_prices_yf(portfolio_data)
+    stock_prices = _load_historical_stock_prices(portfolio_data)
     print(stock_prices)
 
-    # splits_data = _load_split_history(portfolio_data)
-    # print(splits_data)
-    #
+    _load_currency_exchange(
+        portfolio_data,
+    )
+
+    tickers_benchmarks = ["SXR8.DE"]
+    _load_benchmark_data(portfolio_data, tickers_benchmarks)
 
 
 def _load_portfolio_data():
-    transactions = pd.read_json(
+    transactions = pd.read_csv(
         os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), "../data/transactions.json"
+            os.path.dirname(os.path.realpath(__file__)), "../data/transactions.csv"
         )
+    ).astype(
+        {
+            "date": str,
+            "transaction_type": str,
+            "stock_name": str,
+            "stock_ticker": str,
+            "origin_currency": str,
+            "price_paid": float,
+        }
     )
-    tickers = []
-    for e in transactions["ticker"].unique():
-        tickers.append(e.split(","))
-    transactions["ticker"] = transactions["ticker"].apply(lambda x: x.split(",")[0])
 
-    portfolio_data = PortfolioData(
+    transactions["date"] = pd.to_datetime(transactions["date"])
+
+    return PortfolioData(
         transactions=transactions,
-        tickers=tickers,
+        tickers=transactions["stock_ticker"].unique(),
+        currencies=transactions["origin_currency"].unique(),
         start_date=min(transactions["date"]),
         end_date=pd.Timestamp.today(),
     )
 
-    return portfolio_data
 
-
-def _load_historical_stock_prices_yf(portfolio_data: PortfolioData):
+def _load_historical_stock_prices(portfolio_data: PortfolioData):
     stock_prices = []
 
     for ticker in portfolio_data.tickers:
-        main_ticker = ticker[0]
-        for ticker_try in ticker:
-            stock_price = (
-                yf.download(
-                    ticker_try,
-                    start=portfolio_data.start_date,
-                    end=portfolio_data.start_date,
-                )[["Open"]]
-                .reset_index()
-                .rename(columns={"Open": "open", "Date": "date"})
-            )
-            if not stock_price.empty:
-                break
-        stock_price["ticker"] = main_ticker
+        stock_price = _load_time_series(portfolio_data, ticker)
         stock_prices.append(stock_price)
 
-    stock_prices = pd.concat(stock_prices)
+    return (
+        pd.concat(stock_prices)
+        .sort_values(by="date", ascending=False)
+        .groupby("ticker")
+        .first()
+        .reset_index()
+    )
 
-    stock_prices = stock_prices[
-        (stock_prices["date"] >= portfolio_data.start_date)
-        & (stock_prices["date"] <= portfolio_data.end_date)
-    ].reset_index()
 
-    return stock_prices
+def _load_time_series(portfolio_data, ticker):
+    time_series = (
+        yf.download(
+            ticker,
+            start=portfolio_data.start_date,
+            end=portfolio_data.end_date,
+        )[["Open"]]
+        .reset_index()
+        .rename(columns={"Open": "open", "Date": "date"})
+    )
+    time_series["ticker"] = ticker
+
+    return time_series
 
 
-def _load_split_history(portfolio_data: PortfolioData):
-    split_historys = []
+def _load_currency_exchange(portfolio_data, local_currency, origin_currencies):
+    benchmarks = []
 
-    for ticker in portfolio_data.tickers:
-        main_ticker = ticker[0]
-        for ticker_try in ticker:
-            response = requests.get(
-                f"https://financialmodelingprep.com/api/v3/historical-price-full/stock_split/{ticker_try}?apikey={API_KEY}"
-            )
-            if response.status_code == 200:
-                data = response.json()["historical"]
-                split_history = pd.DataFrame(
-                    {
-                        "date": [x["date"] for x in data],
-                        "split": [x["numerator"] / x["denominator"] for x in data],
-                    }
-                )
-                split_history["ticker"] = main_ticker
-                split_historys.append(split_history)
-                break
+    for origin_currency in origin_currencies:
+        benchmark = _load_time_series(
+            portfolio_data, f"{local_currency}{origin_currency}=X"
+        )
+        benchmarks.append(benchmark)
 
-    split_history = pd.concat(split_historys).reset_index(drop=True)
-    split_history["date"] = pd.to_datetime(split_history["date"])
-    split_history = split_history[
-        (split_history["date"] >= portfolio_data.start_date)
-        & (split_history["date"] <= portfolio_data.end_date)
-    ]
-    split_history = split_history[split_history["split"] >= 1]
+    benchmarks = pd.concat(benchmarks).reset_index()
 
-    return split_historys
+    return benchmarks
+
+
+def _load_benchmark_data(portfolio_data, tickers_benchmarks):
+    benchmarks = []
+
+    for ticker_benchmark in tickers_benchmarks:
+        benchmark = _load_time_series(portfolio_data, ticker_benchmark)
+        benchmarks.append(benchmark)
+
+    benchmarks = pd.concat(benchmarks).reset_index()
+
+    return benchmarks
 
 
 if __name__ == "__main__":
