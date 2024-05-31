@@ -11,53 +11,64 @@ API_KEY = os.getenv('API_KEY')
 
 
 @dataclass
-class InputData:
+class PortfolioData:
     transactions: pd.DataFrame
     tickers: list[list]
-    start_date: str
+    start_date: pd.Timestamp
+    end_date: pd.Timestamp
+
 
 
 def preprocess():
-    input_data = _load_input_data()
+    portfolio_data = _load_portfolio_data()
     
-    stock_prices = _load_historical_stock_prices_yf(input_data.tickers)
+    stock_prices = _load_historical_stock_prices_yf(portfolio_data)
     print(stock_prices)
     
-    splits_data = _load_split_history(input_data)
-    print(splits_data)
+    #splits_data = _load_split_history(portfolio_data)
+    #print(splits_data)
     
 
-def _load_input_data():
+def _load_portfolio_data():
     transactions = pd.read_json(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../data/transactions.json"))
     tickers = []
     for e in transactions["ticker"].unique():
         tickers.append(e.split(","))
     transactions["ticker"] = transactions["ticker"].apply(lambda x: x.split(",")[0])
 
-    input_data = InputData(transactions=transactions, tickers=tickers, start_date=min(transactions["date"]))
+    portfolio_data = PortfolioData(
+        transactions=transactions,
+        tickers=tickers,
+        start_date=min(transactions["date"]),
+        end_date=pd.Timestamp.today())
 
-    return input_data
+    return portfolio_data
 
 
-def _load_historical_stock_prices_yf(tickers: list):
+def _load_historical_stock_prices_yf(portfolio_data: PortfolioData):
     stock_prices = []
 
-    for ticker in tickers:
+    for ticker in portfolio_data.tickers:
         main_ticker = ticker[0]
         for ticker_try in ticker:
-            stock_price = yf.download(ticker_try, start="2000-01-01", end="2024-05-28")[["Open"]].reset_index().rename(columns={"Open": "open", "Date": "date"})
+            stock_price = yf.download(ticker_try, start=portfolio_data.start_date, end=portfolio_data.start_date)[["Open"]].reset_index().rename(columns={"Open": "open", "Date": "date"})
             if not stock_price.empty:
                 break
         stock_price["ticker"] = main_ticker
         stock_prices.append(stock_price)
 
-    return pd.concat(stock_prices)
+    stock_prices = pd.concat(stock_prices)
+    
+    stock_prices = stock_prices[(stock_prices["date"] >= portfolio_data.start_date) & 
+    (stock_prices["date"] <= portfolio_data.end_date)].reset_index()
+
+    return stock_prices
 
 
-def _load_split_history(input_data: InputData):
+def _load_split_history(portfolio_data: PortfolioData):
     split_historys = []
 
-    for ticker in input_data.tickers:
+    for ticker in portfolio_data.tickers:
         main_ticker = ticker[0]
         for ticker_try in ticker:
             response = requests.get(f"https://financialmodelingprep.com/api/v3/historical-price-full/stock_split/{ticker_try}?apikey={API_KEY}")
@@ -68,9 +79,11 @@ def _load_split_history(input_data: InputData):
                 split_historys.append(split_history)
                 break
 
-    split_historys = pd.concat(split_historys).reset_index(drop=True)
-    split_historys["date"] = pd.to_datetime(split_historys["date"])
-    split_historys = split_historys[split_historys["date"] >= input_data.start_date]
+    split_history = pd.concat(split_historys).reset_index(drop=True)
+    split_history["date"] = pd.to_datetime(split_history["date"])
+    split_history = split_history[(split_history["date"] >= portfolio_data.start_date) & 
+        (split_history["date"] <= portfolio_data.end_date)]
+    split_history = split_history[split_history["split"] >= 1]
 
     return split_historys
 
