@@ -12,6 +12,7 @@ pandas = "^2.2.2"
 yfinance = "^0.2.40"
 pandas-datareader = "^0.10.0"
 python-dotenv = "^1.0.1"
+pre-commit = "^3.7.1"
 
 
 [build-system]
