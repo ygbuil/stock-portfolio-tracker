@@ -2,13 +2,8 @@ import os
 import pandas as pd
 import yfinance as yf
 from dataclasses import dataclass
-from dotenv import load_dotenv
 import numpy as np
 import matplotlib.pyplot as plt
-
-
-load_dotenv()
-API_KEY = os.getenv("API_KEY")
 
 
 @dataclass
@@ -28,20 +23,20 @@ def preprocess():
         "EUR",
     )
 
-    stock_prices = _load_historical_stock_prices(portfolio_data, currency_exchanges)
-
-
-    tickers_benchmarks = ["SXR8.DE"]
-    benchmarks = _load_benchmark_data(portfolio_data, tickers_benchmarks)
-    end_date = min(
-        max(stock_prices["date"]),
-        max(currency_exchanges["date"]),
-        max(benchmarks["date"]),
+    stock_prices = _load_portfolio_stocks_historical_prices(
+        portfolio_data.tickers,
+        portfolio_data.start_date,
+        portfolio_data.end_date,
+        currency_exchanges,
+    )
+    benchmarks = _load_portfolio_stocks_historical_prices(
+        ["SXR8.DE"],
+        portfolio_data.start_date,
+        portfolio_data.end_date,
+        currency_exchanges,
     )
 
-    _get_performance(
-        portfolio_data, benchmarks, stock_prices, currency_exchanges, end_date
-    )
+    _get_performance(portfolio_data, benchmarks, stock_prices)
 
 
 def _load_portfolio_data():
@@ -76,6 +71,9 @@ def _load_portfolio_data():
     )
     transactions = transactions.drop("transaction_type", axis=1)
 
+    # TODO: think what to do with this field
+    transactions = transactions.drop("stock_name", axis=1)
+
     return PortfolioData(
         transactions=transactions,
         tickers=transactions["stock_ticker"].unique(),
@@ -85,19 +83,23 @@ def _load_portfolio_data():
     )
 
 
-def _load_historical_stock_prices(portfolio_data: PortfolioData, currency_exchange):
+def _load_portfolio_stocks_historical_prices(
+    tickers, start_date, end_date, currency_exchange
+):
     stock_prices = []
 
-    for ticker in portfolio_data.tickers:
-        stock_price = _load_stock_data(
-            ticker, portfolio_data.start_date, portfolio_data.end_date
-        )
+    for ticker in tickers:
+        stock_price = _load_ticker_data(ticker, start_date, end_date)
         stock_price["stock_ticker"] = ticker
         stock_prices.append(stock_price)
 
     stock_prices = pd.concat(stock_prices)
+    stock_prices = _convert_price_to_local_currency(stock_prices, currency_exchange)
+
+    return stock_prices
 
 
+def _convert_price_to_local_currency(stock_prices, currency_exchange):
     stock_prices = pd.merge(
         stock_prices,
         currency_exchange,
@@ -109,18 +111,15 @@ def _load_historical_stock_prices(portfolio_data: PortfolioData, currency_exchan
         stock_prices["open_unadjusted_origin_currency"]
         / stock_prices["open_currency_rate"]
     )
-    stock_prices = stock_prices[
+    return stock_prices[
         ["date", "stock_ticker", "open_unadjusted_local_currency", "stock_split"]
     ]
 
-    return stock_prices
 
-
-def _load_stock_data(ticker, start_date, end_date):
+def _load_ticker_data(ticker, start_date, end_date):
     stock = yf.Ticker(ticker)
     stock_price = (
-        stock
-        .history(start=start_date, end=end_date)[["Open", "Stock Splits"]]
+        stock.history(start=start_date, end=end_date)[["Open", "Stock Splits"]]
         .sort_index(ascending=False)
         .reset_index()
         .rename(
@@ -132,27 +131,34 @@ def _load_stock_data(ticker, start_date, end_date):
         )
     )
 
-
     stock_price["date"] = (
         stock_price["date"].dt.strftime("%Y-%m-%d").apply(lambda x: pd.Timestamp(x))
     )
-    full_date_range = pd.DataFrame({"date": reversed(pd.date_range(start=start_date, end=end_date, freq='D'))})
+
+    # fill missing dates
+    full_date_range = pd.DataFrame(
+        {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))}
+    )
     stock_price = pd.merge(full_date_range, stock_price, "left", on="date")
     stock_price["stock_split"] = stock_price["stock_split"].fillna(0)
-    stock_price['open_adjusted_origin_currency'] = stock_price['open_adjusted_origin_currency'].bfill()
-    stock_price['open_adjusted_origin_currency'] = stock_price['open_adjusted_origin_currency'].ffill()
+    stock_price["open_adjusted_origin_currency"] = (
+        stock_price["open_adjusted_origin_currency"].bfill().ffill()
+    )
 
+    # calculate stock splits
     stock_price["stock_split_cumsum"] = (
         stock_price["stock_split"].replace(0, 1).cumprod()
     )
     stock_price["open_unadjusted_origin_currency"] = (
         stock_price["open_adjusted_origin_currency"] * stock_price["stock_split_cumsum"]
     )
-    stock_price["origin_currency"] = stock.info.get('currency')
-    
 
+    # add currency
+    stock_price["origin_currency"] = stock.info.get("currency")
 
-    return stock_price[["date", "open_unadjusted_origin_currency", "stock_split", "origin_currency"]]
+    return stock_price[
+        ["date", "open_unadjusted_origin_currency", "origin_currency", "stock_split"]
+    ]
 
 
 def _load_currency_exchange(portfolio_data, local_currency):
@@ -174,10 +180,23 @@ def _load_currency_exchange(portfolio_data, local_currency):
                 .dt.strftime("%Y-%m-%d")
                 .apply(lambda x: pd.Timestamp(x))
             )
-            full_date_range = pd.DataFrame({"date": reversed(pd.date_range(start=portfolio_data.start_date, end=portfolio_data.end_date, freq='D'))})
-            currency_exchange = pd.merge(full_date_range, currency_exchange, "left", on="date")
-            currency_exchange['open_currency_rate'] = currency_exchange['open_currency_rate'].bfill()
-            currency_exchange['open_currency_rate'] = currency_exchange['open_currency_rate'].ffill()
+            full_date_range = pd.DataFrame(
+                {
+                    "date": reversed(
+                        pd.date_range(
+                            start=portfolio_data.start_date,
+                            end=portfolio_data.end_date,
+                            freq="D",
+                        )
+                    )
+                }
+            )
+            currency_exchange = pd.merge(
+                full_date_range, currency_exchange, "left", on="date"
+            )
+            currency_exchange["open_currency_rate"] = (
+                currency_exchange["open_currency_rate"].bfill().ffill()
+            )
         else:
             currency_exchange = pd.DataFrame(
                 {
@@ -202,7 +221,7 @@ def _load_benchmark_data(portfolio_data, tickers_benchmarks):
     benchmarks = []
 
     for ticker_benchmark in tickers_benchmarks:
-        benchmark = _load_stock_data(
+        benchmark = _load_ticker_data(
             ticker_benchmark, portfolio_data.start_date, portfolio_data.end_date
         )
         benchmark["benchmark_ticker"] = ticker_benchmark
@@ -213,116 +232,125 @@ def _load_benchmark_data(portfolio_data, tickers_benchmarks):
     return benchmarks
 
 
-def _get_performance(
-    portfolio_data, benchmarks, stock_prices, currency_exchange, end_date
-):
-
-    aux = pd.merge(
-        stock_prices, portfolio_data.transactions, "left", on=["date", "stock_ticker"]
+def _get_performance(portfolio_data, benchmarks, stock_prices):
+    stock_portfolio_value_evolution = pd.merge(
+        stock_prices,
+        portfolio_data.transactions[["date", "stock_ticker", "quantity", "value"]],
+        "left",
+        on=["date", "stock_ticker"],
+    )
+    grouped = stock_portfolio_value_evolution.reset_index(drop=True).groupby(
+        "stock_ticker"
+    )
+    stock_portfolio_value_evolution = []
+    for _, group in grouped:
+        stock_portfolio_value_evolution.append(
+            _calculate_current_quantity(group, "quantity")
+        )
+    stock_portfolio_value_evolution = pd.concat(stock_portfolio_value_evolution)
+    stock_portfolio_value_evolution["portfolio_value"] = (
+        stock_portfolio_value_evolution["current_quantity"]
+        * stock_portfolio_value_evolution["open_unadjusted_local_currency"]
+    )
+    # TODO: groupby("date").mean() per ticker i groupby sum
+    stock_portfolio_value_evolution = (
+        stock_portfolio_value_evolution.groupby("date")["portfolio_value"]
+        .sum()
+        .reset_index()
     )
 
-    grouped = aux.reset_index(drop=True).groupby('stock_ticker')
-    aux = []
-    for _, group in grouped:
-        aux.append(_calculate_current_quantity(group))
-    aux = pd.concat(aux)
-
-    aux["portfolio_value"] = aux["current_quantity"] * aux["open_unadjusted_local_currency"]
-    
-
-
-    
-    #portfolio_summary = aux.groupby("date")['portfolio_value'].agg(lambda x: np.nan if x.isna().all() else x.sum(skipna=True)).reset_index()
-    #portfolio_summary = aux.groupby("date")['portfolio_value'].agg(lambda x: np.nan if x.isna().any() else x.sum(skipna=True)).reset_index()
-    portfolio_summary = aux.groupby("date")['portfolio_value'].sum().reset_index()
-
-   
+    benchmark_value_evolution = pd.merge(
+        benchmarks,
+        portfolio_data.transactions[["date", "quantity", "value"]],
+        "left",
+        on=["date"],
+    )
+    1
+    benchmark_value_evolution["benchmark_quantity"] = (
+        -benchmark_value_evolution["value"]
+        / benchmark_value_evolution["open_unadjusted_local_currency"]
+    )
+    benchmark_value_evolution = _calculate_current_quantity(
+        benchmark_value_evolution, "benchmark_quantity"
+    )
+    benchmark_value_evolution["benchmark_value"] = (
+        benchmark_value_evolution["current_quantity"]
+        * benchmark_value_evolution["open_unadjusted_local_currency"]
+    )
+    benchmark_value_evolution = (
+        benchmark_value_evolution.groupby("date")["benchmark_value"]
+        .mean()
+        .reset_index()
+    )
 
     plt.figure(figsize=(10, 6))
-    plt.plot(portfolio_summary['date'], portfolio_summary['portfolio_value'], marker='o', linestyle='-', color='b')
-    plt.xlabel('Date')
-    plt.ylabel('Portfolio Value')
-    plt.title('Portfolio Value Over Time')
+    plt.plot(
+        stock_portfolio_value_evolution["date"],
+        stock_portfolio_value_evolution["portfolio_value"],
+        linestyle="-",
+        color="blue",
+        label="Portfolio value",
+    )
+    plt.plot(
+        benchmark_value_evolution["date"],
+        benchmark_value_evolution["benchmark_value"],
+        linestyle="-",
+        color="orange",
+        label="Benchmark value",
+    )
+    plt.xlabel("Date")
+    plt.ylabel("Value")
+    plt.title("Value Over Time")
     plt.grid(True)
     plt.xticks(rotation=45)
+    plt.legend(loc="best")
     plt.tight_layout()
     plt.show()
 
 
-
-
-    # transactions_and_benchmark = pd.merge(
-    #     stock_prices, portfolio_data.transactions, "left", on=["date", "stock_ticker"]
-    # )
-    # transactions_and_benchmark["equivalent_benchmark_sales_transaction"] = (
-    #     -transactions_and_benchmark["value"] / transactions_and_benchmark["open"]
-    # )
-
-    # current_benchmar_value = benchmarks[benchmarks["date"] == end_date]["open"].iloc[0]
-    # cash_flow = sum(transactions_and_benchmark["value"])
-    # benchmark_portfolio_current_value = (
-    #     sum(transactions_and_benchmark["equivalent_benchmark_sales_transaction"])
-    #     * current_benchmar_value
-    # )
-    # benchmark_portfolio_current_return = benchmark_portfolio_current_value + cash_flow
-    # stock_prices = pd.merge(
-    #     stock_prices,
-    #     currency_exchange,
-    #     "left",
-    #     left_on=["date", "stock_ticker"],
-    #     right_on=["date", "currency_exchange_rate_ticker"],
-    # )
-    # stock_portfolio_current_value = 1
-
-    # amount_benchmark_shares = transactions_and_benchmark.groupby("stock_ticker").sum(["value", "equivalent_benchmark_sales_transaction"]).reset_index()
-    # amount_benchmark_shares["benchmark_value"] = amount_benchmark_shares["equivalent_benchmark_sales_transaction"] * current_benchmar_value
-
-def _calculate_current_quantity(group):
+def _calculate_current_quantity(group, quantity_col_name):
     group["current_quantity"] = np.nan  # Initialize the new column
     iterator = list(reversed(group.index))
 
     for i in iterator:
         if i == iterator[0]:
-            if np.isnan(group.loc[i, "quantity"]):
+            if np.isnan(group.loc[i, quantity_col_name]):
                 group.loc[i, "current_quantity"] = 0
             else:
-                group.loc[i, "current_quantity"] = group.loc[i, "quantity"]
+                group.loc[i, "current_quantity"] = group.loc[i, quantity_col_name]
         else:
             if (
-                np.isnan(group.loc[i, "quantity"])
+                np.isnan(group.loc[i, quantity_col_name])
                 and group.loc[i, "stock_split"] == 0
             ):
-                group.loc[i, "current_quantity"] = group.loc[i+1, "current_quantity"]
+                group.loc[i, "current_quantity"] = group.loc[i + 1, "current_quantity"]
             elif (
-                not np.isnan(group.loc[i, "quantity"])
+                not np.isnan(group.loc[i, quantity_col_name])
                 and group.loc[i, "stock_split"] == 0
             ):
                 group.loc[i, "current_quantity"] = (
-                    group.loc[i+1, "current_quantity"] + group.loc[i, "quantity"]
+                    group.loc[i + 1, "current_quantity"]
+                    + group.loc[i, quantity_col_name]
                 )
             elif (
-                np.isnan(group.loc[i, "quantity"])
+                np.isnan(group.loc[i, quantity_col_name])
                 and group.loc[i, "stock_split"] != 0
             ):
                 group.loc[i, "current_quantity"] = (
-                    group.loc[i+1, "current_quantity"]
-                    * group.loc[i, "stock_split"]
+                    group.loc[i + 1, "current_quantity"] * group.loc[i, "stock_split"]
                 )
             elif (
-                not np.isnan(group.loc[i, "quantity"])
+                not np.isnan(group.loc[i, quantity_col_name])
                 and group.loc[i, "stock_split"] != 0
             ):
                 group.loc[i, "current_quantity"] = (
-                    group.loc[i+1, "current_quantity"]
-                    * group.loc[i, "stock_split"]
-                    + group.loc[i, "quantity"]
+                    group.loc[i + 1, "current_quantity"] * group.loc[i, "stock_split"]
+                    + group.loc[i, quantity_col_name]
                 )
             else:
                 raise NotImplementedError("Scenario not taken into account.")
     group["current_quantity"] = group.apply(
-        lambda x: np.nan
-        if x["current_quantity"] == 0
-        else x["current_quantity"],
+        lambda x: np.nan if x["current_quantity"] == 0 else x["current_quantity"],
         axis=1,
     )
     return group
