@@ -16,6 +16,7 @@ class PortfolioData:
 
 
 def preprocess():
+    print("hey")
     portfolio_data = _load_portfolio_data()
 
     currency_exchanges = _load_currency_exchange(

@@ -1,0 +1,15 @@
+{
+    "name": "Python 3.11 & Poetry & Oh My Zsh",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "settings": {
+        "terminal.integrated.shell.linux": "/bin/zsh"
+    },
+    "postCreateCommand": "poetry install",
+    "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-azuretools.vscode-docker"
+    ]
+}
