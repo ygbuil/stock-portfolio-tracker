@@ -1,2 +1,3 @@
-/stock_portfolio_tracker/data/transactions.csv
-.env
+/stock_portfolio_tracker/data/in/transactions.csv
+/stock_portfolio_tracker/data/out/*
+!/stock_portfolio_tracker/data/out/.gitkeep
