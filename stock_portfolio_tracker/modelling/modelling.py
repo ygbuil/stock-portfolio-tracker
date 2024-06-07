@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 from objetcs import PortfolioData
 
 
@@ -9,8 +10,16 @@ def model_data(
     portfolio_data: PortfolioData,
     benchmarks: pd.DataFrame,
     stock_prices: pd.DataFrame,
-) -> None:
-    """Calculate all necessary metrics."""
+) -> list:
+    """Calculate all necessary metrics.
+
+    :param portfolio_data: All data of user's portfolio.
+    :param benchmarks: Benchmark historical data.
+    :param stock_prices: Stock prices historical data.
+    :return: Relevant modelled data.
+    """
+    logger.info("Start of modelling.")
+
     stock_portfolio_value_evolution = pd.merge(
         stock_prices,
         portfolio_data.transactions[["date", "stock_ticker", "quantity", "value"]],
@@ -72,6 +81,8 @@ def model_data(
         benchmark_value_evolution["current_quantity"]
         * benchmark_value_evolution["open_unadjusted_local_currency"]
     )
+
+    logger.info("End of modelling.")
 
     return stock_portfolio_value_evolution, benchmark_value_evolution
 

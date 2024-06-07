@@ -5,11 +5,17 @@ from typing import Callable
 
 import pandas as pd
 import yfinance as yf
+from loguru import logger
 from objetcs import PortfolioData
 
 
-def preprocess() -> None:
-    """Load all necessary data from user input and yahoo finance API."""
+def preprocess() -> list:
+    """Load all necessary data from user input and yahoo finance API.
+
+    :return: All necessary input data for the calculations.
+    """
+    logger.info("Start of preprocess.")
+
     portfolio_data = _load_portfolio_data()
 
     currency_exchanges = _load_currency_exchange(
@@ -30,6 +36,8 @@ def preprocess() -> None:
         currency_exchanges,
     )
 
+    logger.info("End of preprocess.")
+
     return portfolio_data, stock_prices, benchmarks
 
 
@@ -48,6 +56,7 @@ def _sort_at_end(ticker_column: str, date_column: str) -> Callable:
 
 
 def _load_portfolio_data() -> PortfolioData:
+    logger.info("Loading portfolio data.")
     transactions = pd.read_csv(
         Path("/workspaces/Stock-Portfolio-Tracker/data/in/transactions.csv"),
     ).astype(
@@ -95,14 +104,23 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
     currency_exchanges = []
 
     for origin_currency in portfolio_data.currencies:
+        ticker = f"{local_currency}{origin_currency}=X"
+        logger.info(f"Loading currency exchange for {ticker}.")
         if origin_currency != local_currency:
-            currency_exchange = (
-                yf.Ticker(f"{local_currency}{origin_currency}=X")
-                .history(start=portfolio_data.start_date, end=portfolio_data.end_date)[["Open"]]
-                .sort_index(ascending=False)
-                .reset_index()
-                .rename(columns={"Open": "open_currency_rate", "Date": "date"})
-            )
+            try:
+                currency_exchange = (
+                    yf.Ticker(ticker)
+                    .history(start=portfolio_data.start_date, end=portfolio_data.end_date)[["Open"]]
+                    .sort_index(ascending=False)
+                    .reset_index()
+                    .rename(columns={"Open": "open_currency_rate", "Date": "date"})
+                )
+            except Exception as exc:
+                raise Exception(
+                    f"""Something went wrong retrieving Yahoo Finance data for
+                    ticker {ticker}: {exc}""",
+                ) from exc
+
             currency_exchange["date"] = (
                 currency_exchange["date"].dt.strftime("%Y-%m-%d").apply(lambda x: pd.Timestamp(x))
             )
@@ -155,6 +173,7 @@ def _load_portfolio_stocks_historical_prices(
     stock_prices = []
 
     for ticker in tickers:
+        logger.info(f"Loading historical stock prices for {ticker}")
         stock_price = _load_ticker_data(ticker, start_date, end_date)
         stock_price["stock_ticker"] = ticker
         stock_prices.append(stock_price)
@@ -186,19 +205,24 @@ def _load_ticker_data(
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
 ) -> pd.DataFrame:
-    stock = yf.Ticker(ticker)
-    stock_price = (
-        stock.history(start=start_date, end=end_date)[["Open", "Stock Splits"]]
-        .sort_index(ascending=False)
-        .reset_index()
-        .rename(
-            columns={
-                "Open": "open_adjusted_origin_currency",
-                "Date": "date",
-                "Stock Splits": "stock_split",
-            },
+    try:
+        stock = yf.Ticker(ticker)
+        stock_price = (
+            stock.history(start=start_date, end=end_date)[["Open", "Stock Splits"]]
+            .sort_index(ascending=False)
+            .reset_index()
+            .rename(
+                columns={
+                    "Open": "open_adjusted_origin_currency",
+                    "Date": "date",
+                    "Stock Splits": "stock_split",
+                },
+            )
         )
-    )
+    except Exception as exc:
+        raise Exception(
+            f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}",
+        ) from exc
 
     stock_price["date"] = (
         stock_price["date"].dt.strftime("%Y-%m-%d").apply(lambda x: pd.Timestamp(x))

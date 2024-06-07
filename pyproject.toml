@@ -15,6 +15,7 @@ python-dotenv = "^1.0.1"
 pre-commit = "^3.7.1"
 ruff = "^0.4.6"
 matplotlib = "^3.9.0"
+loguru = "^0.7.2"
 
 [tool.ruff]
 line-length = 100
@@ -24,7 +25,7 @@ lint.select = [
     "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY",
     "NPY", "RUF"
 ]
-lint.ignore = ["PD015", "PD901","ANN002", "ANN003"]
+lint.ignore = ["PD015", "PD901","ANN002", "ANN003", "TRY002", "TRY003", "BLE001"]
 
 [build-system]
 requires = ["poetry-core"]

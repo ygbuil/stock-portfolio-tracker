@@ -4,14 +4,23 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from loguru import logger
 
 
-def generate_report(
+def generate_reports(
     stock_portfolio_value_evolution: pd.DataFrame,
     benchmark_value_evolution: pd.DataFrame,
 ) -> None:
-    """Generate all final reports for the user."""
+    """Generate all final reports for the user.
+
+    :param stock_portfolio_value_evolution: Stock portfolio hisorical price.
+    :param benchmark_value_evolution: Benchmark hisorical price.
+    """
+    logger.info("Start of generate reports.")
+
     _save_plots(stock_portfolio_value_evolution, benchmark_value_evolution)
+
+    logger.info("End of generate reports.")
 
 
 def _save_plots(
