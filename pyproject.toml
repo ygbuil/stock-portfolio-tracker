@@ -24,7 +24,7 @@ select = [
     "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY",
     "NPY", "RUF"
 ]
-ignore = ["PD015"]
+ignore = ["PD015", "PD901","ANN002", "ANN003"]
 
 [build-system]
 requires = ["poetry-core"]
