@@ -10,7 +10,6 @@ class PortfolioData:
     """Portfolio data."""
 
     transactions: pd.DataFrame
-    tickers: list[str]
-    currencies: list[str]
+    assets_info: dict
     start_date: pd.Timestamp
     end_date: pd.Timestamp

@@ -1,3 +1,5 @@
+.DS_Store
+
 /data/in/transactions.csv
 /data/out/*
 !/data/out/.gitkeep

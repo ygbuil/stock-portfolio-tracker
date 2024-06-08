@@ -24,7 +24,7 @@ def preprocess() -> list:
     )
 
     stock_prices = _load_portfolio_stocks_historical_prices(
-        portfolio_data.tickers,
+        portfolio_data.assets_info.keys(),
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
@@ -63,9 +63,7 @@ def _load_portfolio_data() -> PortfolioData:
         {
             "date": str,
             "transaction_type": str,
-            "stock_name": str,
             "stock_ticker": str,
-            "origin_currency": str,
             "quantity": float,
             "value": float,
         },
@@ -82,18 +80,23 @@ def _load_portfolio_data() -> PortfolioData:
     )
     transactions = transactions.drop("transaction_type", axis=1)
 
-    # TODO: think what to do with this field
-    transactions = transactions.drop("stock_name", axis=1)
-
     transactions = transactions.sort_values(
         by=["stock_ticker", "date"],
         ascending=[True, False],
     ).reset_index(drop=True)
 
+    assets_info = {}
+
+    for ticker in sorted(transactions["stock_ticker"].unique()):
+        asset = yf.Ticker(ticker)
+        assets_info[ticker] = {
+            "name": asset.info.get("shortName"),
+            "currency": asset.info.get("currency"),
+        }
+
     return PortfolioData(
         transactions=transactions,
-        tickers=transactions["stock_ticker"].unique(),
-        currencies=transactions["origin_currency"].unique(),
+        assets_info=assets_info,
         start_date=min(transactions["date"]),
         end_date=pd.Timestamp.today(),
     )
@@ -103,7 +106,7 @@ def _load_portfolio_data() -> PortfolioData:
 def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) -> pd.DataFrame:
     currency_exchanges = []
 
-    for origin_currency in portfolio_data.currencies:
+    for origin_currency in {item[1]["currency"] for item in portfolio_data.assets_info.items()}:
         ticker = f"{local_currency}{origin_currency}=X"
         logger.info(f"Loading currency exchange for {ticker}.")
         if origin_currency != local_currency:
