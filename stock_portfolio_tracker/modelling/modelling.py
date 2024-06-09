@@ -12,7 +12,7 @@ def model_data(
     portfolio_data: PortfolioData,
     benchmarks: pd.DataFrame,
     stock_prices: pd.DataFrame,
-) -> list:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Calculate all necessary metrics.
 
     :param portfolio_data: All data of user's portfolio.

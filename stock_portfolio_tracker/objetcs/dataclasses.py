@@ -6,6 +6,14 @@ import pandas as pd
 
 
 @dataclass
+class Config:
+    """Config data."""
+
+    portfolio_currency: str
+    benchmark_tickers: list[str]
+
+
+@dataclass
 class PortfolioData:
     """Portfolio data."""
 

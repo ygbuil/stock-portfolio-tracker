@@ -1,5 +1,5 @@
 """__init__.py for objects package."""
 
-from .dataclasses import PortfolioData
+from .dataclasses import Config, PortfolioData
 
-__all__ = ["PortfolioData"]
+__all__ = ["PortfolioData", "Config"]

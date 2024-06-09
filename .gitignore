@@ -1,5 +1,7 @@
 .DS_Store
+.env
 
-/data/in/transactions.csv
+/data/in/my_config.json
+/data/in/my_transactions.csv
 /data/out/*
 !/data/out/.gitkeep

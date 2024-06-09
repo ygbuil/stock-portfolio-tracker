@@ -1,26 +1,33 @@
 """Preprocess input data."""
 
+import json
+import os
 from pathlib import Path
 from typing import Callable
 
 import pandas as pd
 import yfinance as yf
+from dotenv import load_dotenv
 from loguru import logger
-from objetcs import PortfolioData
+from objetcs import Config, PortfolioData
 
 
-def preprocess() -> list:
+def preprocess() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load all necessary data from user input and yahoo finance API.
 
     :return: All necessary input data for the calculations.
     """
     logger.info("Start of preprocess.")
 
-    portfolio_data = _load_portfolio_data()
+    config_file_name, transactions_file_name = _get_input_files_names()
+
+    config = _load_config(config_file_name)
+
+    portfolio_data = _load_portfolio_data(transactions_file_name)
 
     currency_exchanges = _load_currency_exchange(
         portfolio_data,
-        "EUR",
+        config.portfolio_currency,
     )
 
     stock_prices = _load_portfolio_stocks_historical_prices(
@@ -30,7 +37,7 @@ def preprocess() -> list:
         currency_exchanges,
     )
     benchmarks = _load_portfolio_stocks_historical_prices(
-        ["SXR8.DE"],
+        config.benchmark_tickers,
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
@@ -55,10 +62,29 @@ def _sort_at_end(ticker_column: str, date_column: str) -> Callable:
     return decorator
 
 
-def _load_portfolio_data() -> PortfolioData:
+def _get_input_files_names() -> tuple[str, str]:
+    load_dotenv()
+    config_file_name = os.getenv("CONFIG_NAME")
+    transactions_file_name = os.getenv("TRANSACTIONS_NAME")
+
+    if not config_file_name:
+        config_file_name = "config.json"
+
+    if not transactions_file_name:
+        transactions_file_name = "transactions.csv"
+
+    return config_file_name, transactions_file_name
+
+
+def _load_config(config_file_name: str) -> Config:
+    with Path(f"/workspaces/Stock-Portfolio-Tracker/data/in/{config_file_name}").open() as file:
+        return Config(**json.load(file))
+
+
+def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
     logger.info("Loading portfolio data.")
     transactions = pd.read_csv(
-        Path("/workspaces/Stock-Portfolio-Tracker/data/in/transactions.csv"),
+        Path(f"/workspaces/Stock-Portfolio-Tracker/data/in/{transactions_file_name}"),
     ).astype(
         {
             "date": str,
