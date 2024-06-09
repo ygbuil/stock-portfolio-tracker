@@ -1,0 +1,8 @@
+date,transaction_type,stock_ticker,quantity,value
+23-04-2024,Purchase,MSFT,6.00,2275.53
+28-03-2024,Sale,V,5.00,1297.35
+25-03-2024,Purchase,MSFT,7.00,2743.36
+21-02-2024,Purchase,MCO,15.00,5174.69
+06-02-2024,Purchase,V,28.00,7151.83
+19-01-2024,Purchase,AMZN,22.00,3099.02
+09-01-2024,Purchase,MA,15.00,5793.19

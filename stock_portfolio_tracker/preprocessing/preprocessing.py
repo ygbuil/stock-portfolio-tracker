@@ -107,8 +107,8 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
     transactions = transactions.drop("transaction_type", axis=1)
 
     transactions = transactions.sort_values(
-        by=["stock_ticker", "date"],
-        ascending=[True, False],
+        by=["date", "stock_ticker"],
+        ascending=[False, True],
     ).reset_index(drop=True)
 
     assets_info = {}
@@ -132,7 +132,9 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
 def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) -> pd.DataFrame:
     currency_exchanges = []
 
-    for origin_currency in {item[1]["currency"] for item in portfolio_data.assets_info.items()}:
+    for origin_currency in {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
+        local_currency,
+    }:
         ticker = f"{local_currency}{origin_currency}=X"
         logger.info(f"Loading currency exchange for {ticker}.")
         if origin_currency != local_currency:
