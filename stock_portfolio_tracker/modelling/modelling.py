@@ -20,41 +20,31 @@ def model_data(
     """
     logger.info("Start of modelling.")
 
-    stock_portfolio_value_evolution = pd.merge(
+    logger.info("Modelling portfolio.")
+    stock_portfolio_value_evolution_grouped = pd.merge(
         stock_prices,
         portfolio_data.transactions[["date", "stock_ticker", "quantity", "value"]],
         "left",
         on=["date", "stock_ticker"],
+    ).groupby("stock_ticker")
+    stock_portfolio_value_evolution = pd.concat(
+        [
+            _calculate_current_quantity(group, "quantity")
+            for _, group in stock_portfolio_value_evolution_grouped
+        ],
     )
-    grouped = stock_portfolio_value_evolution.reset_index(drop=True).groupby(
-        "stock_ticker",
+    stock_portfolio_value_evolution = _calculate_current_value(
+        stock_portfolio_value_evolution,
+        "current_position_value",
     )
-    stock_portfolio_value_evolution = []
-    for _, group in grouped:
-        stock_portfolio_value_evolution.append(
-            _calculate_current_quantity(group, "quantity"),
-        )
-    stock_portfolio_value_evolution = pd.concat(stock_portfolio_value_evolution)
-
-    # get the latest current state when there are multiple transactions at
-    # level ["date", "stock_ticker"] # noqa: ERA001
-    stock_portfolio_value_evolution = (
-        stock_portfolio_value_evolution.groupby(["date", "stock_ticker"])
-        .first()
-        .sort_values(by=["stock_ticker", "date"], ascending=[True, False])
-        .reset_index()
-    )
-    stock_portfolio_value_evolution["current_position_value"] = (
-        stock_portfolio_value_evolution["current_quantity"]
-        * stock_portfolio_value_evolution["open_unadjusted_local_currency"]
-    )
-
     stock_portfolio_value_evolution = (
         stock_portfolio_value_evolution.groupby("date")["current_position_value"]
         .sum()
         .reset_index()
-    ).rename(columns={"current_position_value": "portfolio_value"})
+        .rename(columns={"current_position_value": "portfolio_value"})
+    )
 
+    logger.info("Modelling benchmark.")
     benchmark_value_evolution = pd.merge(
         benchmarks,
         portfolio_data.transactions[["date", "quantity", "value"]],
@@ -69,17 +59,9 @@ def model_data(
         benchmark_value_evolution,
         "benchmark_quantity",
     )
-    # get the latest current state when there are multiple transactions at
-    # level ["date", "stock_ticker"] # noqa: ERA001
-    benchmark_value_evolution = (
-        benchmark_value_evolution.groupby(["date", "stock_ticker"])
-        .first()
-        .sort_values(by=["stock_ticker", "date"], ascending=[True, False])
-        .reset_index()
-    )
-    benchmark_value_evolution["benchmark_value"] = (
-        benchmark_value_evolution["current_quantity"]
-        * benchmark_value_evolution["open_unadjusted_local_currency"]
+    benchmark_value_evolution = _calculate_current_value(
+        benchmark_value_evolution,
+        "benchmark_value",
     )
 
     logger.info("End of modelling.")
@@ -119,3 +101,14 @@ def _calculate_current_quantity(group: pd.DataFrame, quantity_col_name: str) -> 
         axis=1,
     )
     return group
+
+
+def _calculate_current_value(df: pd.DataFrame, current_value_column_name: str) -> pd.DataFrame:
+    return (
+        df.assign(current_value=df["current_quantity"] * df["open_unadjusted_local_currency"])
+        .rename(columns={"current_value": current_value_column_name})
+        .groupby(["date", "stock_ticker"])
+        .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
+        .sort_values(by=["stock_ticker", "date"], ascending=[True, False])
+        .reset_index()
+    )
