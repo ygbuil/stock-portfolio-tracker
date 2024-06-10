@@ -12,7 +12,7 @@ from loguru import logger
 from objetcs import Config, PortfolioData
 
 
-def preprocess() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load all necessary data from user input and yahoo finance API.
 
     :return: All necessary input data for the calculations.
@@ -45,7 +45,7 @@ def preprocess() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     logger.info("End of preprocess.")
 
-    return portfolio_data, stock_prices, benchmarks
+    return config, portfolio_data, stock_prices, benchmarks
 
 
 def _sort_at_end(ticker_column: str, date_column: str) -> Callable:
@@ -124,7 +124,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         transactions=transactions,
         assets_info=assets_info,
         start_date=min(transactions["date"]),
-        end_date=pd.Timestamp.today(),
+        end_date=pd.Timestamp.today().normalize(),
     )
 
 
@@ -239,7 +239,7 @@ def _load_ticker_data(
     try:
         stock = yf.Ticker(ticker)
         stock_price = (
-            stock.history(start=start_date, end=end_date)[["Open", "Stock Splits"]]
+            stock.history(start=start_date)[["Open", "Stock Splits"]]
             .sort_index(ascending=False)
             .reset_index()
             .rename(
@@ -270,7 +270,9 @@ def _load_ticker_data(
     )
 
     # calculate stock splits
-    stock_price["stock_split_cumsum"] = stock_price["stock_split"].replace(0, 1).cumprod()
+    stock_price["stock_split_cumsum"] = (
+        stock_price["stock_split"].replace(0, 1).cumprod().shift(1).fillna(1)
+    )
     stock_price["open_unadjusted_origin_currency"] = (
         stock_price["open_adjusted_origin_currency"] * stock_price["stock_split_cumsum"]
     )

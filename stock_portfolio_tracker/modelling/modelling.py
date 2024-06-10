@@ -12,7 +12,7 @@ def model_data(
     portfolio_data: PortfolioData,
     benchmarks: pd.DataFrame,
     stock_prices: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Calculate all necessary metrics.
 
     :param portfolio_data: All data of user's portfolio.
@@ -23,9 +23,11 @@ def model_data(
     logger.info("Start of modelling.")
 
     logger.info("Modelling portfolio.")
-    stock_portfolio_value_evolution = modelling_portfolio.model_portfolio(
-        portfolio_data,
-        stock_prices,
+    stock_portfolio_value_evolution, stock_portfolio_current_positions = (
+        modelling_portfolio.model_portfolio(
+            portfolio_data,
+            stock_prices,
+        )
     )
 
     logger.info("Modelling benchmark.")
@@ -33,4 +35,8 @@ def model_data(
 
     logger.info("End of modelling.")
 
-    return stock_portfolio_value_evolution, benchmark_value_evolution
+    return (
+        stock_portfolio_value_evolution,
+        stock_portfolio_current_positions,
+        benchmark_value_evolution,
+    )

@@ -30,6 +30,10 @@ To use the Stock Portfolio Tracker, follow these steps:
      - `quantity`: The amount of shares purchased/sold. It can be an integer or float in the format `1234.00`. This field is not sensitive to the sign, the code will convert it to the proper sign based on `transaction_type`.
      - `value`: Total value of the transaction expressed in the portfolio currency specified in `config.json`. It should be in the format `1234.00`. This field is not sensitive to the sign, the code will convert it to the proper sign based on `transaction_type`.
 
+2. Open the project and build the `.devcontainer/Dockerfile` (very easy with VSCode), and run `stock_portfolio_tracker/main.py`.
+
+3. View your portfolio performance in the plots that have been generated in `data/out`
+
 ## Example Files
 
 The project directory already contains example files that you can use as templates for your configuration and transactions:
