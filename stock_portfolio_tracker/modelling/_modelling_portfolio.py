@@ -6,14 +6,14 @@ from . import _utils as utils
 
 def model_portfolio(
     portfolio_data: PortfolioData,
-    stock_prices: pd.DataFrame,
+    asset_prices: pd.DataFrame,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     portfolio_model_grouped = pd.merge(
-        stock_prices,
-        portfolio_data.transactions[["date", "stock_ticker", "quantity", "value"]],
+        asset_prices,
+        portfolio_data.transactions[["date", "asset_ticker", "quantity", "value"]],
         "left",
-        on=["date", "stock_ticker"],
-    ).groupby("stock_ticker")
+        on=["date", "asset_ticker"],
+    ).groupby("asset_ticker")
     portfolio_model = pd.concat(
         [
             utils.calculate_current_quantity(group, "quantity")
@@ -25,28 +25,28 @@ def model_portfolio(
         "current_position_value",
     )
 
-    stock_portfolio_value_evolution = (
+    asset_portfolio_value_evolution = (
         portfolio_model.groupby("date")["current_position_value"]
         .sum()
         .reset_index()
         .rename(columns={"current_position_value": "portfolio_value"})
     )
 
-    stock_portfolio_current_positions = portfolio_model[
+    asset_portfolio_current_positions = portfolio_model[
         portfolio_model["date"] == portfolio_data.end_date
-    ][["date", "stock_ticker", "current_quantity", "current_position_value"]].reset_index(drop=True)
-    stock_portfolio_current_positions = (
-        stock_portfolio_current_positions.assign(
+    ][["date", "asset_ticker", "current_quantity", "current_position_value"]].reset_index(drop=True)
+    asset_portfolio_current_positions = (
+        asset_portfolio_current_positions.assign(
             percent=round(
-                stock_portfolio_current_positions["current_position_value"]
-                / stock_portfolio_current_positions["current_position_value"].sum()
+                asset_portfolio_current_positions["current_position_value"]
+                / asset_portfolio_current_positions["current_position_value"].sum()
                 * 100,
                 2,
             ),
         )
         .assign(
             current_position_value=round(
-                stock_portfolio_current_positions["current_position_value"],
+                asset_portfolio_current_positions["current_position_value"],
                 2,
             ),
         )
@@ -54,4 +54,4 @@ def model_portfolio(
         .reset_index(drop=True)
     )
 
-    return stock_portfolio_value_evolution, stock_portfolio_current_positions
+    return asset_portfolio_value_evolution, asset_portfolio_current_positions

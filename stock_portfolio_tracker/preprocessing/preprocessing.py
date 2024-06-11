@@ -30,13 +30,13 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         config.portfolio_currency,
     )
 
-    stock_prices = _load_portfolio_stocks_historical_prices(
+    asset_prices = _load_portfolio_assets_historical_prices(
         portfolio_data.assets_info.keys(),
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
     )
-    benchmarks = _load_portfolio_stocks_historical_prices(
+    benchmarks = _load_portfolio_assets_historical_prices(
         config.benchmark_tickers,
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -45,7 +45,7 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     logger.info("End of preprocess.")
 
-    return config, portfolio_data, stock_prices, benchmarks
+    return config, portfolio_data, asset_prices, benchmarks
 
 
 def _sort_at_end(ticker_column: str, date_column: str) -> Callable:
@@ -89,7 +89,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         {
             "date": str,
             "transaction_type": str,
-            "stock_ticker": str,
+            "asset_ticker": str,
             "quantity": float,
             "value": float,
         },
@@ -107,13 +107,13 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
     transactions = transactions.drop("transaction_type", axis=1)
 
     transactions = transactions.sort_values(
-        by=["date", "stock_ticker"],
+        by=["date", "asset_ticker"],
         ascending=[False, True],
     ).reset_index(drop=True)
 
     assets_info = {}
 
-    for ticker in sorted(transactions["stock_ticker"].unique()):
+    for ticker in sorted(transactions["asset_ticker"].unique()):
         asset = yf.Ticker(ticker)
         assets_info[ticker] = {
             "name": asset.info.get("shortName"),
@@ -131,10 +131,11 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
 @_sort_at_end("currency_exchange_rate_ticker", "date")
 def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) -> pd.DataFrame:
     currency_exchanges = []
-
-    for origin_currency in {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
+    portfolio_currencies = {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
         local_currency,
-    }:
+    }
+
+    for origin_currency in portfolio_currencies:
         ticker = f"{local_currency}{origin_currency}=X"
         logger.info(f"Loading currency exchange for {ticker}.")
         if origin_currency != local_currency:
@@ -194,41 +195,41 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
     return pd.concat(currency_exchanges)
 
 
-@_sort_at_end("stock_ticker", "date")
-def _load_portfolio_stocks_historical_prices(
+@_sort_at_end("asset_ticker", "date")
+def _load_portfolio_assets_historical_prices(
     tickers: list[str],
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
     currency_exchange: pd.DataFrame,
 ) -> pd.DataFrame:
-    stock_prices = []
+    asset_prices = []
 
     for ticker in tickers:
-        logger.info(f"Loading historical stock prices for {ticker}")
-        stock_price = _load_ticker_data(ticker, start_date, end_date)
-        stock_price["stock_ticker"] = ticker
-        stock_prices.append(stock_price)
+        logger.info(f"Loading historical asset prices for {ticker}")
+        asset_price = _load_ticker_data(ticker, start_date, end_date)
+        asset_price["asset_ticker"] = ticker
+        asset_prices.append(asset_price)
 
-    stock_prices = pd.concat(stock_prices)
+    asset_prices = pd.concat(asset_prices)
 
-    return _convert_price_to_local_currency(stock_prices, currency_exchange)
+    return _convert_price_to_local_currency(asset_prices, currency_exchange)
 
 
 def _convert_price_to_local_currency(
-    stock_prices: pd.DataFrame,
+    asset_prices: pd.DataFrame,
     currency_exchange: pd.DataFrame,
 ) -> pd.DataFrame:
-    stock_prices = pd.merge(
-        stock_prices,
+    asset_prices = pd.merge(
+        asset_prices,
         currency_exchange,
         "left",
         left_on=["date", "origin_currency"],
         right_on=["date", "currency_exchange_rate_ticker"],
     )
-    stock_prices["open_unadjusted_local_currency"] = (
-        stock_prices["open_unadjusted_origin_currency"] / stock_prices["open_currency_rate"]
+    asset_prices["open_unadjusted_local_currency"] = (
+        asset_prices["open_unadjusted_origin_currency"] / asset_prices["open_currency_rate"]
     )
-    return stock_prices[["date", "stock_ticker", "open_unadjusted_local_currency", "stock_split"]]
+    return asset_prices[["date", "asset_ticker", "open_unadjusted_local_currency", "asset_split"]]
 
 
 def _load_ticker_data(
@@ -237,16 +238,16 @@ def _load_ticker_data(
     end_date: pd.Timestamp,
 ) -> pd.DataFrame:
     try:
-        stock = yf.Ticker(ticker)
-        stock_price = (
-            stock.history(start=start_date)[["Open", "Stock Splits"]]
+        asset = yf.Ticker(ticker)
+        asset_price = (
+            asset.history(start=start_date)[["Open", "Stock Splits"]]
             .sort_index(ascending=False)
             .reset_index()
             .rename(
                 columns={
                     "Open": "open_adjusted_origin_currency",
                     "Date": "date",
-                    "Stock Splits": "stock_split",
+                    "Stock Splits": "asset_split",
                 },
             )
         )
@@ -255,31 +256,31 @@ def _load_ticker_data(
             f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}",
         ) from exc
 
-    stock_price["date"] = (
-        stock_price["date"].dt.strftime("%Y-%m-%d").apply(lambda x: pd.Timestamp(x))
+    asset_price["date"] = (
+        asset_price["date"].dt.strftime("%Y-%m-%d").apply(lambda x: pd.Timestamp(x))
     )
 
     # fill missing dates
     full_date_range = pd.DataFrame(
         {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
     )
-    stock_price = pd.merge(full_date_range, stock_price, "left", on="date")
-    stock_price["stock_split"] = stock_price["stock_split"].fillna(0)
-    stock_price["open_adjusted_origin_currency"] = (
-        stock_price["open_adjusted_origin_currency"].bfill().ffill()
+    asset_price = pd.merge(full_date_range, asset_price, "left", on="date")
+    asset_price["asset_split"] = asset_price["asset_split"].fillna(0)
+    asset_price["open_adjusted_origin_currency"] = (
+        asset_price["open_adjusted_origin_currency"].bfill().ffill()
     )
 
-    # calculate stock splits
-    stock_price["stock_split_cumsum"] = (
-        stock_price["stock_split"].replace(0, 1).cumprod().shift(1).fillna(1)
+    # calculate asset splits
+    asset_price["asset_split_cumsum"] = (
+        asset_price["asset_split"].replace(0, 1).cumprod().shift(1).fillna(1)
     )
-    stock_price["open_unadjusted_origin_currency"] = (
-        stock_price["open_adjusted_origin_currency"] * stock_price["stock_split_cumsum"]
+    asset_price["open_unadjusted_origin_currency"] = (
+        asset_price["open_adjusted_origin_currency"] * asset_price["asset_split_cumsum"]
     )
 
     # add currency
-    stock_price["origin_currency"] = stock.info.get("currency")
+    asset_price["origin_currency"] = asset.info.get("currency")
 
-    return stock_price[
-        ["date", "open_unadjusted_origin_currency", "origin_currency", "stock_split"]
+    return asset_price[
+        ["date", "open_unadjusted_origin_currency", "origin_currency", "asset_split"]
     ]

@@ -9,22 +9,22 @@ from loguru import logger
 def main() -> None:
     """Execute the project end to end."""
     logger.info("Start of execution.")
-    config, portfolio_data, stock_prices, benchmarks = preprocessing.preprocess()
+    config, portfolio_data, asset_prices, benchmarks = preprocessing.preprocess()
 
     (
-        stock_portfolio_value_evolution,
-        stock_portfolio_current_positions,
+        asset_portfolio_value_evolution,
+        asset_portfolio_current_positions,
         benchmark_value_evolution,
     ) = modelling.model_data(
         portfolio_data,
         benchmarks,
-        stock_prices,
+        asset_prices,
     )
 
     reporting.generate_reports(
         config,
-        stock_portfolio_value_evolution,
-        stock_portfolio_current_positions,
+        asset_portfolio_value_evolution,
+        asset_portfolio_current_positions,
         benchmark_value_evolution,
     )
 

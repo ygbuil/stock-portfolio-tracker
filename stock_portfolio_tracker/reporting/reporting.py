@@ -10,37 +10,39 @@ from objetcs import Config
 
 def generate_reports(
     config: Config,
-    stock_portfolio_value_evolution: pd.DataFrame,
-    stock_portfolio_current_positions: pd.DataFrame,
+    asset_portfolio_value_evolution: pd.DataFrame,
+    asset_portfolio_current_positions: pd.DataFrame,
     benchmark_value_evolution: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
-    :param stock_portfolio_value_evolution: Stock portfolio hisorical price.
+    :param asset_portfolio_value_evolution: Stock portfolio hisorical price.
     :param benchmark_value_evolution: Benchmark hisorical price.
     """
     logger.info("Start of generate reports.")
 
     logger.info("Generating portfolio value evolution.")
     _generate_portfolio_value_evolution_plot(
-        stock_portfolio_value_evolution,
+        config,
+        asset_portfolio_value_evolution,
         benchmark_value_evolution,
     )
 
     logger.info("Generating portfolio current positions.")
-    _generate_portfolio_current_positions_plot(config, stock_portfolio_current_positions)
+    _generate_portfolio_current_positions_plot(config, asset_portfolio_current_positions)
 
     logger.info("End of generate reports.")
 
 
 def _generate_portfolio_value_evolution_plot(
-    stock_portfolio_value_evolution: pd.DataFrame,
+    config: Config,
+    asset_portfolio_value_evolution: pd.DataFrame,
     benchmark_value_evolution: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
-        stock_portfolio_value_evolution["date"],
-        stock_portfolio_value_evolution["portfolio_value"],
+        asset_portfolio_value_evolution["date"],
+        asset_portfolio_value_evolution["portfolio_value"],
         linestyle="-",
         color="blue",
         label="Portfolio value",
@@ -52,8 +54,8 @@ def _generate_portfolio_value_evolution_plot(
         color="orange",
         label="Benchmark value",
     )
-    plt.xlabel("Date")
-    plt.ylabel("Value")
+    plt.xlabel("Date (YYYY-MM)")
+    plt.ylabel(f"Value ({config.portfolio_currency})")
     plt.title("Value Over Time")
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
@@ -65,12 +67,12 @@ def _generate_portfolio_value_evolution_plot(
 
 def _generate_portfolio_current_positions_plot(
     config: Config,
-    stock_portfolio_current_positions: pd.DataFrame,
+    asset_portfolio_current_positions: pd.DataFrame,
 ) -> None:
-    stock_portfolio_current_positions = stock_portfolio_current_positions.dropna()
+    asset_portfolio_current_positions = asset_portfolio_current_positions.dropna()
     _, ax = plt.subplots(figsize=(10, 8))
-    sizes = stock_portfolio_current_positions["current_position_value"]
-    tickers = stock_portfolio_current_positions["stock_ticker"]
+    sizes = asset_portfolio_current_positions["current_position_value"]
+    tickers = asset_portfolio_current_positions["asset_ticker"]
 
     wedges, _, _ = ax.pie(
         sizes,
@@ -78,13 +80,13 @@ def _generate_portfolio_current_positions_plot(
         startangle=90,
         colors=plt.cm.Paired(range(len(tickers))),
         counterclock=False,
-        autopct=lambda pct: f"{pct:.1f}%\n{round(pct/100 * sum(stock_portfolio_current_positions['current_position_value']) / 1000, 1)}k",  # noqa: E501
+        autopct=lambda pct: f"{pct:.1f}%\n{round(pct/100 * sum(asset_portfolio_current_positions['current_position_value']) / 1000, 1)}k",  # noqa: E501
         wedgeprops={"width": 0.3},
     )
 
     legend_tickers = []
-    for _, row in stock_portfolio_current_positions[
-        ["stock_ticker", "current_position_value", "percent", "current_quantity"]
+    for _, row in asset_portfolio_current_positions[
+        ["asset_ticker", "current_position_value", "percent", "current_quantity"]
     ].iterrows():
         ticker, current_position_value, percent, current_quantity = list(row)
 
@@ -93,7 +95,7 @@ def _generate_portfolio_current_positions_plot(
         )
 
     ax.legend(wedges, legend_tickers, loc="center left", bbox_to_anchor=(-0.6, 0.5))
-    ax.set(aspect="equal", title="Stock Portfolio Distribution")
+    ax.set(aspect="equal", title="Portfolio Distribution")
 
     plt.savefig(
         Path("/workspaces/Stock-Portfolio-Tracker/data/out/portfolio_current_positions.png"),
