@@ -83,29 +83,36 @@ def _load_config(config_file_name: str) -> Config:
 
 def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
     logger.info("Loading portfolio data.")
-    transactions = pd.read_csv(
-        Path(f"/workspaces/Stock-Portfolio-Tracker/data/in/{transactions_file_name}"),
-    ).astype(
-        {
-            "date": str,
-            "transaction_type": str,
-            "asset_ticker": str,
-            "quantity": float,
-            "value": float,
-        },
-    )
-
-    transactions = transactions.assign(date=pd.to_datetime(transactions["date"], dayfirst=True))
-    transactions["value"] = transactions.apply(
-        lambda x: abs(x["value"]) if x["transaction_type"] == "Sale" else -abs(x["value"]),
-        axis=1,
-    )
-    transactions["quantity"] = transactions.apply(
-        lambda x: -abs(x["quantity"]) if x["transaction_type"] == "Sale" else abs(x["quantity"]),
-        axis=1,
-    )
     transactions = (
-        transactions.drop("transaction_type", axis=1)
+        pd.read_csv(
+            Path(f"/workspaces/Stock-Portfolio-Tracker/data/in/{transactions_file_name}"),
+        )
+        .astype(
+            {
+                "date": str,
+                "transaction_type": str,
+                "asset_ticker": str,
+                "quantity": float,
+                "value": float,
+            },
+        )
+        .assign(
+            date=lambda df: df.apply(
+                lambda x: pd.to_datetime(x["date"], dayfirst=True),
+                axis=1,
+            ),
+            value=lambda df: df.apply(
+                lambda x: abs(x["value"]) if x["transaction_type"] == "Sale" else -abs(x["value"]),
+                axis=1,
+            ),
+            quantity=lambda df: df.apply(
+                lambda x: -abs(x["quantity"])
+                if x["transaction_type"] == "Sale"
+                else abs(x["quantity"]),
+                axis=1,
+            ),
+        )
+        .drop("transaction_type", axis=1)
         .sort_values(
             by=["date", "asset_ticker"],
             ascending=[False, True],

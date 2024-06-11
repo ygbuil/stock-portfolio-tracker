@@ -43,8 +43,6 @@ def model_portfolio(
                 * 100,
                 2,
             ),
-        )
-        .assign(
             current_position_value=round(
                 asset_portfolio_current_positions["current_position_value"],
                 2,
