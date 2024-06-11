@@ -97,10 +97,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
             },
         )
         .assign(
-            date=lambda df: df.apply(
-                lambda x: pd.to_datetime(x["date"], dayfirst=True),
-                axis=1,
-            ),
+            date=lambda df: pd.to_datetime(df["date"], dayfirst=True),
             value=lambda df: df.apply(
                 lambda x: abs(x["value"]) if x["transaction_type"] == "Sale" else -abs(x["value"]),
                 axis=1,
@@ -180,9 +177,8 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
                 currency_exchange,
                 "left",
                 on="date",
-            )
-            currency_exchange = currency_exchange.assign(
-                open_currency_rate=currency_exchange["open_currency_rate"].bfill().ffill(),
+            ).assign(
+                open_currency_rate=lambda df: df["open_currency_rate"].bfill().ffill(),
             )
         else:
             currency_exchange = full_date_range.assign(open_currency_rate=1)
@@ -205,7 +201,6 @@ def _load_portfolio_assets_historical_prices(
     for ticker in tickers:
         logger.info(f"Loading historical asset prices for {ticker}")
         asset_price = _load_ticker_data(ticker, start_date, end_date)
-        asset_price["asset_ticker"] = ticker
         asset_prices.append(asset_price)
 
     asset_prices = pd.concat(asset_prices)
@@ -255,27 +250,33 @@ def _load_ticker_data(
             f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}",
         ) from exc
 
-    # fill missing dates
-    full_date_range = pd.DataFrame(
-        {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
+    asset_price = pd.merge(
+        pd.DataFrame(
+            {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
+        ),
+        asset_price,
+        "left",
+        on="date",
+    ).assign(
+        asset_split=lambda df: df["asset_split"].fillna(0),
+        open_adjusted_origin_currency=lambda df: df["open_adjusted_origin_currency"]
+        .bfill()
+        .ffill(),
+        asset_split_cumsum=lambda df: df["asset_split"].replace(0, 1).cumprod().shift(1).fillna(1),
+        open_unadjusted_origin_currency=lambda df: df.apply(
+            lambda x: x["open_adjusted_origin_currency"] * x["asset_split_cumsum"],
+            axis=1,
+        ),
+        origin_currency=asset.info.get("currency"),
+        asset_ticker=ticker,
     )
-    asset_price = pd.merge(full_date_range, asset_price, "left", on="date")
-    asset_price["asset_split"] = asset_price["asset_split"].fillna(0)
-    asset_price["open_adjusted_origin_currency"] = (
-        asset_price["open_adjusted_origin_currency"].bfill().ffill()
-    )
-
-    # calculate asset splits
-    asset_price["asset_split_cumsum"] = (
-        asset_price["asset_split"].replace(0, 1).cumprod().shift(1).fillna(1)
-    )
-    asset_price["open_unadjusted_origin_currency"] = (
-        asset_price["open_adjusted_origin_currency"] * asset_price["asset_split_cumsum"]
-    )
-
-    # add currency
-    asset_price["origin_currency"] = asset.info.get("currency")
 
     return asset_price[
-        ["date", "open_unadjusted_origin_currency", "origin_currency", "asset_split"]
+        [
+            "date",
+            "open_unadjusted_origin_currency",
+            "origin_currency",
+            "asset_split",
+            "asset_ticker",
+        ]
     ]
