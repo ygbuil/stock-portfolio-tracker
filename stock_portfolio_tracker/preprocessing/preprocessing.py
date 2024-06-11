@@ -95,7 +95,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         },
     )
 
-    transactions["date"] = pd.to_datetime(transactions["date"], dayfirst=True)
+    transactions = transactions.assign(date=pd.to_datetime(transactions["date"], dayfirst=True))
     transactions["value"] = transactions.apply(
         lambda x: abs(x["value"]) if x["transaction_type"] == "Sale" else -abs(x["value"]),
         axis=1,
@@ -104,12 +104,14 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         lambda x: -abs(x["quantity"]) if x["transaction_type"] == "Sale" else abs(x["quantity"]),
         axis=1,
     )
-    transactions = transactions.drop("transaction_type", axis=1)
-
-    transactions = transactions.sort_values(
-        by=["date", "asset_ticker"],
-        ascending=[False, True],
-    ).reset_index(drop=True)
+    transactions = (
+        transactions.drop("transaction_type", axis=1)
+        .sort_values(
+            by=["date", "asset_ticker"],
+            ascending=[False, True],
+        )
+        .reset_index(drop=True)
+    )
 
     assets_info = {}
 
@@ -134,10 +136,22 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
     portfolio_currencies = {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
         local_currency,
     }
+    full_date_range = pd.DataFrame(
+        {
+            "date": reversed(
+                pd.date_range(
+                    start=portfolio_data.start_date,
+                    end=portfolio_data.end_date,
+                    freq="D",
+                ),
+            ),
+        },
+    )
 
     for origin_currency in portfolio_currencies:
         ticker = f"{local_currency}{origin_currency}=X"
         logger.info(f"Loading currency exchange for {ticker}.")
+
         if origin_currency != local_currency:
             try:
                 currency_exchange = (
@@ -146,6 +160,7 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
                     .sort_index(ascending=False)
                     .reset_index()
                     .rename(columns={"Open": "open_currency_rate", "Date": "date"})
+                    .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
                 )
             except Exception as exc:
                 raise Exception(
@@ -153,41 +168,17 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
                     ticker {ticker}: {exc}""",
                 ) from exc
 
-            currency_exchange["date"] = (
-                currency_exchange["date"].dt.strftime("%Y-%m-%d").apply(lambda x: pd.Timestamp(x))
-            )
-            full_date_range = pd.DataFrame(
-                {
-                    "date": reversed(
-                        pd.date_range(
-                            start=portfolio_data.start_date,
-                            end=portfolio_data.end_date,
-                            freq="D",
-                        ),
-                    ),
-                },
-            )
             currency_exchange = pd.merge(
                 full_date_range,
                 currency_exchange,
                 "left",
                 on="date",
             )
-            currency_exchange["open_currency_rate"] = (
-                currency_exchange["open_currency_rate"].bfill().ffill()
+            currency_exchange = currency_exchange.assign(
+                open_currency_rate=currency_exchange["open_currency_rate"].bfill().ffill(),
             )
         else:
-            currency_exchange = pd.DataFrame(
-                {
-                    "date": reversed(
-                        pd.date_range(
-                            start=portfolio_data.start_date,
-                            end=portfolio_data.end_date,
-                        ),
-                    ),
-                    "open_currency_rate": 1,
-                },
-            )
+            currency_exchange = full_date_range.assign(open_currency_rate=1)
 
         currency_exchange["currency_exchange_rate_ticker"] = origin_currency
         currency_exchanges.append(currency_exchange)
@@ -250,15 +241,12 @@ def _load_ticker_data(
                     "Stock Splits": "asset_split",
                 },
             )
+            .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
         )
     except Exception as exc:
         raise Exception(
             f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}",
         ) from exc
-
-    asset_price["date"] = (
-        asset_price["date"].dt.strftime("%Y-%m-%d").apply(lambda x: pd.Timestamp(x))
-    )
 
     # fill missing dates
     full_date_range = pd.DataFrame(
