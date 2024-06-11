@@ -14,12 +14,14 @@ def model_portfolio(
         "left",
         on=["date", "asset_ticker"],
     ).groupby("asset_ticker")
+
     portfolio_model = pd.concat(
         [
             utils.calculate_current_quantity(group, "quantity")
             for _, group in portfolio_model_grouped
         ],
     )
+
     portfolio_model = utils.calculate_current_value(
         portfolio_model,
         "current_position_value",
@@ -30,6 +32,7 @@ def model_portfolio(
         .sum()
         .reset_index()
         .rename(columns={"current_position_value": "portfolio_value"})
+        .assign(portfolio_value=lambda df: round(df["portfolio_value"], 2))
     )
 
     asset_portfolio_current_positions = portfolio_model[
@@ -52,11 +55,11 @@ def model_portfolio(
         .reset_index(drop=True)
     )
 
-    return utils.sort_by_ticker_date(
+    return utils.sort_by_columns(
         asset_portfolio_value_evolution,
         ["date"],
         [False],
-    ), utils.sort_by_ticker_date(
+    ), utils.sort_by_columns(
         asset_portfolio_current_positions,
         ["current_position_value"],
         [False],

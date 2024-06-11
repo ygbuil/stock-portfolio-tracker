@@ -47,7 +47,7 @@ def calculate_current_value(df: pd.DataFrame, current_value_column_name: str) ->
     )
 
 
-def sort_by_ticker_date(
+def sort_by_columns(
     df: pd.DataFrame,
     columns: list[str],
     ascending: list[bool],

@@ -23,9 +23,9 @@ def model_benchmarks(portfolio_data: PortfolioData, benchmarks: pd.DataFrame) ->
     benchmark_value_evolution = utils.calculate_current_value(
         benchmark_value_evolution,
         "benchmark_value",
-    )
+    ).assign(benchmark_value=lambda df: round(df["benchmark_value"], 2))
 
-    return utils.sort_by_ticker_date(
+    return utils.sort_by_columns(
         benchmark_value_evolution,
         ["asset_ticker", "date"],
         [True, False],
