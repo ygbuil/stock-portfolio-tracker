@@ -45,14 +45,14 @@ def _generate_portfolio_value_evolution_plot(
         asset_portfolio_value_evolution["portfolio_value"],
         linestyle="-",
         color="blue",
-        label="Portfolio value",
+        label=f"Portfolio value. Current: {asset_portfolio_value_evolution['portfolio_value'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.plot(
         benchmark_value_evolution["date"],
         benchmark_value_evolution["benchmark_value"],
         linestyle="-",
         color="orange",
-        label="Benchmark value",
+        label=f"Benchmark value. Current: {benchmark_value_evolution['benchmark_value'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")

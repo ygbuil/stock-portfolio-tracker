@@ -45,3 +45,14 @@ def calculate_current_value(df: pd.DataFrame, current_value_column_name: str) ->
         .sort_values(by=["asset_ticker", "date"], ascending=[True, False])
         .reset_index()
     )
+
+
+def sort_by_ticker_date(
+    df: pd.DataFrame,
+    columns: list[str],
+    ascending: list[bool],
+) -> pd.DataFrame:
+    return df.sort_values(
+        by=columns,
+        ascending=ascending,
+    ).reset_index(drop=True)

@@ -52,4 +52,12 @@ def model_portfolio(
         .reset_index(drop=True)
     )
 
-    return asset_portfolio_value_evolution, asset_portfolio_current_positions
+    return utils.sort_by_ticker_date(
+        asset_portfolio_value_evolution,
+        ["date"],
+        [False],
+    ), utils.sort_by_ticker_date(
+        asset_portfolio_current_positions,
+        ["current_position_value"],
+        [False],
+    )
