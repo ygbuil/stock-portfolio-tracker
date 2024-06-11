@@ -30,13 +30,13 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         config.portfolio_currency,
     )
 
-    asset_prices = _load_portfolio_assets_historical_prices(
+    asset_prices = _load_assets_prices(
         portfolio_data.assets_info.keys(),
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
     )
-    benchmarks = _load_portfolio_assets_historical_prices(
+    benchmarks = _load_assets_prices(
         config.benchmark_tickers,
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -190,7 +190,7 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
 
 
 @_sort_at_end("asset_ticker", "date")
-def _load_portfolio_assets_historical_prices(
+def _load_assets_prices(
     tickers: list[str],
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
@@ -203,26 +203,19 @@ def _load_portfolio_assets_historical_prices(
         asset_price = _load_ticker_data(ticker, start_date, end_date)
         asset_prices.append(asset_price)
 
-    asset_prices = pd.concat(asset_prices)
-
-    return _convert_price_to_local_currency(asset_prices, currency_exchange)
-
-
-def _convert_price_to_local_currency(
-    asset_prices: pd.DataFrame,
-    currency_exchange: pd.DataFrame,
-) -> pd.DataFrame:
-    asset_prices = pd.merge(
-        asset_prices,
+    # convert to local currency
+    return pd.merge(
+        pd.concat(asset_prices),
         currency_exchange,
         "left",
         left_on=["date", "origin_currency"],
         right_on=["date", "currency_exchange_rate_ticker"],
-    )
-    asset_prices["open_unadjusted_local_currency"] = (
-        asset_prices["open_unadjusted_origin_currency"] / asset_prices["open_currency_rate"]
-    )
-    return asset_prices[["date", "asset_ticker", "open_unadjusted_local_currency", "asset_split"]]
+    ).assign(
+        open_unadjusted_local_currency=lambda df: df.apply(
+            lambda x: x["open_unadjusted_origin_currency"] / x["open_currency_rate"],
+            axis=1,
+        ),
+    )[["date", "asset_ticker", "open_unadjusted_local_currency", "asset_split"]]
 
 
 def _load_ticker_data(
@@ -250,33 +243,32 @@ def _load_ticker_data(
             f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}",
         ) from exc
 
-    asset_price = pd.merge(
-        pd.DataFrame(
-            {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
-        ),
-        asset_price,
-        "left",
-        on="date",
-    ).assign(
-        asset_split=lambda df: df["asset_split"].fillna(0),
-        open_adjusted_origin_currency=lambda df: df["open_adjusted_origin_currency"]
-        .bfill()
-        .ffill(),
-        asset_split_cumsum=lambda df: df["asset_split"].replace(0, 1).cumprod().shift(1).fillna(1),
-        open_unadjusted_origin_currency=lambda df: df.apply(
-            lambda x: x["open_adjusted_origin_currency"] * x["asset_split_cumsum"],
-            axis=1,
-        ),
-        origin_currency=asset.info.get("currency"),
-        asset_ticker=ticker,
+    # calculate unadjusted stock price
+    return (
+        pd.merge(
+            pd.DataFrame(
+                {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
+            ),
+            asset_price,
+            "left",
+            on="date",
+        )
+        .assign(
+            asset_split=lambda df: df["asset_split"].fillna(0),
+            open_adjusted_origin_currency=lambda df: df["open_adjusted_origin_currency"]
+            .bfill()
+            .ffill(),
+            asset_split_cumsum=lambda df: df["asset_split"]
+            .replace(0, 1)
+            .cumprod()
+            .shift(1)
+            .fillna(1),
+            open_unadjusted_origin_currency=lambda df: df.apply(
+                lambda x: x["open_adjusted_origin_currency"] * x["asset_split_cumsum"],
+                axis=1,
+            ),
+            origin_currency=asset.info.get("currency"),
+            asset_ticker=ticker,
+        )
+        .drop(["open_adjusted_origin_currency", "asset_split_cumsum"], axis=1)
     )
-
-    return asset_price[
-        [
-            "date",
-            "open_unadjusted_origin_currency",
-            "origin_currency",
-            "asset_split",
-            "asset_ticker",
-        ]
-    ]
