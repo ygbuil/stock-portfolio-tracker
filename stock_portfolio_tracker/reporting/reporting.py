@@ -11,6 +11,7 @@ from objetcs import Config
 def generate_reports(
     config: Config,
     asset_portfolio_value_evolution: pd.DataFrame,
+    asset_portfolio_percent_evolution: pd.DataFrame,
     asset_portfolio_current_positions: pd.DataFrame,
     benchmark_value_evolution: pd.DataFrame,
 ) -> None:
@@ -26,6 +27,10 @@ def generate_reports(
         config,
         asset_portfolio_value_evolution,
         benchmark_value_evolution,
+    )
+
+    _generate_portfolio_percent_evolution_plot(
+        asset_portfolio_percent_evolution,
     )
 
     logger.info("Generating portfolio current positions.")
@@ -100,5 +105,29 @@ def _generate_portfolio_current_positions_plot(
     plt.savefig(
         Path("/workspaces/Stock-Portfolio-Tracker/data/out/portfolio_current_positions.png"),
         bbox_inches="tight",
+    )
+    plt.close()
+
+
+def _generate_portfolio_percent_evolution_plot(
+    asset_portfolio_percent_evolution: pd.DataFrame,
+) -> None:
+    plt.figure(figsize=(10, 6))
+    plt.plot(
+        asset_portfolio_percent_evolution["date"],
+        asset_portfolio_percent_evolution["current_percent_gain"],
+        linestyle="-",
+        color="blue",
+        label=f"Percentage gain. Current: {asset_portfolio_percent_evolution['current_percent_gain'].iloc[0]} %",  # noqa: E501
+    )
+    plt.xlabel("Date (YYYY-MM)")
+    plt.ylabel("Percentage gain (%)")
+    plt.title("Value Over Time")
+    plt.grid(True)  # noqa: FBT003
+    plt.xticks(rotation=45)
+    plt.legend(loc="best")
+    plt.tight_layout()
+    plt.savefig(
+        Path("/workspaces/Stock-Portfolio-Tracker/data/out/portfolio_percent_evolution.png"),
     )
     plt.close()

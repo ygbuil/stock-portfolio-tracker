@@ -35,6 +35,16 @@ def model_portfolio(
         .assign(portfolio_value=lambda df: round(df["portfolio_value"], 2))
     )
 
+    asset_portfolio_percent_evolution = pd.merge(
+        asset_portfolio_value_evolution,
+        portfolio_data.transactions,
+        "left",
+        on=["date"],
+    )
+    asset_portfolio_percent_evolution = calculate_current_percent_gain(
+        asset_portfolio_percent_evolution,
+    )
+
     asset_portfolio_current_positions = portfolio_model[
         portfolio_model["date"] == portfolio_data.end_date
     ][["date", "asset_ticker", "current_quantity", "current_position_value"]].reset_index(drop=True)
@@ -55,12 +65,57 @@ def model_portfolio(
         .reset_index(drop=True)
     )
 
-    return utils.sort_by_columns(
-        asset_portfolio_value_evolution,
-        ["date"],
-        [False],
-    ), utils.sort_by_columns(
-        asset_portfolio_current_positions,
-        ["current_position_value"],
-        [False],
+    return (
+        utils.sort_by_columns(
+            asset_portfolio_value_evolution,
+            ["date"],
+            [False],
+        ),
+        utils.sort_by_columns(
+            asset_portfolio_percent_evolution,
+            ["date"],
+            [False],
+        ),
+        utils.sort_by_columns(
+            asset_portfolio_current_positions,
+            ["current_position_value"],
+            [False],
+        ),
     )
+
+
+def calculate_current_percent_gain(df: pd.DataFrame) -> pd.DataFrame:
+    df = utils.sort_by_columns(
+        df,
+        ["date"],
+        [True],
+    )
+
+    for date in df["date"]:
+        df.loc[df["date"] == date, "money_out"] = sum(
+            df[(df["date"] < date) & (df["value"] < 0)]["value"],
+        )
+        if len(df[df["date"] == date - pd.Timedelta(days=1)]["portfolio_value"]) > 0:
+            latest_portfolio_value = df[df["date"] == date - pd.Timedelta(days=1)][
+                "portfolio_value"
+            ].iloc[0]
+        else:
+            latest_portfolio_value = 0
+        df.loc[df["date"] == date, "money_in"] = (
+            sum(df[(df["date"] < date) & (df["value"] > 0)]["value"]) + latest_portfolio_value
+        )
+
+    return (
+        df.assign(
+            current_gain=lambda df: df["money_out"] + df["money_in"],
+            current_percent_gain=lambda df: df.apply(
+                lambda x: round((abs(x["money_in"] / x["money_out"]) - 1) * 100, 2)
+                if x["money_out"] != 0
+                else 0,
+                axis=1,
+            ),
+        )
+        .groupby("date")
+        .last()
+        .reset_index()
+    )[["date", "current_gain", "current_percent_gain"]]

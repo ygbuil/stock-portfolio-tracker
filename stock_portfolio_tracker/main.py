@@ -13,6 +13,7 @@ def main() -> None:
 
     (
         asset_portfolio_value_evolution,
+        asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
         benchmark_value_evolution,
     ) = modelling.model_data(
@@ -24,6 +25,7 @@ def main() -> None:
     reporting.generate_reports(
         config,
         asset_portfolio_value_evolution,
+        asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
         benchmark_value_evolution,
     )
