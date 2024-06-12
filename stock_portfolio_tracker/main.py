@@ -16,6 +16,7 @@ def main() -> None:
         asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
         benchmark_value_evolution,
+        benchmark_percent_evolution,
     ) = modelling.model_data(
         portfolio_data,
         benchmarks,
@@ -28,6 +29,7 @@ def main() -> None:
         asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
         benchmark_value_evolution,
+        benchmark_percent_evolution,
     )
 
     logger.info("End of execution.")

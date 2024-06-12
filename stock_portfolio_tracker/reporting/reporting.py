@@ -14,6 +14,7 @@ def generate_reports(
     asset_portfolio_percent_evolution: pd.DataFrame,
     asset_portfolio_current_positions: pd.DataFrame,
     benchmark_value_evolution: pd.DataFrame,
+    benchmark_percent_evolution: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
@@ -31,6 +32,7 @@ def generate_reports(
 
     _generate_portfolio_percent_evolution_plot(
         asset_portfolio_percent_evolution,
+        benchmark_percent_evolution,
     )
 
     logger.info("Generating portfolio current positions.")
@@ -111,6 +113,7 @@ def _generate_portfolio_current_positions_plot(
 
 def _generate_portfolio_percent_evolution_plot(
     asset_portfolio_percent_evolution: pd.DataFrame,
+    benchmark_percent_evolution: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -119,6 +122,13 @@ def _generate_portfolio_percent_evolution_plot(
         linestyle="-",
         color="blue",
         label=f"Percentage gain. Current: {asset_portfolio_percent_evolution['current_percent_gain'].iloc[0]} %",  # noqa: E501
+    )
+    plt.plot(
+        benchmark_percent_evolution["date"],
+        benchmark_percent_evolution["current_percent_gain"],
+        linestyle="-",
+        color="orange",
+        label=f"Benchmark value. Current: {benchmark_percent_evolution['current_percent_gain'].iloc[0]} %",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel("Percentage gain (%)")

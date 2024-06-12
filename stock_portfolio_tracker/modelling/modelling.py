@@ -33,7 +33,10 @@ def model_data(
     )
 
     logger.info("Modelling benchmark.")
-    benchmark_value_evolution = modelling_benchmark.model_benchmarks(portfolio_data, benchmarks)
+    benchmark_value_evolution, benchmark_percent_evolution = modelling_benchmark.model_benchmarks(
+        portfolio_data,
+        benchmarks,
+    )
 
     logger.info("End of modelling.")
 
@@ -42,4 +45,5 @@ def model_data(
         asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
         benchmark_value_evolution,
+        benchmark_percent_evolution,
     )
