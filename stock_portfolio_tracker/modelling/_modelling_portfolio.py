@@ -10,7 +10,7 @@ def model_portfolio(
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     portfolio_model_grouped = pd.merge(
         asset_prices,
-        portfolio_data.transactions[["date", "asset_ticker", "quantity", "value"]],
+        portfolio_data.transactions,
         "left",
         on=["date", "asset_ticker"],
     ).groupby("asset_ticker")

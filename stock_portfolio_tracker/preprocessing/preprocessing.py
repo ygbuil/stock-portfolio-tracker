@@ -130,7 +130,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         transactions=transactions,
         assets_info=assets_info,
         start_date=min(transactions["date"]),
-        end_date=pd.Timestamp.today().normalize(),
+        end_date=pd.Timestamp.today().normalize() - pd.Timedelta(days=1),
     )
 
 
@@ -160,10 +160,12 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
             try:
                 currency_exchange = (
                     yf.Ticker(ticker)
-                    .history(start=portfolio_data.start_date, end=portfolio_data.end_date)[["Open"]]
+                    .history(start=portfolio_data.start_date, end=portfolio_data.end_date)[
+                        ["Close"]
+                    ]
                     .sort_index(ascending=False)
                     .reset_index()
-                    .rename(columns={"Open": "open_currency_rate", "Date": "date"})
+                    .rename(columns={"Close": "close_currency_rate", "Date": "date"})
                     .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
                 )
             except Exception as exc:
@@ -178,10 +180,10 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
                 "left",
                 on="date",
             ).assign(
-                open_currency_rate=lambda df: df["open_currency_rate"].bfill().ffill(),
+                close_currency_rate=lambda df: df["close_currency_rate"].bfill().ffill(),
             )
         else:
-            currency_exchange = full_date_range.assign(open_currency_rate=1)
+            currency_exchange = full_date_range.assign(close_currency_rate=1)
 
         currency_exchange["currency_exchange_rate_ticker"] = origin_currency
         currency_exchanges.append(currency_exchange)
@@ -211,11 +213,11 @@ def _load_assets_prices(
         left_on=["date", "origin_currency"],
         right_on=["date", "currency_exchange_rate_ticker"],
     ).assign(
-        open_unadjusted_local_currency=lambda df: df.apply(
-            lambda x: x["open_unadjusted_origin_currency"] / x["open_currency_rate"],
+        close_unadjusted_local_currency=lambda df: df.apply(
+            lambda x: x["close_unadjusted_origin_currency"] / x["close_currency_rate"],
             axis=1,
         ),
-    )[["date", "asset_ticker", "open_unadjusted_local_currency", "asset_split"]]
+    )[["date", "asset_ticker", "close_unadjusted_local_currency", "asset_split"]]
 
 
 def _load_ticker_data(
@@ -226,12 +228,12 @@ def _load_ticker_data(
     try:
         asset = yf.Ticker(ticker)
         asset_price = (
-            asset.history(start=start_date)[["Open", "Stock Splits"]]
+            asset.history(start=start_date, end=end_date)[["Close", "Stock Splits"]]
             .sort_index(ascending=False)
             .reset_index()
             .rename(
                 columns={
-                    "Open": "open_adjusted_origin_currency",
+                    "Close": "close_adjusted_origin_currency",
                     "Date": "date",
                     "Stock Splits": "asset_split",
                 },
@@ -244,6 +246,10 @@ def _load_ticker_data(
         ) from exc
 
     # calculate unadjusted stock price
+    # NOTE: yahoo finance reports the split the day that the split already takes place:
+    # Example: NVDA traded at (aprox) 1000/share at 2024-06-09, and at 2024-06-10 at
+    # market open it was trading at 100/share due to the split. Yhaoo reported a 10
+    # stock_split for at date 2024-06-10.
     return (
         pd.merge(
             pd.DataFrame(
@@ -252,10 +258,9 @@ def _load_ticker_data(
             asset_price,
             "left",
             on="date",
-        )
-        .assign(
+        ).assign(
             asset_split=lambda df: df["asset_split"].fillna(0),
-            open_adjusted_origin_currency=lambda df: df["open_adjusted_origin_currency"]
+            close_adjusted_origin_currency=lambda df: df["close_adjusted_origin_currency"]
             .bfill()
             .ffill(),
             asset_split_cumsum=lambda df: df["asset_split"]
@@ -263,12 +268,19 @@ def _load_ticker_data(
             .cumprod()
             .shift(1)
             .fillna(1),
-            open_unadjusted_origin_currency=lambda df: df.apply(
-                lambda x: x["open_adjusted_origin_currency"] * x["asset_split_cumsum"],
+            close_unadjusted_origin_currency=lambda df: df.apply(
+                lambda x: x["close_adjusted_origin_currency"] * x["asset_split_cumsum"],
                 axis=1,
             ),
             origin_currency=asset.info.get("currency"),
             asset_ticker=ticker,
         )
-        .drop(["open_adjusted_origin_currency", "asset_split_cumsum"], axis=1)
-    )
+    )[
+        [
+            "date",
+            "asset_ticker",
+            "close_unadjusted_origin_currency",
+            "origin_currency",
+            "asset_split",
+        ]
+    ]

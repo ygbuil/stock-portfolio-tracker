@@ -12,7 +12,7 @@ def model_benchmarks(portfolio_data: PortfolioData, benchmarks: pd.DataFrame) ->
         on=["date"],
     ).assign(
         benchmark_quantity=lambda df: df.apply(
-            lambda x: -x["value"] / x["open_unadjusted_local_currency"],
+            lambda x: -x["value"] / x["close_unadjusted_local_currency"],
             axis=1,
         ),
     )

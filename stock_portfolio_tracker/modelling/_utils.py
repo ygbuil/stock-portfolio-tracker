@@ -3,32 +3,31 @@ import pandas as pd
 
 
 def calculate_current_quantity(group: pd.DataFrame, quantity_col_name: str) -> pd.DataFrame:
-    group["current_quantity"] = np.nan  # Initialize the new column
+    group = group.sort_values(["date"], ascending=False).reset_index(drop=True)
+    group["current_quantity"] = np.nan
     iterator = list(reversed(group.index))
 
+    group[quantity_col_name] = group[quantity_col_name].replace(np.nan, 0)
+    group["asset_split"] = group["asset_split"].replace(0, 1)
+
+    # iterate from older to newer date
     for i in iterator:
+        # if first day
         if i == iterator[0]:
             if np.isnan(group.loc[i, quantity_col_name]):
                 group.loc[i, "current_quantity"] = 0
             else:
                 group.loc[i, "current_quantity"] = group.loc[i, quantity_col_name]
-        elif np.isnan(group.loc[i, quantity_col_name]) and group.loc[i, "asset_split"] == 0:
-            group.loc[i, "current_quantity"] = group.loc[i + 1, "current_quantity"]
-        elif not np.isnan(group.loc[i, quantity_col_name]) and group.loc[i, "asset_split"] == 0:
-            group.loc[i, "current_quantity"] = (
-                group.loc[i + 1, "current_quantity"] + group.loc[i, quantity_col_name]
-            )
-        elif np.isnan(group.loc[i, quantity_col_name]) and group.loc[i, "asset_split"] != 0:
-            group.loc[i, "current_quantity"] = (
-                group.loc[i + 1, "current_quantity"] * group.loc[i, "asset_split"]
-            )
-        elif not np.isnan(group.loc[i, quantity_col_name]) and group.loc[i, "asset_split"] != 0:
-            group.loc[i, "current_quantity"] = (
-                group.loc[i + 1, "current_quantity"] * group.loc[i, "asset_split"]
-                + group.loc[i, quantity_col_name]
-            )
         else:
-            raise NotImplementedError("Scenario not taken into account.")
+            # current_quantity = quantity_purchased_or_sold + (yesterdays_quantity * asset_split) # noqa: ERA001 E501
+            group.loc[i, "current_quantity"] = (
+                group.loc[i, quantity_col_name]
+                + group.loc[i + 1, "current_quantity"] * group.loc[i, "asset_split"]
+            )
+
+    group[quantity_col_name] = group[quantity_col_name].replace(0, np.nan)
+    group["asset_split"] = group["asset_split"].replace(1, 0)
+
     group["current_quantity"] = group.apply(
         lambda x: np.nan if x["current_quantity"] == 0 else x["current_quantity"],
         axis=1,
@@ -38,7 +37,7 @@ def calculate_current_quantity(group: pd.DataFrame, quantity_col_name: str) -> p
 
 def calculate_current_value(df: pd.DataFrame, current_value_column_name: str) -> pd.DataFrame:
     return (
-        df.assign(current_value=df["current_quantity"] * df["open_unadjusted_local_currency"])
+        df.assign(current_value=df["current_quantity"] * df["close_unadjusted_local_currency"])
         .rename(columns={"current_value": current_value_column_name})
         .groupby(["date", "asset_ticker"])
         .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
