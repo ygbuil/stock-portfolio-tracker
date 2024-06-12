@@ -3,12 +3,17 @@ import pandas as pd
 
 
 def calculate_current_quantity(group: pd.DataFrame, quantity_col_name: str) -> pd.DataFrame:
-    group = group.sort_values(["date"], ascending=False).reset_index(drop=True)
-    group["current_quantity"] = np.nan
-    iterator = list(reversed(group.index))
+    group = (
+        group.assign(
+            current_quantity=np.nan,
+            asset_split=lambda df: df["asset_split"].replace(0, 1),
+            **{quantity_col_name: group[quantity_col_name].replace(np.nan, 0)},
+        )
+        .sort_values(["date"], ascending=False)
+        .reset_index(drop=True)
+    )
 
-    group[quantity_col_name] = group[quantity_col_name].replace(np.nan, 0)
-    group["asset_split"] = group["asset_split"].replace(0, 1)
+    iterator = list(reversed(group.index))
 
     # iterate from older to newer date
     for i in iterator:
@@ -25,14 +30,11 @@ def calculate_current_quantity(group: pd.DataFrame, quantity_col_name: str) -> p
                 + group.loc[i + 1, "current_quantity"] * group.loc[i, "asset_split"]
             )
 
-    group[quantity_col_name] = group[quantity_col_name].replace(0, np.nan)
-    group["asset_split"] = group["asset_split"].replace(1, 0)
-
-    group["current_quantity"] = group.apply(
-        lambda x: np.nan if x["current_quantity"] == 0 else x["current_quantity"],
-        axis=1,
+    return group.assign(
+        asset_split=lambda df: df["asset_split"].replace(1, 0),
+        **{quantity_col_name: group[quantity_col_name].replace(0, np.nan)},
+        current_quantity=lambda df: df["current_quantity"].replace(0, np.nan),
     )
-    return group
 
 
 def calculate_current_value(df: pd.DataFrame, current_value_column_name: str) -> pd.DataFrame:
