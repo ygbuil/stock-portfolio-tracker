@@ -10,11 +10,11 @@ repos:
         name: Ruff formater
         stages: [commit]
 
-  # - repo: local
-  #   hooks:
-  #   - id: tests
-  #     name: Tests
-  #     entry: pytest
-  #     pass_filenames: false
-  #     language: system
-  #     stages: [push] # for it to work, run: pre-commit install --hook-type pre-commit --hook-type pre-push
+  - repo: local
+    hooks:
+    - id: tests
+      name: Tests
+      entry: pytest
+      pass_filenames: false
+      language: system
+      stages: [push] # for it to work, run: pre-commit install --hook-type pre-commit --hook-type pre-push
