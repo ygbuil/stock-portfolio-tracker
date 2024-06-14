@@ -1,5 +1,6 @@
 import pandas as pd
-from objetcs import PortfolioData
+
+from stock_portfolio_tracker.objetcs import PortfolioData
 
 from . import _utils as utils
 

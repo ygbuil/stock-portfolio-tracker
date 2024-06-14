@@ -1,9 +1,8 @@
 """Main module to execute the project."""
 
-import modelling
-import preprocessing
-import reporting
 from loguru import logger
+
+from stock_portfolio_tracker import modelling, preprocessing, reporting
 
 
 def main() -> None:

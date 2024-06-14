@@ -9,7 +9,8 @@ import pandas as pd
 import yfinance as yf
 from dotenv import load_dotenv
 from loguru import logger
-from objetcs import Config, PortfolioData
+
+from stock_portfolio_tracker.objetcs import Config, PortfolioData
 
 
 def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -97,7 +98,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
             },
         )
         .assign(
-            date=lambda df: pd.to_datetime(df["date"], dayfirst=True),
+            date=lambda df: pd.to_datetime(df["date"], format="%d-%m-%Y"),
             value=lambda df: df.apply(
                 lambda x: abs(x["value"]) if x["transaction_type"] == "Sale" else -abs(x["value"]),
                 axis=1,

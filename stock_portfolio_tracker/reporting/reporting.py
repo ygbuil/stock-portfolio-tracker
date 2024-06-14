@@ -5,7 +5,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 from loguru import logger
-from objetcs import Config
+
+from stock_portfolio_tracker.objetcs import Config
 
 
 def generate_reports(

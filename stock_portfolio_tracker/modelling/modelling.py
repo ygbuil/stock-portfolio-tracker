@@ -2,7 +2,8 @@
 
 import pandas as pd
 from loguru import logger
-from objetcs import PortfolioData
+
+from stock_portfolio_tracker.objetcs import PortfolioData
 
 from . import _modelling_benchmark as modelling_benchmark
 from . import _modelling_portfolio as modelling_portfolio
