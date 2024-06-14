@@ -55,24 +55,30 @@ def calculate_current_percent_gain(
     df = sort_by_columns(
         df,
         ["date"],
-        [True],
+        [False],
+    ).assign(
+        money_out=np.nan,
+        money_in=np.nan,
+        value=lambda df: df["value"].replace(np.nan, 0),
+        **{current_value_column_name: lambda df: df[current_value_column_name].replace(np.nan, 0)},
     )
 
-    for date in df["date"]:
-        df.loc[df["date"] == date, "money_out"] = sum(
-            df[(df["date"] < date) & (df["value"] < 0)]["value"],
-        )
-        if len(df[df["date"] == date - pd.Timedelta(days=1)][current_value_column_name]) > 0:
-            latest_current_value = df[df["date"] == date - pd.Timedelta(days=1)][
-                current_value_column_name
-            ].iloc[0]
-        else:
-            latest_current_value = 0
-        df.loc[df["date"] == date, "money_in"] = (
-            sum(df[(df["date"] < date) & (df["value"] > 0)]["value"]) + latest_current_value
-        )
+    iterator = list(reversed(df.index))
+    curr_money_in = 0
 
-    return (
+    for i in iterator:
+        if i == iterator[0]:
+            df.loc[i, "money_out"] = min(df.loc[i, "value"], 0)
+
+            curr_money_in += max(0, df.loc[i, "value"])
+            df.loc[i, "money_in"] = df.loc[i, current_value_column_name] + curr_money_in
+        else:
+            df.loc[i, "money_out"] = df.loc[i + 1, "money_out"] + min(df.loc[i, "value"], 0)
+
+            curr_money_in += max(0, df.loc[i, "value"])
+            df.loc[i, "money_in"] = df.loc[i, current_value_column_name] + curr_money_in
+
+    df = (
         df.assign(
             current_gain=lambda df: df["money_out"] + df["money_in"],
             current_percent_gain=lambda df: df.apply(
@@ -83,9 +89,18 @@ def calculate_current_percent_gain(
             ),
         )
         .groupby("date")
-        .last()
+        .first()
         .reset_index()
     )[["date", "current_gain", "current_percent_gain"]]
+
+    df.loc[0, "current_gain"] = 0
+    df.loc[0, "current_percent_gain"] = 0
+
+    return sort_by_columns(
+        df,
+        ["date"],
+        [False],
+    )
 
 
 def sort_by_columns(
