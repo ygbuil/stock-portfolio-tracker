@@ -1,6 +1,9 @@
+# general
 .DS_Store
 .env
+__pycache__/
 
+# project specific
 /data/in/my_config.json
 /data/in/my_transactions.csv
 /data/out/*
