@@ -5,7 +5,7 @@ from loguru import logger
 from stock_portfolio_tracker import modelling, preprocessing, reporting
 
 
-def main() -> None:
+def main() -> None: #
     """Execute the project end to end."""
     logger.info("Start of execution.")
     config, portfolio_data, asset_prices, benchmarks = preprocessing.preprocess()
