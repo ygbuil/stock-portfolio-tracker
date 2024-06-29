@@ -3,14 +3,20 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "settings": {
-        "terminal.integrated.shell.linux": "/bin/zsh"
-    },
-    "postCreateCommand": "poetry install",
-    "extensions": [
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "ms-azuretools.vscode-docker",
-        "njpwerner.autodocstring"
-    ]
+    "postCreateCommand": "/bin/zsh -c 'poetry install'",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/zsh",
+                "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
+                "python.venvPath": "/workspace/.venv"
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-azuretools.vscode-docker",
+                "njpwerner.autodocstring"
+            ]
+        }
+    }
 }
