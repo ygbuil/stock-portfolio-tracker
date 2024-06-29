@@ -3,7 +3,7 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "postCreateCommand": "/bin/zsh -c 'poetry install && pre-commit install --hook-type pre-commit --hook-type pre-push'",
+    "postCreateCommand": "/bin/zsh -c 'poetry install && poetry run pre-commit install --hook-type pre-commit --hook-type pre-push'",
     "customizations": {
         "vscode": {
             "settings": {
