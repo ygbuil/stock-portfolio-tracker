@@ -69,14 +69,11 @@ def calculate_current_percent_gain(
     for i in iterator:
         if i == iterator[0]:
             df.loc[i, "money_out"] = min(df.loc[i, "value"], 0)
-
-            curr_money_in += max(0, df.loc[i, "value"])
-            df.loc[i, "money_in"] = df.loc[i, current_value_column_name] + curr_money_in
         else:
             df.loc[i, "money_out"] = df.loc[i + 1, "money_out"] + min(df.loc[i, "value"], 0)
 
-            curr_money_in += max(0, df.loc[i, "value"])
-            df.loc[i, "money_in"] = df.loc[i, current_value_column_name] + curr_money_in
+        curr_money_in += max(0, df.loc[i, "value"])
+        df.loc[i, "money_in"] = df.loc[i, current_value_column_name] + curr_money_in
 
     df = (
         df.assign(

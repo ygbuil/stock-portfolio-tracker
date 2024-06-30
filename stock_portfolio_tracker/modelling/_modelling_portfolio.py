@@ -39,7 +39,7 @@ def model_portfolio(
     asset_portfolio_percent_evolution = utils.calculate_current_percent_gain(
         pd.merge(
             asset_portfolio_value_evolution,
-            portfolio_data.transactions,
+            portfolio_data.transactions[["date", "value"]],
             "left",
             on=["date"],
         ),
