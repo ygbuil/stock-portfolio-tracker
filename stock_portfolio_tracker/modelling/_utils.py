@@ -100,6 +100,32 @@ def calculate_current_percent_gain(
     )
 
 
+def calculat_portfolio_current_positions(
+    portfolio_model: pd.DataFrame,
+    portfolio_data: pd.DataFrame,
+) -> pd.DataFrame:
+    asset_portfolio_current_positions = portfolio_model[
+        portfolio_model["date"] == portfolio_data.end_date
+    ][["date", "asset_ticker", "current_quantity", "current_position_value"]].reset_index(drop=True)
+
+    return (
+        asset_portfolio_current_positions.assign(
+            percent=round(
+                asset_portfolio_current_positions["current_position_value"]
+                / asset_portfolio_current_positions["current_position_value"].sum()
+                * 100,
+                2,
+            ),
+            current_position_value=round(
+                asset_portfolio_current_positions["current_position_value"],
+                2,
+            ),
+        )
+        .sort_values(["current_position_value"], ascending=False)
+        .reset_index(drop=True)
+    )
+
+
 def sort_by_columns(
     df: pd.DataFrame,
     columns: list[str],
