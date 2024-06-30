@@ -64,7 +64,9 @@ def _generate_portfolio_value_evolution_plot(
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")
-    plt.title("Value Over Time")
+    plt.title(
+        f"Date ({asset_portfolio_value_evolution['date'].iloc[-1].date()} - {asset_portfolio_value_evolution['date'].iloc[0].date()})",  # noqa: E501
+    )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
     plt.legend(loc="best")
@@ -133,7 +135,9 @@ def _generate_portfolio_percent_evolution_plot(
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel("Percentage gain (%)")
-    plt.title("Value Over Time")
+    plt.title(
+        f"Date ({benchmark_percent_evolution['date'].iloc[-1].date()} - {benchmark_percent_evolution['date'].iloc[0].date()})",  # noqa: E501
+    )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
     plt.legend(loc="best")
