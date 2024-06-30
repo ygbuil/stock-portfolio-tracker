@@ -23,8 +23,11 @@ def transactions_1() -> pd.DataFrame:
                 "2024-01-02",
                 "2024-01-01",
             ],
-            "value": [-100, 130, 600, np.nan, np.nan, 120, np.nan, -1000],
-            "current_portfolio_value": [1150, 1000, 950, 1500, 1080, 1210, 1200, 1100],
+            "asset_ticker": ["NVDA"] * 8,
+            "close_unadjusted_local_currency": [110, 100, 95, 100, 90, 1000, 1100, 1000],
+            "asset_split": [0, 0, 0, 0, 10, 0, 0, 0],
+            "quantity": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
+            "value": [np.nan, 100, -285, np.nan, np.nan, -3000, -2200, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -43,21 +46,24 @@ def transactions_2() -> pd.DataFrame:
                 "2024-01-03",
                 "2024-01-02",
                 "2024-01-01",
-                "2023-12-31",
             ],
-            "value": [-100, 130, 600, np.nan, np.nan, 120, np.nan, -1000, np.nan],
-            "current_portfolio_value": [1150, 1000, 950, 1500, 1080, 1210, 1200, 1100, np.nan],
+            "asset_ticker": ["NVDA"] * 8,
+            "close_unadjusted_local_currency": [110, 100, 95, 100, 90, 1000, 1100, 1000],
+            "asset_split": [0, 0, 0, 0, 10, 0, 0, 0],
+            "quantity": [np.nan, -1, 3, np.nan, 4, 3, 2, np.nan],
+            "value": [np.nan, 100, -285, np.nan, -360, -3000, -2200, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
 @pytest.fixture()
-def current_percent_gain_1() -> pd.DataFrame:
+def current_quantity_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
             "date": [
                 "2024-01-07",
+                "2024-01-06",
                 "2024-01-06",
                 "2024-01-05",
                 "2024-01-04",
@@ -65,52 +71,60 @@ def current_percent_gain_1() -> pd.DataFrame:
                 "2024-01-02",
                 "2024-01-01",
             ],
-            "current_gain": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 0.0],
-            "current_percent_gain": [81.82, 85.0, 62.0, 20.0, 33.0, 20.0, 0.0],
+            "asset_ticker": ["NVDA"] * 8,
+            "close_unadjusted_local_currency": [110, 100, 95, 100, 90, 1000, 1100, 1000],
+            "asset_split": [0, 0, 0, 0, 10, 0, 0, 0],
+            "quantity": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
+            "value": [np.nan, 100, -285, np.nan, np.nan, -3000, -2200, np.nan],
+            "current_quantity": [52, 52, 53, 50, 50, 5, 2, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
 @pytest.fixture()
-def current_percent_gain_2() -> pd.DataFrame:
+def current_quantity_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
             "date": [
                 "2024-01-07",
                 "2024-01-06",
+                "2024-01-06",
                 "2024-01-05",
                 "2024-01-04",
                 "2024-01-03",
                 "2024-01-02",
                 "2024-01-01",
-                "2023-12-31",
             ],
-            "current_gain": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 100, 0],
-            "current_percent_gain": [81.82, 85.0, 62.0, 20.0, 33.0, 20.0, 10.0, 0],
+            "asset_ticker": ["NVDA"] * 8,
+            "close_unadjusted_local_currency": [110, 100, 95, 100, 90, 1000, 1100, 1000],
+            "asset_split": [0, 0, 0, 0, 10, 0, 0, 0],
+            "quantity": [np.nan, -1, 3, np.nan, 4, 3, 2, np.nan],
+            "value": [np.nan, 100, -285, np.nan, -360, -3000, -2200, np.nan],
+            "current_quantity": [56, 56, 57, 54, 54, 5, 2, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
 @pytest.mark.parametrize(
-    ("transactions", "current_percent_gain"),
+    ("transactions", "current_quantity"),
     [
-        ("transactions_1", "current_percent_gain_1"),
-        ("transactions_2", "current_percent_gain_2"),
+        ("transactions_1", "current_quantity_1"),
+        ("transactions_2", "current_quantity_2"),
     ],
 )
-def test_calculate_current_percent_gain(
+def test_calculate_current_quantity(
     transactions: pd.DataFrame,
-    current_percent_gain: pd.DataFrame,
+    current_quantity: pd.DataFrame,
     request: FixtureRequest,
 ) -> None:
-    """Test calculate_current_percent_gain.
+    """Test calculate_current_quantity.
 
     :param transactions: Transactions.
-    :param current_percent_gain: Resulting dataframe with the percent gain.
+    :param current_quantity: Resulting dataframe with the percent gain.
     :param request: FixtureRequest.
     """
-    assert utils.calculate_current_percent_gain(
+    assert utils.calculate_current_quantity(
         request.getfixturevalue(transactions),
-        "current_portfolio_value",
-    ).equals(request.getfixturevalue(current_percent_gain))
+        "quantity",
+    ).equals(request.getfixturevalue(current_quantity))

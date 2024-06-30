@@ -249,7 +249,7 @@ def _load_ticker_data(
     # calculate unadjusted stock price
     # NOTE: yahoo finance reports the split the day that the split already takes place:
     # Example: NVDA traded at (aprox) 1000/share at 2024-06-09, and at 2024-06-10 at
-    # market open it was trading at 100/share due to the split. Yhaoo reported a 10
+    # market open it was trading at 100/share due to the split. Yahoo reported a 10
     # stock_split for at date 2024-06-10.
     return (
         pd.merge(
