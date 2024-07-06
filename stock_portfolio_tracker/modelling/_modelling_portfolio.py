@@ -67,4 +67,9 @@ def model_portfolio(
             ["current_position_value"],
             [False],
         ),
+        utils.sort_by_columns(
+            portfolio_model,
+            ["date"],
+            [False],
+        ),
     )

@@ -28,14 +28,19 @@ def model_data(
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
+        portfolio_model
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
     )
 
     logger.info("Modelling benchmark.")
-    benchmark_value_evolution, benchmark_percent_evolution = modelling_benchmark.model_benchmarks(
+    benchmark_value_evolution, benchmark_percent_evolution = modelling_benchmark.model_benchmarks_abs(
         portfolio_data,
+        benchmarks,
+    )
+    _ = modelling_benchmark.model_benchmarks_perc(
+        portfolio_model,
         benchmarks,
     )
 

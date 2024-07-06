@@ -125,6 +125,33 @@ def calculat_portfolio_current_positions(
         .reset_index(drop=True)
     )
 
+def calculate_benchmark_quantity(
+    df: pd.DataFrame,
+) -> pd.DataFrame:
+    df = sort_by_columns(
+        df,
+        ["date"],
+        [False],
+    ).assign(
+        benchmark_quantity=np.nan,
+    )
+
+    iterator = list(reversed(df.index))
+    latest_benchmark_quantity = np.nan
+
+    for i in iterator:
+        if i == iterator[0] and not np.isnan(df.loc[i, "quantity"]):
+            df.loc[i, "benchmark_quantity"] = - df.loc[i, "value"]/df.loc[i, "close_unadjusted_local_currency"]
+            latest_benchmark_quantity = df.loc[i, "benchmark_quantity"]
+        elif not np.isnan(df.loc[i, "quantity"]) and np.isnan(df.loc[i+1, "current_quantity"]):
+            df.loc[i, "benchmark_quantity"] = - df.loc[i, "value"]/df.loc[i, "close_unadjusted_local_currency"]
+            latest_benchmark_quantity = df.loc[i, "benchmark_quantity"]
+        elif not np.isnan(df.loc[i, "quantity"]):
+            df.loc[i, "benchmark_quantity"] = latest_benchmark_quantity + (df.loc[i, "quantity"]/df.loc[i+1, "current_quantity"] - 1)*latest_benchmark_quantity
+            latest_benchmark_quantity = df.loc[i, "benchmark_quantity"]
+
+    return df
+
 
 def sort_by_columns(
     df: pd.DataFrame,
