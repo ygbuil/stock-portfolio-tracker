@@ -50,6 +50,8 @@ def model_benchmarks_abs(portfolio_data: PortfolioData, benchmarks: pd.DataFrame
 
 
 def model_benchmarks_perc(portfolio_model: pd.DataFrame, benchmarks: pd.DataFrame) -> pd.DataFrame:
+    groups = []
+
     for _, group in portfolio_model.groupby("asset_ticker"):
         group = pd.merge(
             benchmarks[["date", "asset_ticker", "asset_split", "close_unadjusted_local_currency"]],
@@ -65,4 +67,8 @@ def model_benchmarks_perc(portfolio_model: pd.DataFrame, benchmarks: pd.DataFram
             group.drop("current_quantity", axis=1),
             "benchmark_quantity",
         )
+
+        groups.append(group)
+
+    x=1
     

@@ -137,20 +137,25 @@ def calculate_benchmark_quantity(
     )
 
     iterator = list(reversed(df.index))
-    latest_benchmark_quantity = np.nan
+    latest_benchmark_current_quantity = 0
 
     for i in iterator:
         if i == iterator[0] and not np.isnan(df.loc[i, "quantity"]):
             df.loc[i, "benchmark_quantity"] = - df.loc[i, "value"]/df.loc[i, "close_unadjusted_local_currency"]
-            latest_benchmark_quantity = df.loc[i, "benchmark_quantity"]
+            latest_benchmark_current_quantity += df.loc[i, "benchmark_quantity"]
         elif not np.isnan(df.loc[i, "quantity"]) and np.isnan(df.loc[i+1, "current_quantity"]):
             df.loc[i, "benchmark_quantity"] = - df.loc[i, "value"]/df.loc[i, "close_unadjusted_local_currency"]
-            latest_benchmark_quantity = df.loc[i, "benchmark_quantity"]
+            latest_benchmark_current_quantity += df.loc[i, "benchmark_quantity"]
         elif not np.isnan(df.loc[i, "quantity"]):
-            df.loc[i, "benchmark_quantity"] = latest_benchmark_quantity + (df.loc[i, "quantity"]/df.loc[i+1, "current_quantity"] - 1)*latest_benchmark_quantity
-            latest_benchmark_quantity = df.loc[i, "benchmark_quantity"]
+            df.loc[i, "benchmark_quantity"] = ((df.loc[i, "quantity"] + df.loc[i+1, "current_quantity"])/df.loc[i+1, "current_quantity"] - 1)*latest_benchmark_current_quantity
+            latest_benchmark_current_quantity += df.loc[i, "benchmark_quantity"]
+    
+    df["benchmark_value"] = -df["close_unadjusted_local_currency"]*df["benchmark_quantity"]
 
     return df
+
+
+# def calculate_total_return_asset():
 
 
 def sort_by_columns(
