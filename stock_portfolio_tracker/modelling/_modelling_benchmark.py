@@ -5,7 +5,9 @@ from stock_portfolio_tracker.objetcs import PortfolioData
 from . import _utils as utils
 
 
-def model_benchmarks_absolute(portfolio_data: PortfolioData, benchmarks: pd.DataFrame) -> pd.DataFrame:
+def model_benchmarks_absolute(
+    portfolio_data: PortfolioData, benchmarks: pd.DataFrame
+) -> pd.DataFrame:
     benchmark_value_evolution_absolute = pd.merge(
         benchmarks,
         portfolio_data.transactions[["date", "quantity", "value"]],
@@ -49,7 +51,9 @@ def model_benchmarks_absolute(portfolio_data: PortfolioData, benchmarks: pd.Data
     )
 
 
-def model_benchmarks_proportional(portfolio_model: pd.DataFrame, benchmarks: pd.DataFrame) -> pd.DataFrame:
+def model_benchmarks_proportional(
+    portfolio_model: pd.DataFrame, benchmarks: pd.DataFrame
+) -> pd.DataFrame:
     groups = []
 
     for _, group in portfolio_model.groupby("asset_ticker"):
@@ -58,10 +62,11 @@ def model_benchmarks_proportional(portfolio_model: pd.DataFrame, benchmarks: pd.
             group[["date", "asset_ticker", "quantity", "current_quantity", "value"]],
             "left",
             on=["date"],
-        ).rename(columns={"asset_ticker_x": "asset_ticker_benchmark", "asset_ticker_y": "asset_ticker"})
+        ).rename(
+            columns={"asset_ticker_x": "asset_ticker_benchmark", "asset_ticker_y": "asset_ticker"}
+        )
 
         group = utils.calculate_benchmark_quantity(group)
-
 
         group = utils.calculate_current_quantity(
             group.drop("current_quantity", axis=1),
