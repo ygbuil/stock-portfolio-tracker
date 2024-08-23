@@ -14,7 +14,8 @@ def main() -> None:
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
-        benchmark_value_evolution,
+        benchmark_value_evolution_absolute,
+        benchmark_value_evolution_proportional,
         benchmark_percent_evolution,
     ) = modelling.model_data(
         portfolio_data,
@@ -27,7 +28,8 @@ def main() -> None:
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
-        benchmark_value_evolution,
+        benchmark_value_evolution_absolute,
+        benchmark_value_evolution_proportional,
         benchmark_percent_evolution,
     )
 

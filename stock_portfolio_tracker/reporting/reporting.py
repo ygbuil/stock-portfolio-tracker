@@ -14,13 +14,14 @@ def generate_reports(
     asset_portfolio_value_evolution: pd.DataFrame,
     asset_portfolio_percent_evolution: pd.DataFrame,
     asset_portfolio_current_positions: pd.DataFrame,
-    benchmark_value_evolution: pd.DataFrame,
+    benchmark_value_evolution_absolute: pd.DataFrame,
+    benchmark_value_evolution_proportional: pd.DataFrame,
     benchmark_percent_evolution: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
     :param asset_portfolio_value_evolution: Stock portfolio hisorical price.
-    :param benchmark_value_evolution: Benchmark hisorical price.
+    :param benchmark_value_evolution_absolute: Benchmark hisorical price.
     """
     logger.info("Start of generate reports.")
 
@@ -28,7 +29,7 @@ def generate_reports(
     _generate_portfolio_value_evolution_plot(
         config,
         asset_portfolio_value_evolution,
-        benchmark_value_evolution,
+        benchmark_value_evolution_absolute,
     )
 
     _generate_portfolio_percent_evolution_plot(
@@ -45,7 +46,7 @@ def generate_reports(
 def _generate_portfolio_value_evolution_plot(
     config: Config,
     asset_portfolio_value_evolution: pd.DataFrame,
-    benchmark_value_evolution: pd.DataFrame,
+    benchmark_value_evolution_absolute: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -56,11 +57,11 @@ def _generate_portfolio_value_evolution_plot(
         label=f"Portfolio value. Current: {asset_portfolio_value_evolution['portfolio_value'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.plot(
-        benchmark_value_evolution["date"],
-        benchmark_value_evolution["benchmark_value"],
+        benchmark_value_evolution_absolute["date"],
+        benchmark_value_evolution_absolute["benchmark_value"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark value. Current: {benchmark_value_evolution['benchmark_value'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
+        label=f"Benchmark value. Current: {benchmark_value_evolution_absolute['benchmark_value'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")
