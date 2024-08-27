@@ -30,6 +30,14 @@ def generate_reports(
         config,
         asset_portfolio_value_evolution,
         benchmark_value_evolution_absolute,
+        "portfolio_value_evolution_absolute",
+    )
+
+    _generate_portfolio_value_evolution_plot(
+        config,
+        asset_portfolio_value_evolution,
+        benchmark_value_evolution_proportional,
+        "portfolio_value_evolution_proportional",
     )
 
     _generate_portfolio_percent_evolution_plot(
@@ -47,6 +55,7 @@ def _generate_portfolio_value_evolution_plot(
     config: Config,
     asset_portfolio_value_evolution: pd.DataFrame,
     benchmark_value_evolution_absolute: pd.DataFrame,
+    plot_name: str,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -72,7 +81,7 @@ def _generate_portfolio_value_evolution_plot(
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(Path("/workspaces/Stock-Portfolio-Tracker/data/out/portfolio_value_evolution.png"))
+    plt.savefig(Path(f"/workspaces/Stock-Portfolio-Tracker/data/out/{plot_name}.png"))
     plt.close()
 
 
@@ -83,7 +92,7 @@ def _generate_portfolio_current_positions_plot(
     asset_portfolio_current_positions = asset_portfolio_current_positions.dropna()
     _, ax = plt.subplots(figsize=(10, 8))
     sizes = asset_portfolio_current_positions["current_position_value"]
-    tickers = asset_portfolio_current_positions["asset_ticker"]
+    tickers = asset_portfolio_current_positions["ticker_asset"]
 
     wedges, _, _ = ax.pie(
         sizes,
@@ -97,7 +106,7 @@ def _generate_portfolio_current_positions_plot(
 
     legend_tickers = []
     for _, row in asset_portfolio_current_positions[
-        ["asset_ticker", "current_position_value", "percent", "current_quantity"]
+        ["ticker_asset", "current_position_value", "percent", "current_quantity"]
     ].iterrows():
         ticker, current_position_value, percent, current_quantity = list(row)
 

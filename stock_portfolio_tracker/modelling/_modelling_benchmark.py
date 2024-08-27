@@ -10,39 +10,41 @@ def model_benchmarks_absolute(
 ) -> pd.DataFrame:
     benchmark_value_evolution_absolute = pd.merge(
         benchmarks,
-        portfolio_data.transactions[["date", "quantity", "value"]],
+        portfolio_data.transactions[["date", "quantity_asset", "value_asset"]],
         "left",
         on=["date"],
     ).assign(
-        benchmark_quantity=lambda df: df.apply(
-            lambda x: -x["value"] / x["close_unadjusted_local_currency"],
+        quantity_benchmark=lambda df: df.apply(
+            lambda x: -x["value_asset"] / x["close_unadjusted_local_currency_benchmark"],
             axis=1,
         ),
     )
 
     benchmark_value_evolution_absolute = utils.calculate_current_quantity(
         benchmark_value_evolution_absolute,
-        "benchmark_quantity",
+        "quantity_benchmark",
+        "benchmark"
     )
 
     benchmark_value_evolution_absolute = utils.calculate_current_value(
         benchmark_value_evolution_absolute,
-        "benchmark_value",
-    ).assign(benchmark_value=lambda df: round(df["benchmark_value"], 2))
+        "benchmark",
+    ).assign(current_value_benchmark=lambda df: round(df["current_value_benchmark"], 2))
 
     benchmark_percent_evolution = utils.calculate_current_percent_gain(
         pd.merge(
-            benchmark_value_evolution_absolute[["date", "asset_ticker", "benchmark_value"]],
-            portfolio_data.transactions[["date", "value"]],
+            benchmark_value_evolution_absolute[["date", "ticker_benchmark", "current_value_benchmark"]],
+            portfolio_data.transactions[["date", "value_asset"]],
             "left",
             on=["date"],
-        ),
-        "benchmark_value",
+        ).rename(columns={"value_asset": "value_benchmark"}),
+        "benchmark",
+        "current_value_benchmark",
     )
 
     return utils.sort_by_columns(
         benchmark_value_evolution_absolute,
-        ["asset_ticker", "date"],
+        ["ticker_benchmark", "date"],
         [True, False],
     ), utils.sort_by_columns(
         benchmark_percent_evolution,
@@ -56,14 +58,17 @@ def model_benchmarks_proportional(
 ) -> pd.DataFrame:
     groups = []
 
-    for _, group in portfolio_model.groupby("asset_ticker"):
+    for _, group in portfolio_model.groupby("ticker_asset"):
         group = pd.merge(
-            benchmarks[["date", "asset_ticker", "asset_split", "close_unadjusted_local_currency"]],
-            group[["date", "asset_ticker", "quantity", "current_quantity", "value"]],
+            benchmarks[["date", "ticker_asset", "split_asset", "close_unadjusted_local_currency"]],
+            group[["date", "ticker_asset", "quantity", "current_quantity", "close_unadjusted_local_currency", "value"]],
             "left",
             on=["date"],
         ).rename(
-            columns={"asset_ticker_x": "asset_ticker_benchmark", "asset_ticker_y": "asset_ticker"}
+            columns={"ticker_asset_x": "ticker_asset_benchmark", 
+                     "close_unadjusted_local_currency_x": "close_unadjusted_local_currency_benchmark", 
+                     "ticker_asset_y": "ticker_asset",
+                     "close_unadjusted_local_currency_y": "close_unadjusted_local_currency_asset"}
         )
 
         group = utils.calculate_benchmark_quantity(group)
@@ -73,11 +78,21 @@ def model_benchmarks_proportional(
             "benchmark_quantity",
         )
 
+        group = utils.calculate_current_value(
+            group,
+            "benchmark_value",
+        ).assign(benchmark_value=lambda df: round(df["benchmark_value"], 2))
+
+        group = utils.calculate_current_percent_gain(
+            group,
+            "benchmark_value",
+        )
+
         groups.append(group)
 
     groups = utils.sort_by_columns(
         pd.concat(groups),
-        ["asset_ticker", "date"],
+        ["ticker_asset", "date"],
         [True, False],
     )
 

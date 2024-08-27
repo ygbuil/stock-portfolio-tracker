@@ -19,14 +19,14 @@ To use the Stock Portfolio Tracker, follow these steps:
    
    - `transactions.csv`: This file contains your portfolio transactions in CSV format with the following fields:
      ```csv
-     date,transaction_type,asset_ticker,quantity,value
+     date,transaction_type,ticker,quantity,value
      23-04-2024,Purchase,MSFT,6.00,2275.53
      28-03-2024,Sale,V,5.00,1297.35
      06-02-2024,Purchase,V,28.00,7151.83
      ```
      - `date`: Date of the transaction. It can be in the format `DD-MM-YYYY` or `YYYY-MM-DD`.
      - `transaction_type`: Type of transaction, which can be either `Purchase` or `Sale`.
-     - `asset_ticker`: Ticker symbol of the stock as listed in Yahoo Finance.
+     - `ticker`: Ticker symbol of the stock as listed in Yahoo Finance.
      - `quantity`: The amount of shares purchased/sold. It can be an integer or float in the format `1234.00`. This field is not sensitive to the sign, the code will convert it to the proper sign based on `transaction_type`.
      - `value`: Total value of the transaction expressed in the portfolio currency specified in `config.json`. It should be in the format `1234.00`. This field is not sensitive to the sign, the code will convert it to the proper sign based on `transaction_type`.
 
