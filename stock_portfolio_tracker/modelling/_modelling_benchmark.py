@@ -6,7 +6,8 @@ from . import _utils as utils
 
 
 def model_benchmarks_absolute(
-    portfolio_data: PortfolioData, benchmarks: pd.DataFrame
+    portfolio_data: PortfolioData,
+    benchmarks: pd.DataFrame,
 ) -> pd.DataFrame:
     benchmark_value_evolution_absolute = pd.merge(
         benchmarks,
@@ -23,7 +24,7 @@ def model_benchmarks_absolute(
     benchmark_value_evolution_absolute = utils.calculate_current_quantity(
         benchmark_value_evolution_absolute,
         "quantity_benchmark",
-        "benchmark"
+        "benchmark",
     )
 
     benchmark_value_evolution_absolute = utils.calculate_current_value(
@@ -33,7 +34,9 @@ def model_benchmarks_absolute(
 
     benchmark_percent_evolution = utils.calculate_current_percent_gain(
         pd.merge(
-            benchmark_value_evolution_absolute[["date", "ticker_benchmark", "current_value_benchmark"]],
+            benchmark_value_evolution_absolute[
+                ["date", "ticker_benchmark", "current_value_benchmark"]
+            ],
             portfolio_data.transactions[["date", "value_asset"]],
             "left",
             on=["date"],
@@ -54,51 +57,87 @@ def model_benchmarks_absolute(
 
 
 def model_benchmarks_proportional(
-    portfolio_model: pd.DataFrame, benchmarks: pd.DataFrame
+    portfolio_model: pd.DataFrame,
+    benchmarks: pd.DataFrame,
 ) -> pd.DataFrame:
-    groups = []
-
-    for _, group in portfolio_model.groupby("ticker_asset"):
-        group = pd.merge(
-            benchmarks[["date", "ticker_asset", "split_asset", "close_unadjusted_local_currency"]],
-            group[["date", "ticker_asset", "quantity", "current_quantity", "close_unadjusted_local_currency", "value"]],
-            "left",
-            on=["date"],
-        ).rename(
-            columns={"ticker_asset_x": "ticker_asset_benchmark", 
-                     "close_unadjusted_local_currency_x": "close_unadjusted_local_currency_benchmark", 
-                     "ticker_asset_y": "ticker_asset",
-                     "close_unadjusted_local_currency_y": "close_unadjusted_local_currency_asset"}
-        )
-
-        group = utils.calculate_benchmark_quantity(group)
-
-        group = utils.calculate_current_quantity(
-            group.drop("current_quantity", axis=1),
-            "benchmark_quantity",
-        )
-
-        group = utils.calculate_current_value(
-            group,
-            "benchmark_value",
-        ).assign(benchmark_value=lambda df: round(df["benchmark_value"], 2))
-
-        group = utils.calculate_current_percent_gain(
-            group,
-            "benchmark_value",
-        )
-
-        groups.append(group)
-
-    groups = utils.sort_by_columns(
-        pd.concat(groups),
-        ["ticker_asset", "date"],
-        [True, False],
+    individual_assets_vs_benchmark_returns = pd.DataFrame(
+        {
+            "ticker_asset": [],
+            "current_percent_gain_asset": [],
+            "current_percent_gain_benchmark": [],
+        },
     )
 
-    benchmark_value_evolution_proportional = utils.calculate_current_value(
-        groups,
-        "benchmark_value",
-    ).assign(benchmark_value=lambda df: round(df["benchmark_value"], 2))
+    for _, group in portfolio_model.groupby("ticker_asset"):
+        group = pd.merge(  # noqa: PLW2901
+            benchmarks[
+                [
+                    "date",
+                    "ticker_benchmark",
+                    "split_benchmark",
+                    "close_unadjusted_local_currency_benchmark",
+                ]
+            ],
+            group[
+                [
+                    "date",
+                    "ticker_asset",
+                    "quantity_asset",
+                    "current_quantity_asset",
+                    "close_unadjusted_local_currency_asset",
+                    "value_asset",
+                ]
+            ],
+            "left",
+            on=["date"],
+        )
 
-    return benchmark_value_evolution_proportional, groups
+        group = utils.calculate_quantity_benchmark(group)  # noqa: PLW2901
+
+        group = utils.calculate_current_quantity(  # noqa: PLW2901
+            group,
+            "quantity_benchmark",
+            "benchmark",
+        )
+
+        group = utils.calculate_current_value(  # noqa: PLW2901
+            group,
+            "benchmark",
+        )
+
+        group = utils.calculate_current_value(  # noqa: PLW2901
+            group,
+            "asset",
+        )
+
+        percent_gain_benchmark = utils.calculate_current_percent_gain(
+            group,
+            "benchmark",
+            "current_value_benchmark",
+        )
+
+        percent_gain_asset = utils.calculate_current_percent_gain(
+            group,
+            "asset",
+            "current_value_asset",
+        )
+
+        individual_assets_vs_benchmark_returns.loc[len(individual_assets_vs_benchmark_returns)] = [
+            group.iloc[0]["ticker_asset"],
+            utils.sort_by_columns(
+                percent_gain_asset,
+                ["date"],
+                [False],
+            ).iloc[0]["current_percent_gain_asset"],
+            utils.sort_by_columns(
+                percent_gain_benchmark,
+                ["date"],
+                [False],
+            ).iloc[0]["current_percent_gain_benchmark"],
+        ]
+
+    return utils.sort_by_columns(
+        individual_assets_vs_benchmark_returns,
+        ["current_percent_gain_asset"],
+        [False],
+    )
