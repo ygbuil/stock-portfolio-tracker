@@ -50,7 +50,7 @@ def model_portfolio(
     asset_portfolio_current_positions = utils.calculat_portfolio_current_positions(
         portfolio_model,
         portfolio_data,
-        "asset"
+        "asset",
     )
 
     return (

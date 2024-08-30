@@ -36,14 +36,14 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
-        "asset"
+        "asset",
     )
     benchmarks = _load_prices(
         config.benchmark_tickers,
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
-        "benchmark"
+        "benchmark",
     )
 
     logger.info("End of preprocess.")
@@ -116,7 +116,14 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         .sort_values(
             by=["date", "ticker"],
             ascending=[False, True],
-        ).rename(columns={"ticker": "ticker_asset", "quantity": "quantity_asset", "value": "value_asset"})
+        )
+        .rename(
+            columns={
+                "ticker": "ticker_asset",
+                "quantity": "quantity_asset",
+                "value": "value_asset",
+            },
+        )
         .reset_index(drop=True)
     )
 
@@ -133,7 +140,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         transactions=transactions,
         assets_info=assets_info,
         start_date=min(transactions["date"]),
-        end_date=pd.Timestamp.today().normalize() - pd.Timedelta(days=1),
+        end_date=pd.Timestamp.today().normalize(),
     )
 
 
@@ -163,9 +170,7 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
             try:
                 currency_exchange = (
                     yf.Ticker(ticker)
-                    .history(start=portfolio_data.start_date, end=portfolio_data.end_date)[
-                        ["Close"]
-                    ]
+                    .history(start=portfolio_data.start_date)[["Close"]]
                     .sort_index(ascending=False)
                     .reset_index()
                     .rename(columns={"Close": "close_currency_rate", "Date": "date"})
@@ -200,7 +205,7 @@ def _load_prices(
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
     currency_exchange: pd.DataFrame,
-    type: str
+    position_type: str,
 ) -> pd.DataFrame:
     asset_prices = []
 
@@ -210,21 +215,40 @@ def _load_prices(
         asset_prices.append(asset_price)
 
     # convert to local currency
-    return pd.merge(
-        pd.concat(asset_prices),
-        currency_exchange,
-        "left",
-        left_on=["date", "origin_currency"],
-        right_on=["date", "currency_exchange_rate_ticker"],
-    ).assign(
-        close_unadjusted_local_currency=lambda df: df.apply(
-            lambda x: x["close_unadjusted_origin_currency"] / x["close_currency_rate"],
-            axis=1,
-        ),
-    ).rename(columns={"ticker": f"ticker_{type}", "split": f"split_{type}","close_unadjusted_local_currency": f"close_unadjusted_local_currency_{type}"}).sort_values(
-        by=["date", f"ticker_{type}"],
-        ascending=[True, False],
-    ).reset_index(drop=True)[["date", f"ticker_{type}", f"split_{type}", f"close_unadjusted_local_currency_{type}"]]
+    return (
+        pd.merge(
+            pd.concat(asset_prices),
+            currency_exchange,
+            "left",
+            left_on=["date", "origin_currency"],
+            right_on=["date", "currency_exchange_rate_ticker"],
+        )
+        .assign(
+            close_unadjusted_local_currency=lambda df: df.apply(
+                lambda x: x["close_unadjusted_origin_currency"] / x["close_currency_rate"],
+                axis=1,
+            ),
+        )
+        .rename(
+            columns={
+                "ticker": f"ticker_{position_type}",
+                "split": f"split_{position_type}",
+                "close_unadjusted_local_currency": f"close_unadjusted_local_currency_{position_type}",  # noqa: E501
+            },
+        )
+        .sort_values(
+            by=["date", f"ticker_{position_type}"],
+            ascending=[True, False],
+        )
+        .reset_index(drop=True)[
+            [
+                "date",
+                f"ticker_{position_type}",
+                f"split_{position_type}",
+                f"close_unadjusted_local_currency_{position_type}",
+            ]
+        ]
+    )
 
 
 def _load_ticker_data(
@@ -235,7 +259,7 @@ def _load_ticker_data(
     try:
         asset = yf.Ticker(ticker)
         asset_price = (
-            asset.history(start=start_date, end=end_date)[["Close", "Stock Splits"]]
+            asset.history(start=start_date)[["Close", "Stock Splits"]]
             .sort_index(ascending=False)
             .reset_index()
             .rename(
@@ -270,17 +294,13 @@ def _load_ticker_data(
             close_adjusted_origin_currency=lambda df: df["close_adjusted_origin_currency"]
             .bfill()
             .ffill(),
-            split_cumsum=lambda df: df["split"]
-            .replace(0, 1)
-            .cumprod()
-            .shift(1)
-            .fillna(1),
+            split_cumsum=lambda df: df["split"].replace(0, 1).cumprod().shift(1).fillna(1),
             close_unadjusted_origin_currency=lambda df: df.apply(
                 lambda x: x["close_adjusted_origin_currency"] * x["split_cumsum"],
                 axis=1,
             ),
             origin_currency=asset.info.get("currency"),
-            ticker=ticker
+            ticker=ticker,
         )
     )[
         [
