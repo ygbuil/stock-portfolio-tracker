@@ -15,7 +15,9 @@
                 "ms-python.python",
                 "ms-python.vscode-pylance",
                 "ms-azuretools.vscode-docker",
-                "njpwerner.autodocstring"
+                "njpwerner.autodocstring",
+                "ms-toolsai.jupyter",
+                "ms-toolsai.datawrangler"
             ]
         }
     }
