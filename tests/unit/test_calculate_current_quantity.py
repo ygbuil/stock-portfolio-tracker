@@ -24,10 +24,10 @@ def transactions_1() -> pd.DataFrame:
                 "2024-01-01",
             ],
             "ticker_asset": ["NVDA"] * 8,
-            "close_unadjusted_local_currency": [110, 100, 95, 100, 90, 1000, 1100, 1000],
+            "close_unadjusted_local_currency_asset": [110, 100, 95, 100, 90, 1000, 1100, 1000],
             "split_asset": [0, 0, 0, 0, 10, 0, 0, 0],
-            "quantity": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
-            "value": [np.nan, 100, -285, np.nan, np.nan, -3000, -2200, np.nan],
+            "quantity_asset": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
+            "value_asset": [np.nan, 100, -285, np.nan, np.nan, -3000, -2200, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -48,10 +48,10 @@ def transactions_2() -> pd.DataFrame:
                 "2024-01-01",
             ],
             "ticker_asset": ["NVDA"] * 8,
-            "close_unadjusted_local_currency": [110, 100, 95, 100, 90, 1000, 1100, 1000],
+            "close_unadjusted_local_currency_asset": [110, 100, 95, 100, 90, 1000, 1100, 1000],
             "split_asset": [0, 0, 0, 0, 10, 0, 0, 0],
-            "quantity": [np.nan, -1, 3, np.nan, 4, 3, 2, np.nan],
-            "value": [np.nan, 100, -285, np.nan, -360, -3000, -2200, np.nan],
+            "quantity_asset": [np.nan, -1, 3, np.nan, 4, 3, 2, np.nan],
+            "value_asset": [np.nan, 100, -285, np.nan, -360, -3000, -2200, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -72,11 +72,11 @@ def current_quantity_1() -> pd.DataFrame:
                 "2024-01-01",
             ],
             "ticker_asset": ["NVDA"] * 8,
-            "close_unadjusted_local_currency": [110, 100, 95, 100, 90, 1000, 1100, 1000],
+            "close_unadjusted_local_currency_asset": [110, 100, 95, 100, 90, 1000, 1100, 1000],
             "split_asset": [0, 0, 0, 0, 10, 0, 0, 0],
-            "quantity": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
-            "value": [np.nan, 100, -285, np.nan, np.nan, -3000, -2200, np.nan],
-            "current_quantity": [52, 52, 53, 50, 50, 5, 2, np.nan],
+            "quantity_asset": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
+            "value_asset": [np.nan, 100, -285, np.nan, np.nan, -3000, -2200, np.nan],
+            "current_quantity_asset": [52, 52, 53, 50, 50, 5, 2, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -97,11 +97,11 @@ def current_quantity_2() -> pd.DataFrame:
                 "2024-01-01",
             ],
             "ticker_asset": ["NVDA"] * 8,
-            "close_unadjusted_local_currency": [110, 100, 95, 100, 90, 1000, 1100, 1000],
+            "close_unadjusted_local_currency_asset": [110, 100, 95, 100, 90, 1000, 1100, 1000],
             "split_asset": [0, 0, 0, 0, 10, 0, 0, 0],
-            "quantity": [np.nan, -1, 3, np.nan, 4, 3, 2, np.nan],
-            "value": [np.nan, 100, -285, np.nan, -360, -3000, -2200, np.nan],
-            "current_quantity": [56, 56, 57, 54, 54, 5, 2, np.nan],
+            "quantity_asset": [np.nan, -1, 3, np.nan, 4, 3, 2, np.nan],
+            "value_asset": [np.nan, 100, -285, np.nan, -360, -3000, -2200, np.nan],
+            "current_quantity_asset": [56, 56, 57, 54, 54, 5, 2, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -126,5 +126,6 @@ def test_calculate_current_quantity(
     """
     assert utils.calculate_current_quantity(
         request.getfixturevalue(transactions),
-        "quantity",
+        "quantity_asset",
+        "asset",
     ).equals(request.getfixturevalue(current_quantity))
