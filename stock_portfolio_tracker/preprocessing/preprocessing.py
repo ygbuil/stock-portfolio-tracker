@@ -31,17 +31,19 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         config.portfolio_currency,
     )
 
-    asset_prices = _load_assets_prices(
+    asset_prices = _load_prices(
         portfolio_data.assets_info.keys(),
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
+        "asset"
     )
-    benchmarks = _load_assets_prices(
+    benchmarks = _load_prices(
         config.benchmark_tickers,
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
+        "benchmark"
     )
 
     logger.info("End of preprocess.")
@@ -92,7 +94,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
             {
                 "date": str,
                 "transaction_type": str,
-                "asset_ticker": str,
+                "ticker": str,
                 "quantity": float,
                 "value": float,
             },
@@ -112,15 +114,15 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         )
         .drop("transaction_type", axis=1)
         .sort_values(
-            by=["date", "asset_ticker"],
+            by=["date", "ticker"],
             ascending=[False, True],
-        )
+        ).rename(columns={"ticker": "ticker_asset", "quantity": "quantity_asset", "value": "value_asset"})
         .reset_index(drop=True)
     )
 
     assets_info = {}
 
-    for ticker in sorted(transactions["asset_ticker"].unique()):
+    for ticker in sorted(transactions["ticker_asset"].unique()):
         asset = yf.Ticker(ticker)
         assets_info[ticker] = {
             "name": asset.info.get("shortName"),
@@ -192,12 +194,13 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
     return pd.concat(currency_exchanges)
 
 
-@_sort_at_end("asset_ticker", "date")
-def _load_assets_prices(
+# @_sort_at_end("ticker", "date")
+def _load_prices(
     tickers: list[str],
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
     currency_exchange: pd.DataFrame,
+    type: str
 ) -> pd.DataFrame:
     asset_prices = []
 
@@ -218,7 +221,10 @@ def _load_assets_prices(
             lambda x: x["close_unadjusted_origin_currency"] / x["close_currency_rate"],
             axis=1,
         ),
-    )[["date", "asset_ticker", "close_unadjusted_local_currency", "asset_split"]]
+    ).rename(columns={"ticker": f"ticker_{type}", "split": f"split_{type}","close_unadjusted_local_currency": f"close_unadjusted_local_currency_{type}"}).sort_values(
+        by=["date", f"ticker_{type}"],
+        ascending=[True, False],
+    ).reset_index(drop=True)[["date", f"ticker_{type}", f"split_{type}", f"close_unadjusted_local_currency_{type}"]]
 
 
 def _load_ticker_data(
@@ -236,7 +242,7 @@ def _load_ticker_data(
                 columns={
                     "Close": "close_adjusted_origin_currency",
                     "Date": "date",
-                    "Stock Splits": "asset_split",
+                    "Stock Splits": "split",
                 },
             )
             .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
@@ -260,28 +266,28 @@ def _load_ticker_data(
             "left",
             on="date",
         ).assign(
-            asset_split=lambda df: df["asset_split"].fillna(0),
+            split=lambda df: df["split"].fillna(0),
             close_adjusted_origin_currency=lambda df: df["close_adjusted_origin_currency"]
             .bfill()
             .ffill(),
-            asset_split_cumsum=lambda df: df["asset_split"]
+            split_cumsum=lambda df: df["split"]
             .replace(0, 1)
             .cumprod()
             .shift(1)
             .fillna(1),
             close_unadjusted_origin_currency=lambda df: df.apply(
-                lambda x: x["close_adjusted_origin_currency"] * x["asset_split_cumsum"],
+                lambda x: x["close_adjusted_origin_currency"] * x["split_cumsum"],
                 axis=1,
             ),
             origin_currency=asset.info.get("currency"),
-            asset_ticker=ticker,
+            ticker=ticker
         )
     )[
         [
             "date",
-            "asset_ticker",
+            "ticker",
             "close_unadjusted_origin_currency",
             "origin_currency",
-            "asset_split",
+            "split",
         ]
     ]

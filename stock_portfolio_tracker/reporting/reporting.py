@@ -14,13 +14,14 @@ def generate_reports(
     asset_portfolio_value_evolution: pd.DataFrame,
     asset_portfolio_percent_evolution: pd.DataFrame,
     asset_portfolio_current_positions: pd.DataFrame,
-    benchmark_value_evolution: pd.DataFrame,
+    benchmark_value_evolution_absolute: pd.DataFrame,
+    individual_assets_vs_benchmark_returns: pd.DataFrame,
     benchmark_percent_evolution: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
     :param asset_portfolio_value_evolution: Stock portfolio hisorical price.
-    :param benchmark_value_evolution: Benchmark hisorical price.
+    :param benchmark_value_evolution_absolute: Benchmark hisorical price.
     """
     logger.info("Start of generate reports.")
 
@@ -28,7 +29,8 @@ def generate_reports(
     _generate_portfolio_value_evolution_plot(
         config,
         asset_portfolio_value_evolution,
-        benchmark_value_evolution,
+        benchmark_value_evolution_absolute,
+        "portfolio_value_evolution_absolute",
     )
 
     _generate_portfolio_percent_evolution_plot(
@@ -39,28 +41,32 @@ def generate_reports(
     logger.info("Generating portfolio current positions.")
     _generate_portfolio_current_positions_plot(config, asset_portfolio_current_positions)
 
+    logger.info("Generating portfolio current positions.")
+    _generate_individual_assets_vs_benchmark_returns(individual_assets_vs_benchmark_returns)
+
     logger.info("End of generate reports.")
 
 
 def _generate_portfolio_value_evolution_plot(
     config: Config,
     asset_portfolio_value_evolution: pd.DataFrame,
-    benchmark_value_evolution: pd.DataFrame,
+    benchmark_value_evolution_absolute: pd.DataFrame,
+    plot_name: str,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
         asset_portfolio_value_evolution["date"],
-        asset_portfolio_value_evolution["portfolio_value"],
+        asset_portfolio_value_evolution["current_value_portfolio"],
         linestyle="-",
         color="blue",
-        label=f"Portfolio value. Current: {asset_portfolio_value_evolution['portfolio_value'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
+        label=f"Portfolio value. Current: {asset_portfolio_value_evolution['current_value_portfolio'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.plot(
-        benchmark_value_evolution["date"],
-        benchmark_value_evolution["benchmark_value"],
+        benchmark_value_evolution_absolute["date"],
+        benchmark_value_evolution_absolute["current_value_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark value. Current: {benchmark_value_evolution['benchmark_value'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
+        label=f"Benchmark value. Current: {benchmark_value_evolution_absolute['current_value_benchmark'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")
@@ -71,7 +77,7 @@ def _generate_portfolio_value_evolution_plot(
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(Path("/workspaces/Stock-Portfolio-Tracker/data/out/portfolio_value_evolution.png"))
+    plt.savefig(Path(f"/workspaces/Stock-Portfolio-Tracker/data/out/{plot_name}.png"))
     plt.close()
 
 
@@ -82,7 +88,7 @@ def _generate_portfolio_current_positions_plot(
     asset_portfolio_current_positions = asset_portfolio_current_positions.dropna()
     _, ax = plt.subplots(figsize=(10, 8))
     sizes = asset_portfolio_current_positions["current_position_value"]
-    tickers = asset_portfolio_current_positions["asset_ticker"]
+    tickers = asset_portfolio_current_positions["ticker_asset"]
 
     wedges, _, _ = ax.pie(
         sizes,
@@ -96,7 +102,7 @@ def _generate_portfolio_current_positions_plot(
 
     legend_tickers = []
     for _, row in asset_portfolio_current_positions[
-        ["asset_ticker", "current_position_value", "percent", "current_quantity"]
+        ["ticker_asset", "current_position_value", "percent", "current_quantity_asset"]
     ].iterrows():
         ticker, current_position_value, percent, current_quantity = list(row)
 
@@ -121,17 +127,17 @@ def _generate_portfolio_percent_evolution_plot(
     plt.figure(figsize=(10, 6))
     plt.plot(
         asset_portfolio_percent_evolution["date"],
-        asset_portfolio_percent_evolution["current_percent_gain"],
+        asset_portfolio_percent_evolution["current_percent_gain_asset"],
         linestyle="-",
         color="blue",
-        label=f"Percentage gain. Current: {asset_portfolio_percent_evolution['current_percent_gain'].iloc[0]} %",  # noqa: E501
+        label=f"Percentage gain. Current: {asset_portfolio_percent_evolution['current_percent_gain_asset'].iloc[0]} %",  # noqa: E501
     )
     plt.plot(
         benchmark_percent_evolution["date"],
-        benchmark_percent_evolution["current_percent_gain"],
+        benchmark_percent_evolution["current_percent_gain_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark value. Current: {benchmark_percent_evolution['current_percent_gain'].iloc[0]} %",  # noqa: E501
+        label=f"Benchmark value. Current: {benchmark_percent_evolution['current_percent_gain_benchmark'].iloc[0]} %",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel("Percentage gain (%)")
@@ -144,5 +150,68 @@ def _generate_portfolio_percent_evolution_plot(
     plt.tight_layout()
     plt.savefig(
         Path("/workspaces/Stock-Portfolio-Tracker/data/out/portfolio_percent_evolution.png"),
+    )
+    plt.close()
+
+
+def _generate_individual_assets_vs_benchmark_returns(
+    individual_assets_vs_benchmark_returns: pd.DataFrame,
+) -> None:
+    plt.figure(figsize=(10, 6))
+
+    # Plotting the bars
+    bar_width = 0.4
+    index = range(len(individual_assets_vs_benchmark_returns))
+
+    plt.bar(
+        index,
+        individual_assets_vs_benchmark_returns["current_percent_gain_asset"],
+        bar_width,
+        label="Asset",
+        color="blue",
+    )
+    plt.bar(
+        [i + bar_width for i in index],
+        individual_assets_vs_benchmark_returns["current_percent_gain_benchmark"],
+        bar_width,
+        label="Benchmark",
+        color="orange",
+    )
+
+    # Adding the values on top of the bars
+    for i in index:
+        plt.text(
+            i,
+            individual_assets_vs_benchmark_returns["current_percent_gain_asset"][i] + 1,
+            f"{individual_assets_vs_benchmark_returns['current_percent_gain_asset'][i]:.2f}%",
+            ha="center",
+            color="blue",
+            fontweight="bold",
+        )
+        plt.text(
+            i + bar_width,
+            individual_assets_vs_benchmark_returns["current_percent_gain_benchmark"][i] + 1,
+            f"{individual_assets_vs_benchmark_returns['current_percent_gain_benchmark'][i]:.2f}%",
+            ha="center",
+            color="orange",
+            fontweight="bold",
+        )
+
+    # Customizing the plot
+    plt.xlabel("Ticker")
+    plt.ylabel("Percent Gain (%)")
+    plt.title("Current Percent Gain: Asset vs Benchmark")
+    plt.xticks(
+        [i + bar_width / 2 for i in index],
+        individual_assets_vs_benchmark_returns["ticker_asset"],
+    )
+    plt.legend()
+
+    # Show the plot
+    plt.tight_layout()
+    plt.savefig(
+        Path(
+            "/workspaces/Stock-Portfolio-Tracker/data/out/individual_assets_vs_benchmark_returns.png",
+        ),
     )
     plt.close()

@@ -28,14 +28,21 @@ def model_data(
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
+        portfolio_model,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
     )
 
     logger.info("Modelling benchmark.")
-    benchmark_value_evolution, benchmark_percent_evolution = modelling_benchmark.model_benchmarks(
-        portfolio_data,
+    benchmark_value_evolution_absolute, benchmark_percent_evolution = (
+        modelling_benchmark.model_benchmarks_absolute(
+            portfolio_data,
+            benchmarks,
+        )
+    )
+    individual_assets_vs_benchmark_returns = modelling_benchmark.model_benchmarks_proportional(
+        portfolio_model,
         benchmarks,
     )
 
@@ -45,6 +52,7 @@ def model_data(
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
         asset_portfolio_current_positions,
-        benchmark_value_evolution,
+        benchmark_value_evolution_absolute,
+        individual_assets_vs_benchmark_returns,
         benchmark_percent_evolution,
     )
