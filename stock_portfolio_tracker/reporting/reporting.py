@@ -87,7 +87,7 @@ def _plot_asset_distribution(
 ) -> None:
     asset_distribution = asset_distribution.dropna()
     _, ax = plt.subplots(figsize=(10, 8))
-    sizes = asset_distribution["current_position_value"]
+    sizes = asset_distribution["current_value_asset"]
     tickers = asset_distribution["ticker_asset"]
 
     wedges, _, _ = ax.pie(
@@ -96,18 +96,18 @@ def _plot_asset_distribution(
         startangle=90,
         colors=plt.cm.Paired(range(len(tickers))),
         counterclock=False,
-        autopct=lambda pct: f"{pct:.1f}%\n{round(pct/100 * sum(asset_distribution['current_position_value']) / 1000, 1)}k",  # noqa: E501
+        autopct=lambda pct: f"{pct:.1f}%\n{(pct/100 * sum(asset_distribution['current_value_asset']) / 1000):.1f}k",  # noqa: E501
         wedgeprops={"width": 0.3},
     )
 
     legend_tickers = []
     for _, row in asset_distribution[
-        ["ticker_asset", "current_position_value", "percent", "current_quantity_asset"]
+        ["ticker_asset", "current_value_asset", "percent", "current_quantity_asset"]
     ].iterrows():
-        ticker, current_position_value, percent, current_quantity = list(row)
+        ticker, current_value_asset, percent, current_quantity = list(row)
 
         legend_tickers.append(
-            f"{ticker}: {current_position_value}{config.portfolio_currency.lower()} | {percent}% | {int(current_quantity)} shares",  # noqa: E501
+            f"{ticker}: {current_value_asset}{config.portfolio_currency.lower()} | {percent}% | {int(current_quantity)} shares",  # noqa: E501
         )
 
     ax.legend(wedges, legend_tickers, loc="center left", bbox_to_anchor=(-0.6, 0.5))

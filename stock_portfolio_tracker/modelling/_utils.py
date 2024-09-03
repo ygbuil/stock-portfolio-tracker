@@ -150,10 +150,12 @@ def calculat_asset_distribution(
                 * 100,
                 2,
             ),
-            current_position_value=round(
-                asset_distribution[f"current_value_{position_type}"],
-                2,
-            ),
+            **{
+                f"current_value_{position_type}": round(
+                    asset_distribution[f"current_value_{position_type}"],
+                    2,
+                ),
+            },
         )
         .sort_values([f"current_value_{position_type}"], ascending=False)
         .reset_index(drop=True)
