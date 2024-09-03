@@ -113,14 +113,12 @@ def calculate_current_percent_gain(
     return df
 
 
-def calculat_portfolio_current_positions(
+def calculat_asset_distribution(
     portfolio_model: pd.DataFrame,
     portfolio_data: pd.DataFrame,
     position_type: str,
 ) -> pd.DataFrame:
-    asset_portfolio_current_positions = portfolio_model[
-        portfolio_model["date"] == portfolio_data.end_date
-    ][
+    asset_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
         [
             "date",
             f"ticker_{position_type}",
@@ -132,15 +130,15 @@ def calculat_portfolio_current_positions(
     )
 
     return (
-        asset_portfolio_current_positions.assign(
+        asset_distribution.assign(
             percent=round(
-                asset_portfolio_current_positions[f"current_value_{position_type}"]
-                / asset_portfolio_current_positions[f"current_value_{position_type}"].sum()
+                asset_distribution[f"current_value_{position_type}"]
+                / asset_distribution[f"current_value_{position_type}"].sum()
                 * 100,
                 2,
             ),
             current_position_value=round(
-                asset_portfolio_current_positions[f"current_value_{position_type}"],
+                asset_distribution[f"current_value_{position_type}"],
                 2,
             ),
         )

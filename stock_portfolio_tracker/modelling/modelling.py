@@ -27,7 +27,7 @@ def model_data(
     (
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
-        asset_portfolio_current_positions,
+        asset_distribution,
         portfolio_model,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
@@ -62,7 +62,7 @@ def model_data(
     return (
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
-        asset_portfolio_current_positions,
+        asset_distribution,
         benchmark_value_evolution_absolute,
         individual_assets_vs_benchmark_returns,
         benchmark_percent_evolution,

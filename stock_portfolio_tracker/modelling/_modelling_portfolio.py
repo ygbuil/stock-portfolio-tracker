@@ -50,7 +50,7 @@ def model_portfolio(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    asset_portfolio_current_positions = utils.calculat_portfolio_current_positions(
+    asset_distribution = utils.calculat_asset_distribution(
         portfolio_model,
         portfolio_data,
         "asset",
@@ -59,6 +59,6 @@ def model_portfolio(
     return (
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
-        asset_portfolio_current_positions,
+        asset_distribution,
         portfolio_model,
     )

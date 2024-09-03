@@ -8,12 +8,14 @@ from loguru import logger
 
 from stock_portfolio_tracker.objetcs import Config
 
+DIR_OUT = Path("/workspaces/Stock-Portfolio-Tracker/data/out/")
+
 
 def generate_reports(
     config: Config,
     asset_portfolio_value_evolution: pd.DataFrame,
     asset_portfolio_percent_evolution: pd.DataFrame,
-    asset_portfolio_current_positions: pd.DataFrame,
+    asset_distribution: pd.DataFrame,
     benchmark_value_evolution_absolute: pd.DataFrame,
     individual_assets_vs_benchmark_returns: pd.DataFrame,
     benchmark_percent_evolution: pd.DataFrame,
@@ -39,7 +41,7 @@ def generate_reports(
     )
 
     logger.info("Generating portfolio current positions.")
-    _generate_portfolio_current_positions_plot(config, asset_portfolio_current_positions)
+    _plot_asset_distribution(config, asset_distribution)
 
     logger.info("Generating portfolio current positions.")
     _generate_individual_assets_vs_benchmark_returns(individual_assets_vs_benchmark_returns)
@@ -77,18 +79,18 @@ def _generate_portfolio_value_evolution_plot(
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(Path(f"/workspaces/Stock-Portfolio-Tracker/data/out/{plot_name}.png"))
+    plt.savefig(DIR_OUT / Path(f"{plot_name}.png"))
     plt.close()
 
 
-def _generate_portfolio_current_positions_plot(
+def _plot_asset_distribution(
     config: Config,
-    asset_portfolio_current_positions: pd.DataFrame,
+    asset_distribution: pd.DataFrame,
 ) -> None:
-    asset_portfolio_current_positions = asset_portfolio_current_positions.dropna()
+    asset_distribution = asset_distribution.dropna()
     _, ax = plt.subplots(figsize=(10, 8))
-    sizes = asset_portfolio_current_positions["current_position_value"]
-    tickers = asset_portfolio_current_positions["ticker_asset"]
+    sizes = asset_distribution["current_position_value"]
+    tickers = asset_distribution["ticker_asset"]
 
     wedges, _, _ = ax.pie(
         sizes,
@@ -96,12 +98,12 @@ def _generate_portfolio_current_positions_plot(
         startangle=90,
         colors=plt.cm.Paired(range(len(tickers))),
         counterclock=False,
-        autopct=lambda pct: f"{pct:.1f}%\n{round(pct/100 * sum(asset_portfolio_current_positions['current_position_value']) / 1000, 1)}k",  # noqa: E501
+        autopct=lambda pct: f"{pct:.1f}%\n{round(pct/100 * sum(asset_distribution['current_position_value']) / 1000, 1)}k",  # noqa: E501
         wedgeprops={"width": 0.3},
     )
 
     legend_tickers = []
-    for _, row in asset_portfolio_current_positions[
+    for _, row in asset_distribution[
         ["ticker_asset", "current_position_value", "percent", "current_quantity_asset"]
     ].iterrows():
         ticker, current_position_value, percent, current_quantity = list(row)
@@ -114,7 +116,7 @@ def _generate_portfolio_current_positions_plot(
     ax.set(aspect="equal", title="Portfolio Distribution")
 
     plt.savefig(
-        Path("/workspaces/Stock-Portfolio-Tracker/data/out/portfolio_current_positions.png"),
+        DIR_OUT / Path("asset_distribution.png"),
         bbox_inches="tight",
     )
     plt.close()
@@ -130,14 +132,14 @@ def _generate_portfolio_percent_evolution_plot(
         asset_portfolio_percent_evolution["current_percent_gain_asset"],
         linestyle="-",
         color="blue",
-        label=f"Percentage gain. Current: {asset_portfolio_percent_evolution['current_percent_gain_asset'].iloc[0]} %",  # noqa: E501
+        label=f"Portfolio. Current: {asset_portfolio_percent_evolution['current_percent_gain_asset'].iloc[0]} %",  # noqa: E501
     )
     plt.plot(
         benchmark_percent_evolution["date"],
         benchmark_percent_evolution["current_percent_gain_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark value. Current: {benchmark_percent_evolution['current_percent_gain_benchmark'].iloc[0]} %",  # noqa: E501
+        label=f"Benchmark. Current: {benchmark_percent_evolution['current_percent_gain_benchmark'].iloc[0]} %",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel("Percentage gain (%)")
@@ -149,7 +151,7 @@ def _generate_portfolio_percent_evolution_plot(
     plt.legend(loc="best")
     plt.tight_layout()
     plt.savefig(
-        Path("/workspaces/Stock-Portfolio-Tracker/data/out/portfolio_percent_evolution.png"),
+        DIR_OUT / Path("portfolio_percent_evolution.png"),
     )
     plt.close()
 
@@ -159,7 +161,7 @@ def _generate_individual_assets_vs_benchmark_returns(
 ) -> None:
     plt.figure(figsize=(10, 6))
 
-    # Plotting the bars
+    # plotting the bars
     bar_width = 0.4
     index = range(len(individual_assets_vs_benchmark_returns))
 
@@ -178,7 +180,7 @@ def _generate_individual_assets_vs_benchmark_returns(
         color="orange",
     )
 
-    # Adding the values on top of the bars
+    # adding the values on top of the bars
     for i in index:
         plt.text(
             i,
@@ -197,7 +199,6 @@ def _generate_individual_assets_vs_benchmark_returns(
             fontweight="bold",
         )
 
-    # Customizing the plot
     plt.xlabel("Ticker")
     plt.ylabel("Percent Gain (%)")
     plt.title("Current Percent Gain: Asset vs Benchmark")
@@ -206,12 +207,11 @@ def _generate_individual_assets_vs_benchmark_returns(
         individual_assets_vs_benchmark_returns["ticker_asset"],
     )
     plt.legend()
-
-    # Show the plot
     plt.tight_layout()
     plt.savefig(
-        Path(
-            "/workspaces/Stock-Portfolio-Tracker/data/out/individual_assets_vs_benchmark_returns.png",
+        DIR_OUT
+        / Path(
+            "individual_assets_vs_benchmark_returns.png",
         ),
     )
     plt.close()
