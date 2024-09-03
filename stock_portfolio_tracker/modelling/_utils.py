@@ -64,15 +64,28 @@ def calculate_current_percent_gain(
     current_value_column_name: str,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
-    df = sort_by_columns(
-        df,
-        ["date"],
-        [False],
-    ).assign(
-        money_out=np.nan,
-        money_in=np.nan,
-        **{f"value_{position_type}": lambda df: df[f"value_{position_type}"].replace(np.nan, 0)},
-        **{current_value_column_name: lambda df: df[current_value_column_name].replace(np.nan, 0)},
+    df = (
+        df.sort_values(
+            by=["date"],
+            ascending=[False],
+        )
+        .reset_index(drop=True)
+        .assign(
+            money_out=np.nan,
+            money_in=np.nan,
+            **{
+                f"value_{position_type}": lambda df: df[f"value_{position_type}"].replace(
+                    np.nan,
+                    0,
+                ),
+            },
+            **{
+                current_value_column_name: lambda df: df[current_value_column_name].replace(
+                    np.nan,
+                    0,
+                ),
+            },
+        )
     )
 
     iterator = list(reversed(df.index))
@@ -150,12 +163,15 @@ def calculat_asset_distribution(
 def calculate_quantity_benchmark(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
-    df = sort_by_columns(
-        df,
-        ["date"],
-        [False],
-    ).assign(
-        quantity_benchmark=np.nan,
+    df = (
+        df.sort_values(
+            by=["date"],
+            ascending=[False],
+        )
+        .reset_index(drop=True)
+        .assign(
+            quantity_benchmark=np.nan,
+        )
     )
 
     iterator = list(reversed(df.index))
@@ -185,14 +201,3 @@ def calculate_quantity_benchmark(
     )
 
     return df
-
-
-def sort_by_columns(
-    df: pd.DataFrame,
-    columns: list[str],
-    ascending: list[bool],
-) -> pd.DataFrame:
-    return df.sort_values(
-        by=columns,
-        ascending=ascending,
-    ).reset_index(drop=True)

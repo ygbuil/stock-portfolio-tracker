@@ -123,16 +123,8 @@ def model_benchmarks_proportional(
 
         individual_assets_vs_benchmark_returns.loc[len(individual_assets_vs_benchmark_returns)] = [
             group.iloc[0]["ticker_asset"],
-            utils.sort_by_columns(
-                percent_gain_asset,
-                ["date"],
-                [False],
-            ).iloc[0]["current_percent_gain_asset"],
-            utils.sort_by_columns(
-                percent_gain_benchmark,
-                ["date"],
-                [False],
-            ).iloc[0]["current_percent_gain_benchmark"],
+            percent_gain_asset.iloc[0]["current_percent_gain_asset"],
+            percent_gain_benchmark.iloc[0]["current_percent_gain_benchmark"],
         ]
 
     return individual_assets_vs_benchmark_returns
