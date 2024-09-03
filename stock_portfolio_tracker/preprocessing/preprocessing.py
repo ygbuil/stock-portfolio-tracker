@@ -29,6 +29,10 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     currency_exchanges = _load_currency_exchange(
         portfolio_data,
         config.portfolio_currency,
+        sorting_columns={
+            "columns": ["currency_exchange_rate_ticker", "date"],
+            "ascending": [True, False],
+        },
     )
 
     asset_prices = _load_prices(
@@ -37,6 +41,7 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         portfolio_data.end_date,
         currency_exchanges,
         "asset",
+        sorting_columns={"columns": ["ticker_asset", "date"], "ascending": [True, False]},
     )
     benchmarks = _load_prices(
         config.benchmark_tickers,
@@ -44,6 +49,7 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         portfolio_data.end_date,
         currency_exchanges,
         "benchmark",
+        sorting_columns={"columns": ["ticker_benchmark", "date"], "ascending": [True, False]},
     )
 
     logger.info("End of preprocess.")
@@ -51,13 +57,16 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     return config, portfolio_data, asset_prices, benchmarks
 
 
-def _sort_at_end(ticker_column: str, date_column: str) -> Callable:
+def _sort_at_end() -> Callable:
     def decorator(func: Callable) -> Callable:
+        # @wraps(func)
         def wrapper(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
+            sorting_columns = kwargs.get("sorting_columns")
+
             df = func(df, *args, **kwargs)
             return df.sort_values(
-                by=[ticker_column, date_column],
-                ascending=[True, False],
+                by=sorting_columns["columns"],
+                ascending=sorting_columns["ascending"],
             ).reset_index(drop=True)
 
         return wrapper
@@ -144,8 +153,12 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
     )
 
 
-@_sort_at_end("currency_exchange_rate_ticker", "date")
-def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) -> pd.DataFrame:
+@_sort_at_end()
+def _load_currency_exchange(
+    portfolio_data: PortfolioData,
+    local_currency: str,
+    sorting_columns: dict,  # noqa: ARG001
+) -> pd.DataFrame:
     currency_exchanges = []
     portfolio_currencies = {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
         local_currency,
@@ -199,13 +212,14 @@ def _load_currency_exchange(portfolio_data: PortfolioData, local_currency: str) 
     return pd.concat(currency_exchanges)
 
 
-# @_sort_at_end("ticker", "date")
+@_sort_at_end()
 def _load_prices(
     tickers: list[str],
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
     currency_exchange: pd.DataFrame,
     position_type: str,
+    sorting_columns: dict,  # noqa: ARG001
 ) -> pd.DataFrame:
     asset_prices = []
 
