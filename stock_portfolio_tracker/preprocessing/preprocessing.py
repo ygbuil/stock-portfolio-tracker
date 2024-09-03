@@ -141,7 +141,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
 def _load_currency_exchange(
     portfolio_data: PortfolioData,
     local_currency: str,
-    sorting_columns: dict,  # noqa: ARG001
+    sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     currency_exchanges = []
     portfolio_currencies = {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
@@ -203,7 +203,7 @@ def _load_prices(
     end_date: pd.Timestamp,
     currency_exchange: pd.DataFrame,
     position_type: str,
-    sorting_columns: dict,  # noqa: ARG001
+    sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     asset_prices = []
 

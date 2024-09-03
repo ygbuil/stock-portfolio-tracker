@@ -32,6 +32,12 @@ def model_data(
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
+        sorting_columns=[
+            {"columns": ["date"], "ascending": [False]},
+            {"columns": ["date"], "ascending": [False]},
+            {"columns": ["current_position_value"], "ascending": [False]},
+            {"columns": ["ticker_asset", "date"], "ascending": [True, False]},
+        ],
     )
 
     logger.info("Modelling benchmark.")
@@ -39,11 +45,16 @@ def model_data(
         modelling_benchmark.model_benchmarks_absolute(
             portfolio_data,
             benchmarks,
+            sorting_columns=[
+                {"columns": ["ticker_benchmark", "date"], "ascending": [True, False]},
+                {"columns": ["date"], "ascending": [False]},
+            ],
         )
     )
     individual_assets_vs_benchmark_returns = modelling_benchmark.model_benchmarks_proportional(
         portfolio_model,
         benchmarks,
+        sorting_columns=[{"columns": ["current_percent_gain_asset"], "ascending": [False]}],
     )
 
     logger.info("End of modelling.")

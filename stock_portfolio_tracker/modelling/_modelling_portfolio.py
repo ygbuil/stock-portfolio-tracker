@@ -1,13 +1,15 @@
 import pandas as pd
 
-from stock_portfolio_tracker.objetcs import PortfolioData
+from stock_portfolio_tracker.objetcs import PortfolioData, sort_at_end
 
 from . import _utils as utils
 
 
+@sort_at_end()
 def model_portfolio(
     portfolio_data: PortfolioData,
     asset_prices: pd.DataFrame,
+    sorting_columns: list[dict],  # noqa: ARG001
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     portfolio_model_grouped = pd.merge(
         asset_prices,
@@ -45,6 +47,7 @@ def model_portfolio(
         ),
         "asset",
         "current_value_portfolio",
+        sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
     asset_portfolio_current_positions = utils.calculat_portfolio_current_positions(
@@ -54,24 +57,8 @@ def model_portfolio(
     )
 
     return (
-        utils.sort_by_columns(
-            asset_portfolio_value_evolution,
-            ["date"],
-            [False],
-        ),
-        utils.sort_by_columns(
-            asset_portfolio_percent_evolution,
-            ["date"],
-            [False],
-        ),
-        utils.sort_by_columns(
-            asset_portfolio_current_positions,
-            ["current_position_value"],
-            [False],
-        ),
-        utils.sort_by_columns(
-            portfolio_model,
-            ["date"],
-            [False],
-        ),
+        asset_portfolio_value_evolution,
+        asset_portfolio_percent_evolution,
+        asset_portfolio_current_positions,
+        portfolio_model,
     )

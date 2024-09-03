@@ -1,13 +1,15 @@
 import pandas as pd
 
-from stock_portfolio_tracker.objetcs import PortfolioData
+from stock_portfolio_tracker.objetcs import PortfolioData, sort_at_end
 
 from . import _utils as utils
 
 
+@sort_at_end()
 def model_benchmarks_absolute(
     portfolio_data: PortfolioData,
     benchmarks: pd.DataFrame,
+    sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     benchmark_value_evolution_absolute = pd.merge(
         benchmarks,
@@ -43,22 +45,17 @@ def model_benchmarks_absolute(
         ).rename(columns={"value_asset": "value_benchmark"}),
         "benchmark",
         "current_value_benchmark",
+        sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    return utils.sort_by_columns(
-        benchmark_value_evolution_absolute,
-        ["ticker_benchmark", "date"],
-        [True, False],
-    ), utils.sort_by_columns(
-        benchmark_percent_evolution,
-        ["date"],
-        [False],
-    )
+    return benchmark_value_evolution_absolute, benchmark_percent_evolution
 
 
+@sort_at_end()
 def model_benchmarks_proportional(
     portfolio_model: pd.DataFrame,
     benchmarks: pd.DataFrame,
+    sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     individual_assets_vs_benchmark_returns = pd.DataFrame(
         {
@@ -114,12 +111,14 @@ def model_benchmarks_proportional(
             group,
             "benchmark",
             "current_value_benchmark",
+            sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
         percent_gain_asset = utils.calculate_current_percent_gain(
             group,
             "asset",
             "current_value_asset",
+            sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
         individual_assets_vs_benchmark_returns.loc[len(individual_assets_vs_benchmark_returns)] = [
@@ -136,8 +135,4 @@ def model_benchmarks_proportional(
             ).iloc[0]["current_percent_gain_benchmark"],
         ]
 
-    return utils.sort_by_columns(
-        individual_assets_vs_benchmark_returns,
-        ["current_percent_gain_asset"],
-        [False],
-    )
+    return individual_assets_vs_benchmark_returns

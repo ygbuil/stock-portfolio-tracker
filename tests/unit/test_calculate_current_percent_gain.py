@@ -114,4 +114,5 @@ def test_calculate_current_percent_gain(
         request.getfixturevalue(transactions),
         "asset",
         "current_value_asset",
+        sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     ).equals(request.getfixturevalue(current_percent_gain))

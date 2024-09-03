@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from stock_portfolio_tracker.objetcs import sort_at_end
+
 
 def calculate_current_quantity(
     group: pd.DataFrame,
@@ -55,10 +57,12 @@ def calculate_current_value(df: pd.DataFrame, position_type: str) -> pd.DataFram
     )
 
 
+@sort_at_end()
 def calculate_current_percent_gain(
     df: pd.DataFrame,
     position_type: str,
     current_value_column_name: str,
+    sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     df = sort_by_columns(
         df,
@@ -106,11 +110,7 @@ def calculate_current_percent_gain(
     df.loc[0, f"current_gain_{position_type}"] = 0
     df.loc[0, f"current_percent_gain_{position_type}"] = 0
 
-    return sort_by_columns(
-        df,
-        ["date"],
-        [False],
-    )
+    return df
 
 
 def calculat_portfolio_current_positions(
