@@ -3,7 +3,7 @@
 import pandas as pd
 from loguru import logger
 
-from stock_portfolio_tracker.objetcs import PortfolioData
+from stock_portfolio_tracker.utils import PortfolioData
 
 from . import _modelling_benchmark as modelling_benchmark
 from . import _modelling_portfolio as modelling_portfolio
@@ -21,8 +21,6 @@ def model_data(
     :param asset_prices: Asset prices historical data.
     :return: Relevant modelled data.
     """
-    logger.info("Start of modelling.")
-
     logger.info("Modelling portfolio.")
     (
         asset_portfolio_value_evolution,

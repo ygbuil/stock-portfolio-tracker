@@ -3,13 +3,18 @@
 from loguru import logger
 
 from stock_portfolio_tracker import modelling, preprocessing, reporting
+from stock_portfolio_tracker.utils import timer
 
 
+@timer
 def main() -> None:
     """Execute the project end to end."""
     logger.info("Start of execution.")
+
+    logger.info("Start of preprocess.")
     config, portfolio_data, asset_prices, benchmarks = preprocessing.preprocess()
 
+    logger.info("Start of modelling.")
     (
         asset_portfolio_value_evolution,
         asset_portfolio_percent_evolution,
@@ -23,6 +28,7 @@ def main() -> None:
         asset_prices,
     )
 
+    logger.info("Start of generate reports.")
     reporting.generate_reports(
         config,
         asset_portfolio_value_evolution,

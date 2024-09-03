@@ -1,6 +1,6 @@
 import pandas as pd
 
-from stock_portfolio_tracker.objetcs import PortfolioData, sort_at_end
+from stock_portfolio_tracker.utils import PortfolioData, sort_at_end
 
 from . import _utils as utils
 

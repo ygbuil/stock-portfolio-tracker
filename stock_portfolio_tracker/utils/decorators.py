@@ -1,15 +1,17 @@
 """Module to store various util objects."""
 
-from typing import Callable
+import time
+from typing import Any, Callable
 
 import pandas as pd
+from loguru import logger
 
 
 def sort_at_end() -> Callable:
-    """Sort the output dataframe of functions, used as decorator."""
+    """Sort the output dataframe of functions."""
 
     def decorator(func: Callable) -> Callable:
-        def wrapper(*args, **kwargs) -> pd.DataFrame:
+        def wrapper(*args, **kwargs) -> tuple[pd.DataFrame]:
             sorting_columns = kwargs.get("sorting_columns")
             dfs = func(*args, **kwargs)
 
@@ -35,3 +37,17 @@ def sort_at_end() -> Callable:
         return wrapper
 
     return decorator
+
+
+def timer(func: Callable) -> Callable:
+    """Count the time a function takes to execute."""
+
+    def wrapper(*args, **kwargs) -> Any:
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+
+        logger.info(f"Total execution time: {(end_time - start_time):.1f} seconds.")
+        return result
+
+    return wrapper

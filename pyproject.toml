@@ -26,7 +26,7 @@ lint.select = [
     "Q", "RSE", "RET", "SLF", "SIM", "TID", "TCH", "ARG", "PTH", "ERA", "PD", "PGH", "PL", "TRY",
     "NPY", "RUF"
 ]
-lint.ignore = ["PD015", "PD901","ANN002", "ANN003", "TRY002", "TRY003", "BLE001", "PLR0913", "S101"]
+lint.ignore = ["PD015", "PD901","ANN002", "ANN003", "TRY002", "TRY003", "BLE001", "PLR0913", "S101", "ANN401"]
 
 [build-system]
 requires = ["poetry-core"]

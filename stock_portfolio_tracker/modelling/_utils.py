@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from stock_portfolio_tracker.objetcs import sort_at_end
+from stock_portfolio_tracker.utils import sort_at_end
 
 
 def calculate_current_quantity(

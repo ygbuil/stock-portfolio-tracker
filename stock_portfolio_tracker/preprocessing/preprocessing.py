@@ -9,7 +9,7 @@ import yfinance as yf
 from dotenv import load_dotenv
 from loguru import logger
 
-from stock_portfolio_tracker.objetcs import Config, PortfolioData, sort_at_end
+from stock_portfolio_tracker.utils import Config, PortfolioData, sort_at_end
 
 
 def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -17,8 +17,6 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     :return: All necessary input data for the calculations.
     """
-    logger.info("Start of preprocess.")
-
     config_file_name, transactions_file_name = _get_input_files_names()
 
     config = _load_config(config_file_name)

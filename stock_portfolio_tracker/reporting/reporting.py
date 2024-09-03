@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from loguru import logger
 
-from stock_portfolio_tracker.objetcs import Config
+from stock_portfolio_tracker.utils import Config
 
 DIR_OUT = Path("/workspaces/Stock-Portfolio-Tracker/data/out/")
 
@@ -25,8 +25,6 @@ def generate_reports(
     :param asset_portfolio_value_evolution: Stock portfolio hisorical price.
     :param benchmark_value_evolution_absolute: Benchmark hisorical price.
     """
-    logger.info("Start of generate reports.")
-
     logger.info("Generating portfolio value evolution.")
     _generate_portfolio_value_evolution_plot(
         config,
