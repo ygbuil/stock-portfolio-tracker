@@ -59,7 +59,6 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
 def _sort_at_end() -> Callable:
     def decorator(func: Callable) -> Callable:
-        # @wraps(func)
         def wrapper(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
             sorting_columns = kwargs.get("sorting_columns")
 
@@ -238,23 +237,19 @@ def _load_prices(
             right_on=["date", "currency_exchange_rate_ticker"],
         )
         .assign(
-            close_unadjusted_local_currency=lambda df: df.apply(
-                lambda x: x["close_unadjusted_origin_currency"] / x["close_currency_rate"],
-                axis=1,
-            ),
+            **{
+                f"close_unadjusted_local_currency_{position_type}": lambda df: df.apply(
+                    lambda x: x["close_unadjusted_origin_currency"] / x["close_currency_rate"],
+                    axis=1,
+                ),
+            },
         )
         .rename(
             columns={
                 "ticker": f"ticker_{position_type}",
                 "split": f"split_{position_type}",
-                "close_unadjusted_local_currency": f"close_unadjusted_local_currency_{position_type}",  # noqa: E501
             },
-        )
-        .sort_values(
-            by=["date", f"ticker_{position_type}"],
-            ascending=[True, False],
-        )
-        .reset_index(drop=True)[
+        )[
             [
                 "date",
                 f"ticker_{position_type}",
