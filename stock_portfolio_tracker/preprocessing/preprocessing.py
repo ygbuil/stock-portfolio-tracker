@@ -28,10 +28,12 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     currency_exchanges = _load_currency_exchange(
         portfolio_data,
         config.portfolio_currency,
-        sorting_columns={
-            "columns": ["currency_exchange_rate_ticker", "date"],
-            "ascending": [True, False],
-        },
+        sorting_columns=[
+            {
+                "columns": ["currency_exchange_rate_ticker", "date"],
+                "ascending": [True, False],
+            },
+        ],
     )
 
     asset_prices = _load_prices(
@@ -40,7 +42,7 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         portfolio_data.end_date,
         currency_exchanges,
         "asset",
-        sorting_columns={"columns": ["ticker_asset", "date"], "ascending": [True, False]},
+        sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
     benchmarks = _load_prices(
         config.benchmark_tickers,
@@ -48,7 +50,7 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         portfolio_data.end_date,
         currency_exchanges,
         "benchmark",
-        sorting_columns={"columns": ["ticker_benchmark", "date"], "ascending": [True, False]},
+        sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
     )
 
     logger.info("End of preprocess.")
