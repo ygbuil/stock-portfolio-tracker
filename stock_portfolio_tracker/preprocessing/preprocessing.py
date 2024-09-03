@@ -9,7 +9,7 @@ import yfinance as yf
 from dotenv import load_dotenv
 from loguru import logger
 
-from stock_portfolio_tracker.objetcs import Config, PortfolioData, _sort_at_end
+from stock_portfolio_tracker.objetcs import Config, PortfolioData, sort_at_end
 
 
 def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -135,7 +135,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
     )
 
 
-@_sort_at_end()
+@sort_at_end()
 def _load_currency_exchange(
     portfolio_data: PortfolioData,
     local_currency: str,
@@ -194,7 +194,7 @@ def _load_currency_exchange(
     return pd.concat(currency_exchanges)
 
 
-@_sort_at_end()
+@sort_at_end()
 def _load_prices(
     tickers: list[str],
     start_date: pd.Timestamp,

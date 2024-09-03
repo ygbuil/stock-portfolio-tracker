@@ -5,7 +5,9 @@ from typing import Callable
 import pandas as pd
 
 
-def _sort_at_end() -> Callable:
+def sort_at_end() -> Callable:
+    """Sort the output dataframe of functions, used as decorator."""
+
     def decorator(func: Callable) -> Callable:
         def wrapper(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
             sorting_columns = kwargs.get("sorting_columns")
