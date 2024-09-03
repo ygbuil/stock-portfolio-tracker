@@ -1,4 +1,4 @@
-"""Module to store various objects."""
+"""Module to store data models."""
 
 from dataclasses import dataclass
 

@@ -1,5 +1,6 @@
 """__init__.py for objects package."""
 
-from .dataclasses import Config, PortfolioData
+from .models import Config, PortfolioData
+from .utils import _sort_at_end
 
-__all__ = ["PortfolioData", "Config"]
+__all__ = ["PortfolioData", "Config", "_sort_at_end"]

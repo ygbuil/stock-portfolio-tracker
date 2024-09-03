@@ -3,14 +3,13 @@
 import json
 import os
 from pathlib import Path
-from typing import Callable
 
 import pandas as pd
 import yfinance as yf
 from dotenv import load_dotenv
 from loguru import logger
 
-from stock_portfolio_tracker.objetcs import Config, PortfolioData
+from stock_portfolio_tracker.objetcs import Config, PortfolioData, _sort_at_end
 
 
 def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
@@ -55,22 +54,6 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     logger.info("End of preprocess.")
 
     return config, portfolio_data, asset_prices, benchmarks
-
-
-def _sort_at_end() -> Callable:
-    def decorator(func: Callable) -> Callable:
-        def wrapper(df: pd.DataFrame, *args, **kwargs) -> pd.DataFrame:
-            sorting_columns = kwargs.get("sorting_columns")
-
-            df = func(df, *args, **kwargs)
-            return df.sort_values(
-                by=sorting_columns["columns"],
-                ascending=sorting_columns["ascending"],
-            ).reset_index(drop=True)
-
-        return wrapper
-
-    return decorator
 
 
 def _get_input_files_names() -> tuple[str, str]:
