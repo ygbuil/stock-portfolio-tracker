@@ -37,9 +37,9 @@ def calculate_current_quantity(
             )
 
     return group.assign(
-        **{f"split_{position_type}": lambda df: df[f"split_{position_type}"].replace(1, 0)},
+        **{f"split_{position_type}": group[f"split_{position_type}"].replace(1, 0)},
         **{quantity_col_name: group[quantity_col_name].replace(0, np.nan)},
-        current_quantity=lambda df: df["current_quantity"].replace(0, np.nan),
+        current_quantity=group["current_quantity"].replace(0, np.nan),
     ).rename(columns={"current_quantity": f"current_quantity_{position_type}"})
 
 
