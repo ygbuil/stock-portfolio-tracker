@@ -220,10 +220,10 @@ def _load_prices(
         )
         .assign(
             **{
-                f"close_unadjusted_local_currency_{position_type}": lambda df: df.apply(
-                    lambda x: x["close_unadjusted_origin_currency"] / x["close_currency_rate"],
-                    axis=1,
-                ),
+                f"close_unadjusted_local_currency_{position_type}": lambda df: df[
+                    "close_unadjusted_origin_currency"
+                ]
+                / df["close_currency_rate"],
             },
         )
         .rename(
