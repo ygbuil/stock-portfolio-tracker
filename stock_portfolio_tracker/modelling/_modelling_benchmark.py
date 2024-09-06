@@ -11,10 +11,9 @@ def model_benchmarks_absolute(
     benchmarks: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
-    benchmark_value_evolution_absolute = pd.merge(
-        benchmarks,
+    benchmark_value_evolution_absolute = benchmarks.merge(
         portfolio_data.transactions[["date", "quantity_asset", "value_asset"]],
-        "left",
+        how="left",
         on=["date"],
     ).assign(
         quantity_benchmark=lambda df: df.apply(
@@ -35,14 +34,13 @@ def model_benchmarks_absolute(
     ).assign(current_value_benchmark=lambda df: round(df["current_value_benchmark"], 2))
 
     benchmark_percent_evolution = utils.calculate_current_percent_gain(
-        pd.merge(
-            benchmark_value_evolution_absolute[
-                ["date", "ticker_benchmark", "current_value_benchmark"]
-            ],
+        benchmark_value_evolution_absolute[["date", "ticker_benchmark", "current_value_benchmark"]]
+        .merge(
             portfolio_data.transactions[["date", "value_asset"]],
-            "left",
+            how="left",
             on=["date"],
-        ).rename(columns={"value_asset": "value_benchmark"}),
+        )
+        .rename(columns={"value_asset": "value_benchmark"}),
         "benchmark",
         "current_value_benchmark",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
@@ -66,15 +64,14 @@ def model_benchmarks_proportional(
     )
 
     for _, group in portfolio_model.groupby("ticker_asset"):
-        group = pd.merge(  # noqa: PLW2901
-            benchmarks[
-                [
-                    "date",
-                    "ticker_benchmark",
-                    "split_benchmark",
-                    "close_unadjusted_local_currency_benchmark",
-                ]
-            ],
+        group = benchmarks[  # noqa: PLW2901
+            [
+                "date",
+                "ticker_benchmark",
+                "split_benchmark",
+                "close_unadjusted_local_currency_benchmark",
+            ]
+        ].merge(
             group[
                 [
                     "date",
@@ -85,7 +82,7 @@ def model_benchmarks_proportional(
                     "value_asset",
                 ]
             ],
-            "left",
+            how="left",
             on=["date"],
         )
 

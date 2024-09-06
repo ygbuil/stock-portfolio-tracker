@@ -177,8 +177,7 @@ def _load_currency_exchange(
                     ticker {ticker}: {exc}""",
                 ) from exc
 
-            currency_exchange = pd.merge(
-                full_date_range,
+            currency_exchange = full_date_range.merge(
                 currency_exchange,
                 "left",
                 on="date",
@@ -212,8 +211,8 @@ def _load_prices(
 
     # convert to local currency
     return (
-        pd.merge(
-            pd.concat(asset_prices),
+        pd.concat(asset_prices)
+        .merge(
             currency_exchange,
             "left",
             left_on=["date", "origin_currency"],
@@ -274,14 +273,15 @@ def _load_ticker_data(
     # market open it was trading at 100/share due to the split. Yahoo reported a 10
     # stock_split for at date 2024-06-10.
     return (
-        pd.merge(
-            pd.DataFrame(
-                {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
-            ),
+        pd.DataFrame(
+            {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
+        )
+        .merge(
             asset_price,
             "left",
             on="date",
-        ).assign(
+        )
+        .assign(
             split=lambda df: df["split"].fillna(0),
             close_adjusted_origin_currency=lambda df: df["close_adjusted_origin_currency"]
             .bfill()

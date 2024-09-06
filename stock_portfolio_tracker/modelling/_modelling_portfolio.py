@@ -11,10 +11,9 @@ def model_portfolio(
     asset_prices: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
-    portfolio_model_grouped = pd.merge(
-        asset_prices,
+    portfolio_model_grouped = asset_prices.merge(
         portfolio_data.transactions,
-        "left",
+        how="left",
         on=["date", "ticker_asset"],
     ).groupby("ticker_asset")
 
@@ -39,10 +38,9 @@ def model_portfolio(
     )
 
     asset_portfolio_percent_evolution = utils.calculate_current_percent_gain(
-        pd.merge(
-            asset_portfolio_value_evolution,
+        asset_portfolio_value_evolution.merge(
             portfolio_data.transactions[["date", "value_asset"]],
-            "left",
+            how="left",
             on=["date"],
         ),
         "asset",
