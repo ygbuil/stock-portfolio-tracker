@@ -16,10 +16,8 @@ def model_benchmarks_absolute(
         how="left",
         on=["date"],
     ).assign(
-        quantity_benchmark=lambda df: df.apply(
-            lambda x: -x["value_asset"] / x["close_unadjusted_local_currency_benchmark"],
-            axis=1,
-        ),
+        quantity_benchmark=lambda df: -df["value_asset"]
+        / df["close_unadjusted_local_currency_benchmark"],
     )
 
     benchmark_value_evolution_absolute = utils.calculate_current_quantity(

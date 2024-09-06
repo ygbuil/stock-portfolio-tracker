@@ -105,13 +105,12 @@ def calculate_current_percent_gain(
 
     df = (
         df.assign(
-            **{f"current_gain_{position_type}": lambda df: df["money_out"] + df["money_in"]},
+            **{f"current_gain_{position_type}": df["money_out"] + df["money_in"]},
             **{
-                f"current_percent_gain_{position_type}": lambda df: df.apply(
-                    lambda x: round((abs(x["money_in"] / x["money_out"]) - 1) * 100, 2)
-                    if x["money_out"] != 0
-                    else 0,
-                    axis=1,
+                f"current_percent_gain_{position_type}": np.where(
+                    df["money_out"] != 0,
+                    round((abs(df["money_in"] / df["money_out"]) - 1) * 100, 2),
+                    0,
                 ),
             },
         )
