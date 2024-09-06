@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import yfinance as yf
 from dotenv import load_dotenv
@@ -92,15 +93,15 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         )
         .assign(
             date=lambda df: pd.to_datetime(df["date"], format="%d-%m-%Y"),
-            value=lambda df: df.apply(
-                lambda x: abs(x["value"]) if x["transaction_type"] == "Sale" else -abs(x["value"]),
-                axis=1,
+            value=lambda df: np.where(
+                df["transaction_type"] == "Sale",
+                abs(df["value"]),
+                -abs(df["value"]),
             ),
-            quantity=lambda df: df.apply(
-                lambda x: -abs(x["quantity"])
-                if x["transaction_type"] == "Sale"
-                else abs(x["quantity"]),
-                axis=1,
+            quantity=lambda df: np.where(
+                df["transaction_type"] == "Sale",
+                -abs(df["quantity"]),
+                abs(df["quantity"]),
             ),
         )
         .drop("transaction_type", axis=1)
