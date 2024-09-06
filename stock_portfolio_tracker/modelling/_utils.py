@@ -11,7 +11,7 @@ def calculate_current_quantity(
 ) -> pd.DataFrame:
     group = (
         group.assign(
-            current_quantity=np.nan,
+            **{f"current_quantity_{position_type}": np.nan},
             **{f"split_{position_type}": lambda df: df[f"split_{position_type}"].replace(0, 1)},
             **{quantity_col_name: group[quantity_col_name].replace(np.nan, 0)},
         )
@@ -26,21 +26,27 @@ def calculate_current_quantity(
         # if first day
         if i == iterator[0]:
             if np.isnan(group.loc[i, quantity_col_name]):
-                group.loc[i, "current_quantity"] = 0
+                group.loc[i, f"current_quantity_{position_type}"] = 0
             else:
-                group.loc[i, "current_quantity"] = group.loc[i, quantity_col_name]
+                group.loc[i, f"current_quantity_{position_type}"] = group.loc[i, quantity_col_name]
         else:
-            # current_quantity = quantity_purchased_or_sold + (yesterdays_quantity * f"split_{position_type}") # noqa: ERA001 E501
-            group.loc[i, "current_quantity"] = (
+            # f"current_quantity_{position_type}" = quantity_purchased_or_sold + (yesterdays_quantity * f"split_{position_type}") # noqa: E501
+            group.loc[i, f"current_quantity_{position_type}"] = (
                 group.loc[i, quantity_col_name]
-                + group.loc[i + 1, "current_quantity"] * group.loc[i, f"split_{position_type}"]
+                + group.loc[i + 1, f"current_quantity_{position_type}"]
+                * group.loc[i, f"split_{position_type}"]
             )
 
     return group.assign(
         **{f"split_{position_type}": group[f"split_{position_type}"].replace(1, 0)},
         **{quantity_col_name: group[quantity_col_name].replace(0, np.nan)},
-        current_quantity=group["current_quantity"].replace(0, np.nan),
-    ).rename(columns={"current_quantity": f"current_quantity_{position_type}"})
+        **{
+            f"current_quantity_{position_type}": group[f"current_quantity_{position_type}"].replace(
+                0,
+                np.nan,
+            ),
+        },
+    )
 
 
 def calculate_current_value(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
