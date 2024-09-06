@@ -288,10 +288,8 @@ def _load_ticker_data(
             .bfill()
             .ffill(),
             split_cumsum=lambda df: df["split"].replace(0, 1).cumprod().shift(1).fillna(1),
-            close_unadjusted_origin_currency=lambda df: df.apply(
-                lambda x: x["close_adjusted_origin_currency"] * x["split_cumsum"],
-                axis=1,
-            ),
+            close_unadjusted_origin_currency=lambda df: df["close_adjusted_origin_currency"]
+            * df["split_cumsum"],
             origin_currency=asset.info.get("currency"),
             ticker=ticker,
         )
