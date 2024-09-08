@@ -7,9 +7,7 @@
     "customizations": {
         "vscode": {
             "settings": {
-                "terminal.integrated.shell.linux": "/bin/zsh",
-                "python.defaultInterpreterPath": "/workspace/.venv/bin/python",
-                "python.venvPath": "/workspace/.venv"
+                "terminal.integrated.shell.linux": "/bin/zsh"
             },
             "extensions": [
                 "ms-python.python",
