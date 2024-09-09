@@ -25,33 +25,32 @@ def generate_reports(
     :param asset_portfolio_value_evolution: Stock portfolio hisorical price.
     :param benchmark_value_evolution_absolute: Benchmark hisorical price.
     """
-    logger.info("Generating portfolio value evolution.")
-    _generate_portfolio_value_evolution_plot(
+    logger.info("Plotting portfolio absolute evolution.")
+    _plot_portfolio_absolute_evolution(
         config,
         asset_portfolio_value_evolution,
         benchmark_value_evolution_absolute,
-        "portfolio_value_evolution_absolute",
     )
 
-    _generate_portfolio_percent_evolution_plot(
+    logger.info("Plotting portfolio percent evolution.")
+    _plot_portfolio_percent_evolution(
         asset_portfolio_percent_evolution,
         benchmark_percent_evolution,
     )
 
-    logger.info("Generating portfolio current positions.")
+    logger.info("Plotting asset distribution.")
     _plot_asset_distribution(config, asset_distribution)
 
-    logger.info("Generating portfolio current positions.")
-    _generate_individual_assets_vs_benchmark_returns(individual_assets_vs_benchmark_returns)
+    logger.info("Plotting individual assets vs benchmark.")
+    _plot_individual_assets_vs_benchmark(individual_assets_vs_benchmark_returns)
 
     logger.info("End of generate reports.")
 
 
-def _generate_portfolio_value_evolution_plot(
+def _plot_portfolio_absolute_evolution(
     config: Config,
     asset_portfolio_value_evolution: pd.DataFrame,
     benchmark_value_evolution_absolute: pd.DataFrame,
-    plot_name: str,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -77,7 +76,7 @@ def _generate_portfolio_value_evolution_plot(
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(DIR_OUT / Path(f"{plot_name}.png"))
+    plt.savefig(DIR_OUT / Path("portfolio_absolute_evolution.png"))
     plt.close()
 
 
@@ -111,7 +110,7 @@ def _plot_asset_distribution(
         )
 
     ax.legend(wedges, legend_tickers, loc="center left", bbox_to_anchor=(-0.6, 0.5))
-    ax.set(aspect="equal", title="Portfolio Distribution")
+    ax.set(aspect="equal", title="Asset Distribution")
 
     plt.savefig(
         DIR_OUT / Path("asset_distribution.png"),
@@ -120,7 +119,7 @@ def _plot_asset_distribution(
     plt.close()
 
 
-def _generate_portfolio_percent_evolution_plot(
+def _plot_portfolio_percent_evolution(
     asset_portfolio_percent_evolution: pd.DataFrame,
     benchmark_percent_evolution: pd.DataFrame,
 ) -> None:
@@ -154,12 +153,11 @@ def _generate_portfolio_percent_evolution_plot(
     plt.close()
 
 
-def _generate_individual_assets_vs_benchmark_returns(
+def _plot_individual_assets_vs_benchmark(
     individual_assets_vs_benchmark_returns: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
 
-    # plotting the bars
     bar_width = 0.4
     index = range(len(individual_assets_vs_benchmark_returns))
 
@@ -178,27 +176,27 @@ def _generate_individual_assets_vs_benchmark_returns(
         color="orange",
     )
 
-    # adding the values on top of the bars
     for i in index:
         plt.text(
             i,
-            individual_assets_vs_benchmark_returns["current_percent_gain_asset"][i] + 1,
+            -7,
             f"{individual_assets_vs_benchmark_returns['current_percent_gain_asset'][i]:.2f}%",
             ha="center",
             color="blue",
             fontweight="bold",
+            rotation=45,
         )
         plt.text(
             i + bar_width,
-            individual_assets_vs_benchmark_returns["current_percent_gain_benchmark"][i] + 1,
+            -7,
             f"{individual_assets_vs_benchmark_returns['current_percent_gain_benchmark'][i]:.2f}%",
             ha="center",
             color="orange",
             fontweight="bold",
+            rotation=45,
         )
 
-    plt.xlabel("Ticker")
-    plt.ylabel("Percent Gain (%)")
+    plt.ylabel("Percent gain (%)")
     plt.title("Current Percent Gain: Asset vs Benchmark")
     plt.xticks(
         [i + bar_width / 2 for i in index],
