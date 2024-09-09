@@ -70,7 +70,7 @@ def _plot_portfolio_absolute_evolution(
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")
     plt.title(
-        f"Date ({asset_portfolio_value_evolution['date'].iloc[-1].date()} - {asset_portfolio_value_evolution['date'].iloc[0].date()})",  # noqa: E501
+        f"Date ({asset_portfolio_value_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {asset_portfolio_value_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
@@ -141,7 +141,7 @@ def _plot_portfolio_percent_evolution(
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel("Percentage gain (%)")
     plt.title(
-        f"Date ({benchmark_percent_evolution['date'].iloc[-1].date()} - {benchmark_percent_evolution['date'].iloc[0].date()})",  # noqa: E501
+        f"Date ({benchmark_percent_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_percent_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
@@ -176,10 +176,13 @@ def _plot_individual_assets_vs_benchmark(
         color="orange",
     )
 
+    ymin, _ = plt.ylim()
+    y_offset = ymin - 5
+
     for i in index:
         plt.text(
             i,
-            -7,
+            y_offset,
             f"{individual_assets_vs_benchmark_returns['current_percent_gain_asset'][i]:.2f}%",
             ha="center",
             color="blue",
@@ -188,7 +191,7 @@ def _plot_individual_assets_vs_benchmark(
         )
         plt.text(
             i + bar_width,
-            -7,
+            y_offset,
             f"{individual_assets_vs_benchmark_returns['current_percent_gain_benchmark'][i]:.2f}%",
             ha="center",
             color="orange",
