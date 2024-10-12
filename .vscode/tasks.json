@@ -7,8 +7,8 @@
             "command": "stock-portfolio-tracker",
             "args": [
                 "pipeline",
-                "--config-file-name", "my_config.json",
-                "--transactions-file-name", "my_transactions.csv",
+                "--config-file-name", "config.json",
+                "--transactions-file-name", "transactions.csv",
             ],
             "problemMatcher": []
         }
