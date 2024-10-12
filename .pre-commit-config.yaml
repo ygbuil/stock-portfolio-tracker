@@ -17,4 +17,4 @@ repos:
       entry: pytest
       pass_filenames: false
       language: system
-      stages: [push] # for it to work, run: pre-commit install --hook-type pre-commit --hook-type pre-push
+      stages: [push]
