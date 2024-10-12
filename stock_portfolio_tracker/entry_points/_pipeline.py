@@ -1,13 +1,20 @@
 """Main module to execute the project."""
 
+import click
 from loguru import logger
 
 from stock_portfolio_tracker import modelling, preprocessing, reporting
 from stock_portfolio_tracker.utils import timer
 
 
+@click.command()
+def pipeline() -> None:
+    """Entry point for pipeline."""
+    _pipeline()
+
+
 @timer
-def main() -> None:
+def _pipeline() -> None:
     """Execute the project end to end."""
     logger.info("Start of execution.")
 
@@ -40,7 +47,3 @@ def main() -> None:
     )
 
     logger.info("End of execution.")
-
-
-if __name__ == "__main__":
-    main()

@@ -5,6 +5,9 @@ description = ""
 authors = ["Llorenc Buil"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+stock-portfolio-tracker = "stock_portfolio_tracker.__main__:_main"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 requests = "^2.32.2"
@@ -17,6 +20,7 @@ ruff = "^0.4.6"
 matplotlib = "^3.9.0"
 loguru = "^0.7.2"
 pytest = "^8.2.2"
+click = "^8.1.7"
 
 [tool.ruff]
 line-length = 100

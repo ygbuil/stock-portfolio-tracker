@@ -1,0 +1,14 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "pipeline",
+            "type": "shell",
+            "command": "stock-portfolio-tracker",
+            "args": [
+                "pipeline"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
