@@ -8,7 +8,9 @@
             "program": "stock_portfolio_tracker",
             "justMyCode": false,
             "args": [
-                "pipeline"
+                "pipeline",
+                "--config-file-name", "config.json",
+                "--transactions-file-name", "transactions.csv",
             ],
         }
     ],

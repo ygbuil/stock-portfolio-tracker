@@ -45,7 +45,7 @@ def preprocess(
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
     benchmarks = _load_prices(
-        config.benchmark_tickers,
+        [config.benchmark_ticker],
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,

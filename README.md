@@ -24,7 +24,7 @@ To use the project, follow these steps:
 3. Place your `config.json` and `transactions.csv` in the `data/in` folder. Sample files (`example_config.json` and `example_transactions.csv`) are provided, but you should replace them with your own. Here is a description of each file:
    - `config.json`: Contains configuration settings for the portfolio tracker. Fields:
      - `portfolio_currency`: Indicates the base currency of your portfolio. All reports will be displayed in this currency.
-     - `benchmark_tickers`: A list of tickers to benchmark your portfolio against, as they are listed in Yahoo Finance.
+     - `benchmark_ticker`: Ticker to benchmark your portfolio against, as listed in Yahoo Finance.
    
    - `transactions.csv`: Portfolio transactions in CSV format. Fields:
      - `date`: Date of the transaction. It can be in the format `DD-MM-YYYY` or `YYYY-MM-DD`.

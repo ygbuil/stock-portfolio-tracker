@@ -10,7 +10,7 @@ class Config:
     """Config data."""
 
     portfolio_currency: str
-    benchmark_tickers: list[str]
+    benchmark_ticker: str
 
 
 @dataclass

@@ -1,4 +1,4 @@
 {
     "portfolio_currency": "EUR",
-    "benchmark_tickers": ["IUSA.DE"]
+    "benchmark_ticker": "IUSA.DE"
 }
