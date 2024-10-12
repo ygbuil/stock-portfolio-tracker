@@ -6,7 +6,9 @@
             "type": "shell",
             "command": "stock-portfolio-tracker",
             "args": [
-                "pipeline"
+                "pipeline",
+                "--config-file-name", "my_config.json",
+                "--transactions-file-name", "my_transactions.csv",
             ],
             "problemMatcher": []
         }

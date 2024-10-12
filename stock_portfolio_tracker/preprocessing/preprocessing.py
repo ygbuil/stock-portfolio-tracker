@@ -1,25 +1,26 @@
 """Preprocess input data."""
 
 import json
-import os
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import yfinance as yf
-from dotenv import load_dotenv
 from loguru import logger
 
 from stock_portfolio_tracker.utils import Config, PortfolioData, sort_at_end
 
 
-def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def preprocess(
+    config_file_name: str,
+    transactions_file_name: str,
+) -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load all necessary data from user input and yahoo finance API.
 
+    :param config_file_name: File name for config.
+    :param transactions_file_name: File name for transactions.
     :return: All necessary input data for the calculations.
     """
-    config_file_name, transactions_file_name = _get_input_files_names()
-
     config = _load_config(config_file_name)
 
     portfolio_data = _load_portfolio_data(transactions_file_name)
@@ -55,20 +56,6 @@ def preprocess() -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     logger.info("End of preprocess.")
 
     return config, portfolio_data, asset_prices, benchmarks
-
-
-def _get_input_files_names() -> tuple[str, str]:
-    load_dotenv()
-    config_file_name = os.getenv("CONFIG_NAME")
-    transactions_file_name = os.getenv("TRANSACTIONS_NAME")
-
-    if not config_file_name:
-        config_file_name = "config.json"
-
-    if not transactions_file_name:
-        transactions_file_name = "transactions.csv"
-
-    return config_file_name, transactions_file_name
 
 
 def _load_config(config_file_name: str) -> Config:

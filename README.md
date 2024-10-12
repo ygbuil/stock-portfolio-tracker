@@ -15,11 +15,13 @@ Some of the reports you will get are the following:
 
 ## Usage
 
-To use the Stock Portfolio Tracker, follow these steps:
+To use the project, follow these steps:
 
 1. Clone the project.
 
-2. Provide `config.json` and `transactions.csv` isnide the `data/in` directory:
+2. Open the project (preferably with VSCode) and build the `.devcontainer/Dockerfile`.
+
+3. Provide `my_config.json` and `my_transactions.csv` isnide the `data/in` directory:
    - `config.json`: This file contains configuration settings for the portfolio tracker. An example of its contents is shown below:
      ```json
      {
@@ -43,9 +45,9 @@ To use the Stock Portfolio Tracker, follow these steps:
      - `quantity`: The amount of shares purchased/sold. It can be an integer or float in the format `1234.00`. This field is not sensitive to the sign, the code will convert it to the proper sign based on `transaction_type`.
      - `value`: Total value of the transaction expressed in the portfolio currency specified in `config.json`. It should be in the format `1234.00`. This field is not sensitive to the sign, the code will convert it to the proper sign based on `transaction_type`.
 
-3. Open the project and build the `.devcontainer/Dockerfile` (very easy with VSCode), and run `stock_portfolio_tracker/main.py`.
+4. Open the project and build the `.devcontainer/Dockerfile` (very easy with VSCode), and run `stock_portfolio_tracker/main.py`.
 
-4. View your portfolio performance in the plots that have been generated in `data/out`.
+5. View your portfolio performance in the plots that have been generated in `data/out`.
 
 ## Example Files
 

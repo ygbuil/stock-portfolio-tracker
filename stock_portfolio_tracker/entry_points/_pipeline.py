@@ -8,18 +8,31 @@ from stock_portfolio_tracker.utils import timer
 
 
 @click.command()
-def pipeline() -> None:
-    """Entry point for pipeline."""
-    _pipeline()
+@click.option("--config-file-name")
+@click.option("--transactions-file-name")
+def pipeline(config_file_name: str, transactions_file_name: str) -> None:
+    """Entry point for pipeline.
+
+    :param config_file_name: File name for config.
+    :param transactions_file_name: File name for transactions.
+    """
+    _pipeline(config_file_name, transactions_file_name)
 
 
 @timer
-def _pipeline() -> None:
-    """Execute the project end to end."""
+def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
+    """Execute the project end to end.
+
+    :param config_file_name: File name for config.
+    :param transactions_file_name: File name for transactions.
+    """
     logger.info("Start of execution.")
 
     logger.info("Start of preprocess.")
-    config, portfolio_data, asset_prices, benchmarks = preprocessing.preprocess()
+    config, portfolio_data, asset_prices, benchmarks = preprocessing.preprocess(
+        config_file_name,
+        transactions_file_name,
+    )
 
     logger.info("Start of modelling.")
     (

@@ -4,6 +4,8 @@
 __pycache__/
 
 # project specific
+/data/in/config.json
+/data/in/transactions.csv
 /data/in/my_config.json
 /data/in/my_transactions.csv
 /data/out/*
