@@ -26,8 +26,8 @@ click = "^8.1.7"
 line-length = 100
 lint.select = ["ALL"]
 lint.ignore = [
-    "PD901", "ANN002", "ANN003", "TRY002", "TRY003", "BLE001", "PLR0913", "S101", "ANN401", "D205",
-    "D402", "D203", "D213", "FA102"
+    "ANN002", "ANN003", "ANN401", "D203", "D205", "D213", "D402", "FA102", "PD901", "PLR0913",
+    "S101", "TRY003"
 ]
 
 [build-system]

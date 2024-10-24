@@ -8,6 +8,7 @@ import pandas as pd
 import yfinance as yf
 from loguru import logger
 
+from stock_portfolio_tracker.exceptions import YahooFinanceError
 from stock_portfolio_tracker.utils import Config, PortfolioData, sort_at_end
 
 
@@ -159,10 +160,10 @@ def _load_currency_exchange(
                     .rename(columns={"Close": "close_currency_rate", "Date": "date"})
                     .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
                 )
-            except Exception as exc:
+            except YahooFinanceError as exc:
                 msg = f"""Something went wrong retrieving Yahoo Finance data for
                     ticker {ticker}: {exc}"""
-                raise Exception(
+                raise YahooFinanceError(
                     msg,
                 ) from exc
 
@@ -251,9 +252,9 @@ def _load_ticker_data(
             )
             .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
         )
-    except Exception as exc:
+    except YahooFinanceError as exc:
         msg = f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}"
-        raise Exception(
+        raise YahooFinanceError(
             msg,
         ) from exc
 
