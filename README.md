@@ -5,7 +5,7 @@ The Stock Portfolio Tracker is a tool that allows users to monitor the evolution
 Some of the reports you will get are the following:
 
 * Asset distribution:
-![Alt text](images/asset_distribution.png)
+![Alt text](images/assets_distribution.png)
 
 * Portfolio percent evolution:
 ![Alt text](images/portfolio_percent_evolution.png)

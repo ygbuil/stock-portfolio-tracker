@@ -17,7 +17,7 @@ def model_benchmarks_absolute(
         on=["date"],
     ).assign(
         quantity_benchmark=lambda df: -df["value_asset"]
-        / df["close_unadjusted_local_currency_benchmark"],
+        / df["close_unadj_local_currency_benchmark"],
     )
 
     benchmark_value_evolution_absolute = utils.calculate_curr_qty(
@@ -67,7 +67,7 @@ def model_benchmarks_proportional(
                 "date",
                 "ticker_benchmark",
                 "split_benchmark",
-                "close_unadjusted_local_currency_benchmark",
+                "close_unadj_local_currency_benchmark",
             ]
         ].merge(
             group[
@@ -76,7 +76,7 @@ def model_benchmarks_proportional(
                     "ticker_asset",
                     "quantity_asset",
                     "curr_qty_asset",
-                    "close_unadjusted_local_currency_asset",
+                    "close_unadj_local_currency_asset",
                     "value_asset",
                 ]
             ],

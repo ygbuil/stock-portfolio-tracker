@@ -53,7 +53,7 @@ def calculate_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     return (
         df.assign(
             curr_val=df[f"curr_qty_{position_type}"]
-            * df[f"close_unadjusted_local_currency_{position_type}"],
+            * df[f"close_unadj_local_currency_{position_type}"],
         )
         .rename(columns={"curr_val": f"curr_val_{position_type}"})
         .groupby(["date", f"ticker_{position_type}"])
@@ -131,12 +131,12 @@ def calculate_curr_perc_gain(
     return df
 
 
-def calculat_asset_distribution(
+def calculat_assets_distribution(
     portfolio_model: pd.DataFrame,
     portfolio_data: pd.DataFrame,
     position_type: str,
 ) -> pd.DataFrame:
-    asset_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
+    assets_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
         [
             "date",
             f"ticker_{position_type}",
@@ -148,16 +148,16 @@ def calculat_asset_distribution(
     )
 
     return (
-        asset_distribution.assign(
+        assets_distribution.assign(
             percent=round(
-                asset_distribution[f"curr_val_{position_type}"]
-                / asset_distribution[f"curr_val_{position_type}"].sum()
+                assets_distribution[f"curr_val_{position_type}"]
+                / assets_distribution[f"curr_val_{position_type}"].sum()
                 * 100,
                 2,
             ),
             **{
                 f"curr_val_{position_type}": round(
-                    asset_distribution[f"curr_val_{position_type}"],
+                    assets_distribution[f"curr_val_{position_type}"],
                     2,
                 ),
             },
@@ -192,7 +192,7 @@ def calculate_quantity_benchmark(
             and np.isnan(df.loc[i + 1, "curr_qty_asset"])
         ):
             df.loc[i, "quantity_benchmark"] = (
-                -df.loc[i, "value_asset"] / df.loc[i, "close_unadjusted_local_currency_benchmark"]
+                -df.loc[i, "value_asset"] / df.loc[i, "close_unadj_local_currency_benchmark"]
             )
             latest_curr_qty_benchmark += df.loc[i, "quantity_benchmark"]
         elif not np.isnan(df.loc[i, "quantity_asset"]):
@@ -203,8 +203,6 @@ def calculate_quantity_benchmark(
             ) * latest_curr_qty_benchmark
             latest_curr_qty_benchmark += df.loc[i, "quantity_benchmark"]
 
-    df["value_benchmark"] = (
-        -df["close_unadjusted_local_currency_benchmark"] * df["quantity_benchmark"]
-    )
+    df["value_benchmark"] = -df["close_unadj_local_currency_benchmark"] * df["quantity_benchmark"]
 
     return df

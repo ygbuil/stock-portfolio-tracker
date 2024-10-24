@@ -23,9 +23,9 @@ def model_data(
     """
     logger.info("Modelling portfolio.")
     (
-        asset_portfolio_value_evolution,
-        asset_portfolio_percent_evolution,
-        asset_distribution,
+        assets_val_evolution,
+        assets_perc_evolution,
+        assets_distribution,
         portfolio_model,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
@@ -58,9 +58,9 @@ def model_data(
     logger.info("End of modelling.")
 
     return (
-        asset_portfolio_value_evolution,
-        asset_portfolio_percent_evolution,
-        asset_distribution,
+        assets_val_evolution,
+        assets_perc_evolution,
+        assets_distribution,
         benchmark_value_evolution_absolute,
         assets_vs_benchmark,
         benchmark_percent_evolution,

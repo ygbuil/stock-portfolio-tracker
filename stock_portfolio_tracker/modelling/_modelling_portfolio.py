@@ -29,7 +29,7 @@ def model_portfolio(
         "asset",
     )
 
-    asset_portfolio_value_evolution = (
+    assets_val_evolution = (
         portfolio_model.groupby("date")["curr_val_asset"]
         .sum()
         .reset_index()
@@ -37,8 +37,8 @@ def model_portfolio(
         .assign(curr_val_portfolio=lambda df: round(df["curr_val_portfolio"], 2))
     )
 
-    asset_portfolio_percent_evolution = utils.calculate_curr_perc_gain(
-        asset_portfolio_value_evolution.merge(
+    assets_perc_evolution = utils.calculate_curr_perc_gain(
+        assets_val_evolution.merge(
             portfolio_data.transactions[["date", "value_asset"]],
             how="left",
             on=["date"],
@@ -48,15 +48,15 @@ def model_portfolio(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    asset_distribution = utils.calculat_asset_distribution(
+    assets_distribution = utils.calculat_assets_distribution(
         portfolio_model,
         portfolio_data,
         "asset",
     )
 
     return (
-        asset_portfolio_value_evolution,
-        asset_portfolio_percent_evolution,
-        asset_distribution,
+        assets_val_evolution,
+        assets_perc_evolution,
+        assets_distribution,
         portfolio_model,
     )

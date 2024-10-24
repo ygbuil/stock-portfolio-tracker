@@ -14,33 +14,33 @@ DIR_OUT = Path("/workspaces/Stock-Portfolio-Tracker/data/out/")
 
 def generate_reports(
     config: Config,
-    asset_portfolio_value_evolution: pd.DataFrame,
-    asset_portfolio_percent_evolution: pd.DataFrame,
-    asset_distribution: pd.DataFrame,
+    assets_val_evolution: pd.DataFrame,
+    assets_perc_evolution: pd.DataFrame,
+    assets_distribution: pd.DataFrame,
     benchmark_value_evolution_absolute: pd.DataFrame,
     assets_vs_benchmark: pd.DataFrame,
     benchmark_percent_evolution: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
-    :param asset_portfolio_value_evolution: Stock portfolio hisorical price.
+    :param assets_val_evolution: Stock portfolio hisorical price.
     :param benchmark_value_evolution_absolute: Benchmark hisorical price.
     """
     logger.info("Plotting portfolio absolute evolution.")
     _plot_portfolio_absolute_evolution(
         config,
-        asset_portfolio_value_evolution,
+        assets_val_evolution,
         benchmark_value_evolution_absolute,
     )
 
     logger.info("Plotting portfolio percent evolution.")
     _plot_portfolio_percent_evolution(
-        asset_portfolio_percent_evolution,
+        assets_perc_evolution,
         benchmark_percent_evolution,
     )
 
     logger.info("Plotting asset distribution.")
-    _plot_asset_distribution(config, asset_distribution)
+    _plot_assets_distribution(config, assets_distribution)
 
     logger.info("Plotting individual assets vs benchmark.")
     _plot_assets_vs_benchmark(assets_vs_benchmark)
@@ -50,16 +50,16 @@ def generate_reports(
 
 def _plot_portfolio_absolute_evolution(
     config: Config,
-    asset_portfolio_value_evolution: pd.DataFrame,
+    assets_val_evolution: pd.DataFrame,
     benchmark_value_evolution_absolute: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
-        asset_portfolio_value_evolution["date"],
-        asset_portfolio_value_evolution["curr_val_portfolio"],
+        assets_val_evolution["date"],
+        assets_val_evolution["curr_val_portfolio"],
         linestyle="-",
         color="blue",
-        label=f"Portfolio value. Current: {asset_portfolio_value_evolution['curr_val_portfolio'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
+        label=f"Portfolio value. Current: {assets_val_evolution['curr_val_portfolio'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.plot(
         benchmark_value_evolution_absolute["date"],
@@ -71,7 +71,7 @@ def _plot_portfolio_absolute_evolution(
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")
     plt.title(
-        f"Date ({asset_portfolio_value_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {asset_portfolio_value_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
+        f"Date ({assets_val_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {assets_val_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
@@ -81,14 +81,14 @@ def _plot_portfolio_absolute_evolution(
     plt.close()
 
 
-def _plot_asset_distribution(
+def _plot_assets_distribution(
     config: Config,
-    asset_distribution: pd.DataFrame,
+    assets_distribution: pd.DataFrame,
 ) -> None:
-    asset_distribution = asset_distribution.dropna()
+    assets_distribution = assets_distribution.dropna()
     _, ax = plt.subplots(figsize=(10, 8))
-    sizes = asset_distribution["curr_val_asset"]
-    tickers = asset_distribution["ticker_asset"]
+    sizes = assets_distribution["curr_val_asset"]
+    tickers = assets_distribution["ticker_asset"]
 
     wedges, _, _ = ax.pie(
         sizes,
@@ -96,12 +96,12 @@ def _plot_asset_distribution(
         startangle=90,
         colors=plt.cm.Paired(range(len(tickers))),
         counterclock=False,
-        autopct=lambda pct: f"{pct:.1f}%\n{(pct/100 * sum(asset_distribution['curr_val_asset']) / 1000):.1f}k",  # noqa: E501
+        autopct=lambda pct: f"{pct:.1f}%\n{(pct/100 * sum(assets_distribution['curr_val_asset']) / 1000):.1f}k",  # noqa: E501
         wedgeprops={"width": 0.3},
     )
 
     legend_tickers = []
-    for _, row in asset_distribution[
+    for _, row in assets_distribution[
         ["ticker_asset", "curr_val_asset", "percent", "curr_qty_asset"]
     ].iterrows():
         ticker, curr_val_asset, percent, curr_qty = list(row)
@@ -114,23 +114,23 @@ def _plot_asset_distribution(
     ax.set(aspect="equal", title="Asset Distribution")
 
     plt.savefig(
-        DIR_OUT / Path("asset_distribution.png"),
+        DIR_OUT / Path("assets_distribution.png"),
         bbox_inches="tight",
     )
     plt.close()
 
 
 def _plot_portfolio_percent_evolution(
-    asset_portfolio_percent_evolution: pd.DataFrame,
+    assets_perc_evolution: pd.DataFrame,
     benchmark_percent_evolution: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
-        asset_portfolio_percent_evolution["date"],
-        asset_portfolio_percent_evolution["curr_perc_gain_asset"],
+        assets_perc_evolution["date"],
+        assets_perc_evolution["curr_perc_gain_asset"],
         linestyle="-",
         color="blue",
-        label=f"Portfolio. Current: {asset_portfolio_percent_evolution['curr_perc_gain_asset'].iloc[0]} %",  # noqa: E501
+        label=f"Portfolio. Current: {assets_perc_evolution['curr_perc_gain_asset'].iloc[0]} %",
     )
     plt.plot(
         benchmark_percent_evolution["date"],

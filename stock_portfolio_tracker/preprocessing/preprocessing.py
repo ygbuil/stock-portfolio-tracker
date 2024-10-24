@@ -11,6 +11,8 @@ from loguru import logger
 from stock_portfolio_tracker.exceptions import YahooFinanceError
 from stock_portfolio_tracker.utils import Config, PortfolioData, sort_at_end
 
+DIR_IN = Path("/workspaces/Stock-Portfolio-Tracker/data/in/")
+
 
 def preprocess(
     config_file_name: str,
@@ -31,7 +33,7 @@ def preprocess(
         config.portfolio_currency,
         sorting_columns=[
             {
-                "columns": ["currency_exchange_rate_ticker", "date"],
+                "columns": ["ticker_exch_rate", "date"],
                 "ascending": [True, False],
             },
         ],
@@ -60,16 +62,14 @@ def preprocess(
 
 
 def _load_config(config_file_name: str) -> Config:
-    with Path(f"/workspaces/Stock-Portfolio-Tracker/data/in/{config_file_name}").open() as file:
+    with (DIR_IN / Path(config_file_name)).open() as file:
         return Config(**json.load(file))
 
 
 def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
     logger.info("Loading portfolio data.")
     transactions = (
-        pd.read_csv(
-            Path(f"/workspaces/Stock-Portfolio-Tracker/data/in/{transactions_file_name}"),
-        )
+        pd.read_csv(DIR_IN / Path(transactions_file_name))
         .astype(
             {
                 "date": str,
@@ -177,7 +177,7 @@ def _load_currency_exchange(
         else:
             currency_exchange = full_date_range.assign(close_currency_rate=1)
 
-        currency_exchange["currency_exchange_rate_ticker"] = origin_currency
+        currency_exchange["ticker_exch_rate"] = origin_currency
         currency_exchanges.append(currency_exchange)
 
     return pd.concat(currency_exchanges)
@@ -206,12 +206,12 @@ def _load_prices(
             currency_exchange,
             "left",
             left_on=["date", "origin_currency"],
-            right_on=["date", "currency_exchange_rate_ticker"],
+            right_on=["date", "ticker_exch_rate"],
         )
         .assign(
             **{
-                f"close_unadjusted_local_currency_{position_type}": lambda df: df[
-                    "close_unadjusted_origin_currency"
+                f"close_unadj_local_currency_{position_type}": lambda df: df[
+                    "close_unadj_origin_currency"
                 ]
                 / df["close_currency_rate"],
             },
@@ -226,7 +226,7 @@ def _load_prices(
                 "date",
                 f"ticker_{position_type}",
                 f"split_{position_type}",
-                f"close_unadjusted_local_currency_{position_type}",
+                f"close_unadj_local_currency_{position_type}",
             ]
         ]
     )
@@ -245,7 +245,7 @@ def _load_ticker_data(
             .reset_index()
             .rename(
                 columns={
-                    "Close": "close_adjusted_origin_currency",
+                    "Close": "close_adj_origin_currency",
                     "Date": "date",
                     "Stock Splits": "split",
                 },
@@ -258,7 +258,7 @@ def _load_ticker_data(
             msg,
         ) from exc
 
-    # calculate unadjusted stock price
+    # calculate unadj stock price
     # NOTE: yahoo finance reports the split the day that the split already takes place:
     # Example: NVDA traded at (aprox) 1000/share at 2024-06-09, and at 2024-06-10 at
     # market open it was trading at 100/share due to the split. Yahoo reported a 10
@@ -274,11 +274,9 @@ def _load_ticker_data(
         )
         .assign(
             split=lambda df: df["split"].fillna(0),
-            close_adjusted_origin_currency=lambda df: df["close_adjusted_origin_currency"]
-            .bfill()
-            .ffill(),
+            close_adj_origin_currency=lambda df: df["close_adj_origin_currency"].bfill().ffill(),
             split_cumsum=lambda df: df["split"].replace(0, 1).cumprod().shift(1).fillna(1),
-            close_unadjusted_origin_currency=lambda df: df["close_adjusted_origin_currency"]
+            close_unadj_origin_currency=lambda df: df["close_adj_origin_currency"]
             * df["split_cumsum"],
             origin_currency=asset.info.get("currency"),
             ticker=ticker,
@@ -287,7 +285,7 @@ def _load_ticker_data(
         [
             "date",
             "ticker",
-            "close_unadjusted_origin_currency",
+            "close_unadj_origin_currency",
             "origin_currency",
             "split",
         ]
