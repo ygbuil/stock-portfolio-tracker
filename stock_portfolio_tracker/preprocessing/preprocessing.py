@@ -160,9 +160,10 @@ def _load_currency_exchange(
                     .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
                 )
             except Exception as exc:
+                msg = f"""Something went wrong retrieving Yahoo Finance data for
+                    ticker {ticker}: {exc}"""
                 raise Exception(
-                    f"""Something went wrong retrieving Yahoo Finance data for
-                    ticker {ticker}: {exc}""",
+                    msg,
                 ) from exc
 
             currency_exchange = full_date_range.merge(
@@ -251,8 +252,9 @@ def _load_ticker_data(
             .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
         )
     except Exception as exc:
+        msg = f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}"
         raise Exception(
-            f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}",
+            msg,
         ) from exc
 
     # calculate unadjusted stock price
