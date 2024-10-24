@@ -39,9 +39,9 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         assets_val_evolution,
         assets_perc_evolution,
         assets_distribution,
-        benchmark_value_evolution_absolute,
+        benchmark_val_evolution_abs,
         assets_vs_benchmark,
-        benchmark_percent_evolution,
+        benchmark_perc_evolution,
     ) = modelling.model_data(
         portfolio_data,
         benchmarks,
@@ -54,9 +54,9 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         assets_val_evolution,
         assets_perc_evolution,
         assets_distribution,
-        benchmark_value_evolution_absolute,
+        benchmark_val_evolution_abs,
         assets_vs_benchmark,
-        benchmark_percent_evolution,
+        benchmark_perc_evolution,
     )
 
     logger.info("End of execution.")

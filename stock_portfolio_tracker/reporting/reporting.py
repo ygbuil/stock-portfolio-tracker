@@ -17,26 +17,26 @@ def generate_reports(
     assets_val_evolution: pd.DataFrame,
     assets_perc_evolution: pd.DataFrame,
     assets_distribution: pd.DataFrame,
-    benchmark_value_evolution_absolute: pd.DataFrame,
+    benchmark_val_evolution_abs: pd.DataFrame,
     assets_vs_benchmark: pd.DataFrame,
-    benchmark_percent_evolution: pd.DataFrame,
+    benchmark_perc_evolution: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
     :param assets_val_evolution: Stock portfolio hisorical price.
-    :param benchmark_value_evolution_absolute: Benchmark hisorical price.
+    :param benchmark_val_evolution_abs: Benchmark hisorical price.
     """
     logger.info("Plotting portfolio absolute evolution.")
     _plot_portfolio_absolute_evolution(
         config,
         assets_val_evolution,
-        benchmark_value_evolution_absolute,
+        benchmark_val_evolution_abs,
     )
 
     logger.info("Plotting portfolio percent evolution.")
     _plot_portfolio_percent_evolution(
         assets_perc_evolution,
-        benchmark_percent_evolution,
+        benchmark_perc_evolution,
     )
 
     logger.info("Plotting asset distribution.")
@@ -51,7 +51,7 @@ def generate_reports(
 def _plot_portfolio_absolute_evolution(
     config: Config,
     assets_val_evolution: pd.DataFrame,
-    benchmark_value_evolution_absolute: pd.DataFrame,
+    benchmark_val_evolution_abs: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -62,11 +62,11 @@ def _plot_portfolio_absolute_evolution(
         label=f"Portfolio value. Current: {assets_val_evolution['curr_val_portfolio'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.plot(
-        benchmark_value_evolution_absolute["date"],
-        benchmark_value_evolution_absolute["curr_val_benchmark"],
+        benchmark_val_evolution_abs["date"],
+        benchmark_val_evolution_abs["curr_val_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark value. Current: {benchmark_value_evolution_absolute['curr_val_benchmark'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
+        label=f"Benchmark value. Current: {benchmark_val_evolution_abs['curr_val_benchmark'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")
@@ -122,7 +122,7 @@ def _plot_assets_distribution(
 
 def _plot_portfolio_percent_evolution(
     assets_perc_evolution: pd.DataFrame,
-    benchmark_percent_evolution: pd.DataFrame,
+    benchmark_perc_evolution: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -133,16 +133,16 @@ def _plot_portfolio_percent_evolution(
         label=f"Portfolio. Current: {assets_perc_evolution['curr_perc_gain_asset'].iloc[0]} %",
     )
     plt.plot(
-        benchmark_percent_evolution["date"],
-        benchmark_percent_evolution["curr_perc_gain_benchmark"],
+        benchmark_perc_evolution["date"],
+        benchmark_perc_evolution["curr_perc_gain_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark. Current: {benchmark_percent_evolution['curr_perc_gain_benchmark'].iloc[0]} %",  # noqa: E501
+        label=f"Benchmark. Current: {benchmark_perc_evolution['curr_perc_gain_benchmark'].iloc[0]} %",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel("Percentage gain (%)")
     plt.title(
-        f"Date ({benchmark_percent_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_percent_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
+        f"Date ({benchmark_perc_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_perc_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)

@@ -11,7 +11,7 @@ def model_benchmarks_absolute(
     benchmarks: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
-    benchmark_value_evolution_absolute = benchmarks.merge(
+    benchmark_val_evolution_abs = benchmarks.merge(
         portfolio_data.transactions[["date", "quantity_asset", "value_asset"]],
         how="left",
         on=["date"],
@@ -20,19 +20,19 @@ def model_benchmarks_absolute(
         / df["close_unadj_local_currency_benchmark"],
     )
 
-    benchmark_value_evolution_absolute = utils.calculate_curr_qty(
-        benchmark_value_evolution_absolute,
+    benchmark_val_evolution_abs = utils.calculate_curr_qty(
+        benchmark_val_evolution_abs,
         "quantity_benchmark",
         "benchmark",
     )
 
-    benchmark_value_evolution_absolute = utils.calculate_curr_val(
-        benchmark_value_evolution_absolute,
+    benchmark_val_evolution_abs = utils.calculate_curr_val(
+        benchmark_val_evolution_abs,
         "benchmark",
     ).assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
 
-    benchmark_percent_evolution = utils.calculate_curr_perc_gain(
-        benchmark_value_evolution_absolute[["date", "ticker_benchmark", "curr_val_benchmark"]]
+    benchmark_perc_evolution = utils.calculate_curr_perc_gain(
+        benchmark_val_evolution_abs[["date", "ticker_benchmark", "curr_val_benchmark"]]
         .merge(
             portfolio_data.transactions[["date", "value_asset"]],
             how="left",
@@ -44,7 +44,7 @@ def model_benchmarks_absolute(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    return benchmark_value_evolution_absolute, benchmark_percent_evolution
+    return benchmark_val_evolution_abs, benchmark_perc_evolution
 
 
 @sort_at_end()
