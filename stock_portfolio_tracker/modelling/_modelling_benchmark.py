@@ -31,7 +31,7 @@ def model_benchmarks_absolute(
         "benchmark",
     ).assign(current_value_benchmark=lambda df: round(df["current_value_benchmark"], 2))
 
-    benchmark_percent_evolution = utils.calculate_current_percent_gain(
+    benchmark_percent_evolution = utils.calculate_curr_perc_gain(
         benchmark_value_evolution_absolute[["date", "ticker_benchmark", "current_value_benchmark"]]
         .merge(
             portfolio_data.transactions[["date", "value_asset"]],
@@ -53,11 +53,11 @@ def model_benchmarks_proportional(
     benchmarks: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
-    individual_assets_vs_benchmark_returns = pd.DataFrame(
+    assets_vs_benchmark = pd.DataFrame(
         {
             "ticker_asset": [],
-            "current_percent_gain_asset": [],
-            "current_percent_gain_benchmark": [],
+            "curr_perc_gain_asset": [],
+            "curr_perc_gain_benchmark": [],
         },
     )
 
@@ -102,24 +102,24 @@ def model_benchmarks_proportional(
             "asset",
         )
 
-        percent_gain_benchmark = utils.calculate_current_percent_gain(
+        percent_gain_benchmark = utils.calculate_curr_perc_gain(
             group,
             "benchmark",
             "current_value_benchmark",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
-        percent_gain_asset = utils.calculate_current_percent_gain(
+        percent_gain_asset = utils.calculate_curr_perc_gain(
             group,
             "asset",
             "current_value_asset",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
-        individual_assets_vs_benchmark_returns.loc[len(individual_assets_vs_benchmark_returns)] = [
+        assets_vs_benchmark.loc[len(assets_vs_benchmark)] = [
             group.iloc[0]["ticker_asset"],
-            percent_gain_asset.iloc[0]["current_percent_gain_asset"],
-            percent_gain_benchmark.iloc[0]["current_percent_gain_benchmark"],
+            percent_gain_asset.iloc[0]["curr_perc_gain_asset"],
+            percent_gain_benchmark.iloc[0]["curr_perc_gain_benchmark"],
         ]
 
-    return individual_assets_vs_benchmark_returns
+    return assets_vs_benchmark

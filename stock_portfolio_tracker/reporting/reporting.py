@@ -18,7 +18,7 @@ def generate_reports(
     asset_portfolio_percent_evolution: pd.DataFrame,
     asset_distribution: pd.DataFrame,
     benchmark_value_evolution_absolute: pd.DataFrame,
-    individual_assets_vs_benchmark_returns: pd.DataFrame,
+    assets_vs_benchmark: pd.DataFrame,
     benchmark_percent_evolution: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
@@ -43,7 +43,7 @@ def generate_reports(
     _plot_asset_distribution(config, asset_distribution)
 
     logger.info("Plotting individual assets vs benchmark.")
-    _plot_individual_assets_vs_benchmark(individual_assets_vs_benchmark_returns)
+    _plot_assets_vs_benchmark(assets_vs_benchmark)
 
     logger.info("End of generate reports.")
 
@@ -127,17 +127,17 @@ def _plot_portfolio_percent_evolution(
     plt.figure(figsize=(10, 6))
     plt.plot(
         asset_portfolio_percent_evolution["date"],
-        asset_portfolio_percent_evolution["current_percent_gain_asset"],
+        asset_portfolio_percent_evolution["curr_perc_gain_asset"],
         linestyle="-",
         color="blue",
-        label=f"Portfolio. Current: {asset_portfolio_percent_evolution['current_percent_gain_asset'].iloc[0]} %",  # noqa: E501
+        label=f"Portfolio. Current: {asset_portfolio_percent_evolution['curr_perc_gain_asset'].iloc[0]} %",  # noqa: E501
     )
     plt.plot(
         benchmark_percent_evolution["date"],
-        benchmark_percent_evolution["current_percent_gain_benchmark"],
+        benchmark_percent_evolution["curr_perc_gain_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark. Current: {benchmark_percent_evolution['current_percent_gain_benchmark'].iloc[0]} %",  # noqa: E501
+        label=f"Benchmark. Current: {benchmark_percent_evolution['curr_perc_gain_benchmark'].iloc[0]} %",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel("Percentage gain (%)")
@@ -154,25 +154,20 @@ def _plot_portfolio_percent_evolution(
     plt.close()
 
 
-def _plot_individual_assets_vs_benchmark(
-    individual_assets_vs_benchmark_returns: pd.DataFrame,
+def _plot_assets_vs_benchmark(
+    assets_vs_benchmark: pd.DataFrame,
 ) -> None:
-    # Data from the dataframe
-    tickers = individual_assets_vs_benchmark_returns["ticker_asset"]
-    asset_gains = individual_assets_vs_benchmark_returns["current_percent_gain_asset"]
-    benchmark_gains = individual_assets_vs_benchmark_returns["current_percent_gain_benchmark"]
-
-    # Number of bars
+    tickers, asset_gains, benchmark_gains = (
+        assets_vs_benchmark["ticker_asset"],
+        assets_vs_benchmark["curr_perc_gain_asset"],
+        assets_vs_benchmark["curr_perc_gain_benchmark"],
+    )
     n = len(tickers)
-
-    # Define bar positions
     bar_width = 0.4
     index = np.arange(n)
 
-    # Set up the plot area
     fig, ax = plt.subplots(figsize=(12, 7))
 
-    # Plot the bars for asset gains and benchmark gains side by side
     ax.bar(index, asset_gains, bar_width, label="Asset Gains", color="blue")
     ax.bar(index + bar_width, benchmark_gains, bar_width, label="Benchmark Gains", color="orange")
 
@@ -203,7 +198,7 @@ def _plot_individual_assets_vs_benchmark(
         plt.text(
             i,
             y_offset,
-            f"{individual_assets_vs_benchmark_returns['current_percent_gain_asset'][i]:.2f}%",
+            f"{assets_vs_benchmark['curr_perc_gain_asset'][i]:.2f}%",
             ha="center",
             color="blue",
             fontweight="bold",
@@ -212,18 +207,17 @@ def _plot_individual_assets_vs_benchmark(
         plt.text(
             i + bar_width,
             y_offset,
-            f"{individual_assets_vs_benchmark_returns['current_percent_gain_benchmark'][i]:.2f}%",
+            f"{assets_vs_benchmark['curr_perc_gain_benchmark'][i]:.2f}%",
             ha="center",
             color="orange",
             fontweight="bold",
             rotation=40,
         )
 
-    # Show the plot
     plt.savefig(
         DIR_OUT
         / Path(
-            "individual_assets_vs_benchmark_returns.png",
+            "assets_vs_benchmark.png",
         ),
     )
     plt.close()

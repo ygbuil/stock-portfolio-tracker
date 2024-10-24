@@ -40,7 +40,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         asset_portfolio_percent_evolution,
         asset_distribution,
         benchmark_value_evolution_absolute,
-        individual_assets_vs_benchmark_returns,
+        assets_vs_benchmark,
         benchmark_percent_evolution,
     ) = modelling.model_data(
         portfolio_data,
@@ -55,7 +55,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         asset_portfolio_percent_evolution,
         asset_distribution,
         benchmark_value_evolution_absolute,
-        individual_assets_vs_benchmark_returns,
+        assets_vs_benchmark,
         benchmark_percent_evolution,
     )
 

@@ -64,7 +64,7 @@ def calculate_current_value(df: pd.DataFrame, position_type: str) -> pd.DataFram
 
 
 @sort_at_end()
-def calculate_current_percent_gain(
+def calculate_curr_perc_gain(
     df: pd.DataFrame,
     position_type: str,
     current_value_column_name: str,
@@ -113,7 +113,7 @@ def calculate_current_percent_gain(
         df.assign(
             **{f"current_gain_{position_type}": df["money_out"] + df["money_in"]},
             **{
-                f"current_percent_gain_{position_type}": np.where(
+                f"curr_perc_gain_{position_type}": np.where(
                     df["money_out"] != 0,
                     round((abs(df["money_in"] / df["money_out"]) - 1) * 100, 2),
                     0,
@@ -123,10 +123,10 @@ def calculate_current_percent_gain(
         .groupby("date")
         .first()
         .reset_index()
-    )[["date", f"current_gain_{position_type}", f"current_percent_gain_{position_type}"]]
+    )[["date", f"current_gain_{position_type}", f"curr_perc_gain_{position_type}"]]
 
     df.loc[0, f"current_gain_{position_type}"] = 0
-    df.loc[0, f"current_percent_gain_{position_type}"] = 0
+    df.loc[0, f"curr_perc_gain_{position_type}"] = 0
 
     return df
 

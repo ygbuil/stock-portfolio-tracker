@@ -52,7 +52,7 @@ def transactions_2() -> pd.DataFrame:
 
 
 @pytest.fixture()
-def current_percent_gain_1() -> pd.DataFrame:
+def curr_perc_gain_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -65,14 +65,14 @@ def current_percent_gain_1() -> pd.DataFrame:
                 "2024-01-02",
                 "2024-01-01",
             ],
-            "current_gain_asset": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 0.0],
-            "current_percent_gain_asset": [81.82, 85.0, 62.0, 20.0, 33.0, 20.0, 0.0],
+            "curr_gain_asset": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 0.0],
+            "curr_perc_gain_asset": [81.82, 85.0, 62.0, 20.0, 33.0, 20.0, 0.0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
 @pytest.fixture()
-def current_percent_gain_2() -> pd.DataFrame:
+def curr_perc_gain_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -86,33 +86,33 @@ def current_percent_gain_2() -> pd.DataFrame:
                 "2024-01-01",
                 "2023-12-31",
             ],
-            "current_gain_asset": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 100, 0],
-            "current_percent_gain_asset": [81.82, 85.0, 62.0, 20.0, 33.0, 20.0, 10.0, 0],
+            "curr_gain_asset": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 100, 0],
+            "curr_perc_gain_asset": [81.82, 85.0, 62.0, 20.0, 33.0, 20.0, 10.0, 0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
 @pytest.mark.parametrize(
-    ("transactions", "current_percent_gain"),
+    ("transactions", "curr_perc_gain"),
     [
-        ("transactions_1", "current_percent_gain_1"),
-        ("transactions_2", "current_percent_gain_2"),
+        ("transactions_1", "curr_perc_gain_1"),
+        ("transactions_2", "curr_perc_gain_2"),
     ],
 )
-def test_calculate_current_percent_gain(
+def test_calculate_curr_perc_gain(
     transactions: pd.DataFrame,
-    current_percent_gain: pd.DataFrame,
+    curr_perc_gain: pd.DataFrame,
     request: FixtureRequest,
 ) -> None:
-    """Test calculate_current_percent_gain.
+    """Test calculate_curr_perc_gain.
 
     :param transactions: Transactions.
-    :param current_percent_gain: Resulting dataframe with the percent gain.
+    :param curr_perc_gain: Resulting dataframe with the percent gain.
     :param request: FixtureRequest.
     """
-    assert utils.calculate_current_percent_gain(
+    assert utils.calculate_curr_perc_gain(
         request.getfixturevalue(transactions),
         "asset",
         "current_value_asset",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
-    ).equals(request.getfixturevalue(current_percent_gain))
+    ).equals(request.getfixturevalue(curr_perc_gain))

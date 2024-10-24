@@ -49,10 +49,10 @@ def model_data(
             ],
         )
     )
-    individual_assets_vs_benchmark_returns = modelling_benchmark.model_benchmarks_proportional(
+    assets_vs_benchmark = modelling_benchmark.model_benchmarks_proportional(
         portfolio_model,
         benchmarks,
-        sorting_columns=[{"columns": ["current_percent_gain_asset"], "ascending": [False]}],
+        sorting_columns=[{"columns": ["curr_perc_gain_asset"], "ascending": [False]}],
     )
 
     logger.info("End of modelling.")
@@ -62,6 +62,6 @@ def model_data(
         asset_portfolio_percent_evolution,
         asset_distribution,
         benchmark_value_evolution_absolute,
-        individual_assets_vs_benchmark_returns,
+        assets_vs_benchmark,
         benchmark_percent_evolution,
     )

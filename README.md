@@ -11,7 +11,7 @@ Some of the reports you will get are the following:
 ![Alt text](images/portfolio_percent_evolution.png)
 
 * Individual assets vs benchmark returns:
-![Alt text](images/individual_assets_vs_benchmark_returns.png)
+![Alt text](images/assets_vs_benchmark.png)
 
 ## Usage
 

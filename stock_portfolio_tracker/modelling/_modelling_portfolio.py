@@ -37,7 +37,7 @@ def model_portfolio(
         .assign(current_value_portfolio=lambda df: round(df["current_value_portfolio"], 2))
     )
 
-    asset_portfolio_percent_evolution = utils.calculate_current_percent_gain(
+    asset_portfolio_percent_evolution = utils.calculate_curr_perc_gain(
         asset_portfolio_value_evolution.merge(
             portfolio_data.transactions[["date", "value_asset"]],
             how="left",
