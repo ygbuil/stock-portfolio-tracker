@@ -4,14 +4,14 @@ import pandas as pd
 from stock_portfolio_tracker.utils import sort_at_end
 
 
-def calculate_current_quantity(
+def calculate_curr_qty(
     group: pd.DataFrame,
     quantity_col_name: str,
     position_type: str,
 ) -> pd.DataFrame:
     group = (
         group.assign(
-            **{f"current_quantity_{position_type}": np.nan},
+            **{f"curr_qty_{position_type}": np.nan},
             **{f"split_{position_type}": lambda df: df[f"split_{position_type}"].replace(0, 1)},
             **{quantity_col_name: group[quantity_col_name].replace(np.nan, 0)},
         )
@@ -26,14 +26,14 @@ def calculate_current_quantity(
         # if first day
         if i == iterator[0]:
             if np.isnan(group.loc[i, quantity_col_name]):
-                group.loc[i, f"current_quantity_{position_type}"] = 0
+                group.loc[i, f"curr_qty_{position_type}"] = 0
             else:
-                group.loc[i, f"current_quantity_{position_type}"] = group.loc[i, quantity_col_name]
+                group.loc[i, f"curr_qty_{position_type}"] = group.loc[i, quantity_col_name]
         else:
-            # f"current_quantity_{position_type}" = quantity_purchased_or_sold + (yesterdays_quantity * f"split_{position_type}") # noqa: E501
-            group.loc[i, f"current_quantity_{position_type}"] = (
+            # f"curr_qty_{position_type}" = quantity_purchased_or_sold + (yesterdays_quantity * f"split_{position_type}") # noqa: E501
+            group.loc[i, f"curr_qty_{position_type}"] = (
                 group.loc[i, quantity_col_name]
-                + group.loc[i + 1, f"current_quantity_{position_type}"]
+                + group.loc[i + 1, f"curr_qty_{position_type}"]
                 * group.loc[i, f"split_{position_type}"]
             )
 
@@ -41,7 +41,7 @@ def calculate_current_quantity(
         **{f"split_{position_type}": group[f"split_{position_type}"].replace(1, 0)},
         **{quantity_col_name: group[quantity_col_name].replace(0, np.nan)},
         **{
-            f"current_quantity_{position_type}": group[f"current_quantity_{position_type}"].replace(
+            f"curr_qty_{position_type}": group[f"curr_qty_{position_type}"].replace(
                 0,
                 np.nan,
             ),
@@ -49,13 +49,13 @@ def calculate_current_quantity(
     )
 
 
-def calculate_current_value(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
+def calculate_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     return (
         df.assign(
-            current_value=df[f"current_quantity_{position_type}"]
+            curr_val=df[f"curr_qty_{position_type}"]
             * df[f"close_unadjusted_local_currency_{position_type}"],
         )
-        .rename(columns={"current_value": f"current_value_{position_type}"})
+        .rename(columns={"curr_val": f"curr_val_{position_type}"})
         .groupby(["date", f"ticker_{position_type}"])
         .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
         .sort_values(by=[f"ticker_{position_type}", "date"], ascending=[True, False])
@@ -67,7 +67,7 @@ def calculate_current_value(df: pd.DataFrame, position_type: str) -> pd.DataFram
 def calculate_curr_perc_gain(
     df: pd.DataFrame,
     position_type: str,
-    current_value_column_name: str,
+    curr_val_column_name: str,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     df = (
@@ -86,7 +86,7 @@ def calculate_curr_perc_gain(
                 ),
             },
             **{
-                current_value_column_name: lambda df: df[current_value_column_name].replace(
+                curr_val_column_name: lambda df: df[curr_val_column_name].replace(
                     np.nan,
                     0,
                 ),
@@ -107,7 +107,7 @@ def calculate_curr_perc_gain(
             )
 
         curr_money_in += max(0, df.loc[i, f"value_{position_type}"])
-        df.loc[i, "money_in"] = df.loc[i, current_value_column_name] + curr_money_in
+        df.loc[i, "money_in"] = df.loc[i, curr_val_column_name] + curr_money_in
 
     df = (
         df.assign(
@@ -140,8 +140,8 @@ def calculat_asset_distribution(
         [
             "date",
             f"ticker_{position_type}",
-            f"current_quantity_{position_type}",
-            f"current_value_{position_type}",
+            f"curr_qty_{position_type}",
+            f"curr_val_{position_type}",
         ]
     ].reset_index(
         drop=True,
@@ -150,19 +150,19 @@ def calculat_asset_distribution(
     return (
         asset_distribution.assign(
             percent=round(
-                asset_distribution[f"current_value_{position_type}"]
-                / asset_distribution[f"current_value_{position_type}"].sum()
+                asset_distribution[f"curr_val_{position_type}"]
+                / asset_distribution[f"curr_val_{position_type}"].sum()
                 * 100,
                 2,
             ),
             **{
-                f"current_value_{position_type}": round(
-                    asset_distribution[f"current_value_{position_type}"],
+                f"curr_val_{position_type}": round(
+                    asset_distribution[f"curr_val_{position_type}"],
                     2,
                 ),
             },
         )
-        .sort_values([f"current_value_{position_type}"], ascending=False)
+        .sort_values([f"curr_val_{position_type}"], ascending=False)
         .reset_index(drop=True)
     )
 
@@ -182,26 +182,26 @@ def calculate_quantity_benchmark(
     )
 
     iterator = list(reversed(df.index))
-    latest_current_quantity_benchmark = 0
+    latest_curr_qty_benchmark = 0
 
     for i in iterator:
         if (
             i == iterator[0]
             and not np.isnan(df.loc[i, "quantity_asset"])
             or not np.isnan(df.loc[i, "quantity_asset"])
-            and np.isnan(df.loc[i + 1, "current_quantity_asset"])
+            and np.isnan(df.loc[i + 1, "curr_qty_asset"])
         ):
             df.loc[i, "quantity_benchmark"] = (
                 -df.loc[i, "value_asset"] / df.loc[i, "close_unadjusted_local_currency_benchmark"]
             )
-            latest_current_quantity_benchmark += df.loc[i, "quantity_benchmark"]
+            latest_curr_qty_benchmark += df.loc[i, "quantity_benchmark"]
         elif not np.isnan(df.loc[i, "quantity_asset"]):
             df.loc[i, "quantity_benchmark"] = (
-                (df.loc[i, "quantity_asset"] + df.loc[i + 1, "current_quantity_asset"])
-                / df.loc[i + 1, "current_quantity_asset"]
+                (df.loc[i, "quantity_asset"] + df.loc[i + 1, "curr_qty_asset"])
+                / df.loc[i + 1, "curr_qty_asset"]
                 - 1
-            ) * latest_current_quantity_benchmark
-            latest_current_quantity_benchmark += df.loc[i, "quantity_benchmark"]
+            ) * latest_curr_qty_benchmark
+            latest_curr_qty_benchmark += df.loc[i, "quantity_benchmark"]
 
     df["value_benchmark"] = (
         -df["close_unadjusted_local_currency_benchmark"] * df["quantity_benchmark"]

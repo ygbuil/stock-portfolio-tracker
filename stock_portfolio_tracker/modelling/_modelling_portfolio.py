@@ -19,22 +19,22 @@ def model_portfolio(
 
     portfolio_model = pd.concat(
         [
-            utils.calculate_current_quantity(group, "quantity_asset", "asset")
+            utils.calculate_curr_qty(group, "quantity_asset", "asset")
             for _, group in portfolio_model_grouped
         ],
     )
 
-    portfolio_model = utils.calculate_current_value(
+    portfolio_model = utils.calculate_curr_val(
         portfolio_model,
         "asset",
     )
 
     asset_portfolio_value_evolution = (
-        portfolio_model.groupby("date")["current_value_asset"]
+        portfolio_model.groupby("date")["curr_val_asset"]
         .sum()
         .reset_index()
-        .rename(columns={"current_value_asset": "current_value_portfolio"})
-        .assign(current_value_portfolio=lambda df: round(df["current_value_portfolio"], 2))
+        .rename(columns={"curr_val_asset": "curr_val_portfolio"})
+        .assign(curr_val_portfolio=lambda df: round(df["curr_val_portfolio"], 2))
     )
 
     asset_portfolio_percent_evolution = utils.calculate_curr_perc_gain(
@@ -44,7 +44,7 @@ def model_portfolio(
             on=["date"],
         ),
         "asset",
-        "current_value_portfolio",
+        "curr_val_portfolio",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 

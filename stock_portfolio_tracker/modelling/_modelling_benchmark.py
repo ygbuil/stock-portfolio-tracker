@@ -20,19 +20,19 @@ def model_benchmarks_absolute(
         / df["close_unadjusted_local_currency_benchmark"],
     )
 
-    benchmark_value_evolution_absolute = utils.calculate_current_quantity(
+    benchmark_value_evolution_absolute = utils.calculate_curr_qty(
         benchmark_value_evolution_absolute,
         "quantity_benchmark",
         "benchmark",
     )
 
-    benchmark_value_evolution_absolute = utils.calculate_current_value(
+    benchmark_value_evolution_absolute = utils.calculate_curr_val(
         benchmark_value_evolution_absolute,
         "benchmark",
-    ).assign(current_value_benchmark=lambda df: round(df["current_value_benchmark"], 2))
+    ).assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
 
     benchmark_percent_evolution = utils.calculate_curr_perc_gain(
-        benchmark_value_evolution_absolute[["date", "ticker_benchmark", "current_value_benchmark"]]
+        benchmark_value_evolution_absolute[["date", "ticker_benchmark", "curr_val_benchmark"]]
         .merge(
             portfolio_data.transactions[["date", "value_asset"]],
             how="left",
@@ -40,7 +40,7 @@ def model_benchmarks_absolute(
         )
         .rename(columns={"value_asset": "value_benchmark"}),
         "benchmark",
-        "current_value_benchmark",
+        "curr_val_benchmark",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
@@ -75,7 +75,7 @@ def model_benchmarks_proportional(
                     "date",
                     "ticker_asset",
                     "quantity_asset",
-                    "current_quantity_asset",
+                    "curr_qty_asset",
                     "close_unadjusted_local_currency_asset",
                     "value_asset",
                 ]
@@ -86,18 +86,18 @@ def model_benchmarks_proportional(
 
         group = utils.calculate_quantity_benchmark(group)  # noqa: PLW2901
 
-        group = utils.calculate_current_quantity(  # noqa: PLW2901
+        group = utils.calculate_curr_qty(  # noqa: PLW2901
             group,
             "quantity_benchmark",
             "benchmark",
         )
 
-        group = utils.calculate_current_value(  # noqa: PLW2901
+        group = utils.calculate_curr_val(  # noqa: PLW2901
             group,
             "benchmark",
         )
 
-        group = utils.calculate_current_value(  # noqa: PLW2901
+        group = utils.calculate_curr_val(  # noqa: PLW2901
             group,
             "asset",
         )
@@ -105,14 +105,14 @@ def model_benchmarks_proportional(
         percent_gain_benchmark = utils.calculate_curr_perc_gain(
             group,
             "benchmark",
-            "current_value_benchmark",
+            "curr_val_benchmark",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
         percent_gain_asset = utils.calculate_curr_perc_gain(
             group,
             "asset",
-            "current_value_asset",
+            "curr_val_asset",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 

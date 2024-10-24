@@ -33,7 +33,7 @@ def model_data(
         sorting_columns=[
             {"columns": ["date"], "ascending": [False]},
             {"columns": ["date"], "ascending": [False]},
-            {"columns": ["current_value_asset"], "ascending": [False]},
+            {"columns": ["curr_val_asset"], "ascending": [False]},
             {"columns": ["ticker_asset", "date"], "ascending": [True, False]},
         ],
     )

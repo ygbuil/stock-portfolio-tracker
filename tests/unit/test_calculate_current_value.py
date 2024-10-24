@@ -28,7 +28,7 @@ def df_input_1() -> pd.DataFrame:
             "close_unadjusted_local_currency_asset": [110, 100, 95, 100, 90, 1000, 1100, 1000],
             "quantity_asset": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
             "value_asset": [np.nan, 100, -285, np.nan, np.nan, -3000, -2200, np.nan],
-            "current_quantity_asset": [52, 52, 53, 50, 50, 5, 2, np.nan],
+            "curr_qty_asset": [52, 52, 53, 50, 50, 5, 2, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -53,7 +53,7 @@ def df_input_2() -> pd.DataFrame:
             "close_unadjusted_local_currency_asset": [110, 100, 95, 100, 90, 1000, 1100, 1000],
             "quantity_asset": [np.nan, -1, 3, np.nan, 4, 3, 2, np.nan],
             "value_asset": [np.nan, 100, -285, np.nan, -360, -3000, -2200, np.nan],
-            "current_quantity_asset": [56, 56, 57, 54, 54, 5, 2, np.nan],
+            "curr_qty_asset": [56, 56, 57, 54, 54, 5, 2, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -77,8 +77,8 @@ def df_output_1() -> pd.DataFrame:
             "close_unadjusted_local_currency_asset": [110, 100, 100, 90, 1000, 1100, 1000],
             "quantity_asset": [np.nan, -1, np.nan, np.nan, 3, 2, np.nan],
             "value_asset": [np.nan, 100, np.nan, np.nan, -3000, -2200, np.nan],
-            "current_quantity_asset": [52, 52, 50, 50, 5, 2, np.nan],
-            "current_value_asset": [5720, 5200, 5000, 4500, 5000, 2200, np.nan],
+            "curr_qty_asset": [52, 52, 50, 50, 5, 2, np.nan],
+            "curr_val_asset": [5720, 5200, 5000, 4500, 5000, 2200, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -102,8 +102,8 @@ def df_output_2() -> pd.DataFrame:
             "close_unadjusted_local_currency_asset": [110, 100, 100, 90, 1000, 1100, 1000],
             "quantity_asset": [np.nan, -1, np.nan, 4, 3, 2, np.nan],
             "value_asset": [np.nan, 100, np.nan, -360, -3000, -2200, np.nan],
-            "current_quantity_asset": [56, 56, 54, 54, 5, 2, np.nan],
-            "current_value_asset": [6160, 5600, 5400, 4860, 5000, 2200, np.nan],
+            "curr_qty_asset": [56, 56, 54, 54, 5, 2, np.nan],
+            "curr_val_asset": [6160, 5600, 5400, 4860, 5000, 2200, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -115,18 +115,18 @@ def df_output_2() -> pd.DataFrame:
         ("df_input_2", "df_output_2"),
     ],
 )
-def test_calculate_current_value(
+def test_calculate_curr_val(
     df_input: pd.DataFrame,
     df_output: pd.DataFrame,
     request: FixtureRequest,
 ) -> None:
-    """Test calculate_current_quantity.
+    """Test calculate_curr_qty.
 
     :param df_input: Input dataframe.
     :param df_output: Output dataframe.
     :param request: FixtureRequest.
     """
-    assert utils.calculate_current_value(
+    assert utils.calculate_curr_val(
         request.getfixturevalue(df_input),
         "asset",
     ).equals(request.getfixturevalue(df_output))

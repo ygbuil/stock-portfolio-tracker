@@ -24,7 +24,7 @@ def transactions_1() -> pd.DataFrame:
                 "2024-01-01",
             ],
             "value_asset": [-100, 130, 600, np.nan, np.nan, 120, np.nan, -1000],
-            "current_value_asset": [1150, 1000, 950, 1500, 1080, 1210, 1200, 1100],
+            "curr_val_asset": [1150, 1000, 950, 1500, 1080, 1210, 1200, 1100],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -46,7 +46,7 @@ def transactions_2() -> pd.DataFrame:
                 "2023-12-31",
             ],
             "value_asset": [-100, 130, 600, np.nan, np.nan, 120, np.nan, -1000, np.nan],
-            "current_value_asset": [1150, 1000, 950, 1500, 1080, 1210, 1200, 1100, np.nan],
+            "curr_val_asset": [1150, 1000, 950, 1500, 1080, 1210, 1200, 1100, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -113,6 +113,6 @@ def test_calculate_curr_perc_gain(
     assert utils.calculate_curr_perc_gain(
         request.getfixturevalue(transactions),
         "asset",
-        "current_value_asset",
+        "curr_val_asset",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     ).equals(request.getfixturevalue(curr_perc_gain))
