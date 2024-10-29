@@ -1,9 +1,21 @@
 # general
-.DS_Store
 .env
-__pycache__/
 
-# project specific
+# macOS
+.DS_Store
+
+# pytest
+__pycache__/
+.pytest_cache
+
+# ruff
+.ruff_cache
+
+# uv
+.venv
+**/*egg-info*
+
+# project
 /data/in/config.json
 /data/in/transactions.csv
 /data/out/*
