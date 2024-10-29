@@ -1,7 +1,8 @@
 """Module to store various util objects."""
 
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import pandas as pd
 from loguru import logger
@@ -24,7 +25,7 @@ def sort_at_end() -> Callable:
 
             # if more than 1 df is returned
             output = []
-            for df, sorting_column in zip(dfs, sorting_columns):
+            for df, sorting_column in zip(dfs, sorting_columns, strict=False):
                 output.append(
                     df.sort_values(
                         by=sorting_column["columns"],

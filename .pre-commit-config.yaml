@@ -4,17 +4,17 @@ repos:
     hooks:
       - id: ruff-format
         name: Ruff formater
-        stages: [commit]
+        stages: [pre-commit]
       - id: ruff
         name: Ruff linter
         args: [ --fix ]
-        stages: [commit]
+        stages: [pre-commit]
 
   - repo: local
     hooks:
     - id: tests
       name: Tests
-      entry: pytest
+      entry: uv run pytest
       pass_filenames: false
       language: system
-      stages: [push]
+      stages: [pre-push]

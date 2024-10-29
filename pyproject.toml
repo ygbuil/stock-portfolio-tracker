@@ -1,26 +1,28 @@
-[tool.poetry]
+[project]
 name = "stock-portfolio-tracker"
 version = "0.1.0"
-description = ""
-authors = ["Llorenc Buil"]
+description = "Add your description here"
 readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.32.2",
+    "pandas>=2.2.2",
+    "yfinance>=0.2.40",
+    "pandas-datareader>=0.10.0",
+    "python-dotenv>=1.0.1",
+    "matplotlib>=3.9.0",
+    "loguru>=0.7.2",
+    "click>=8.1.7",
+    "pre-commit>=3.7.1",
+    "ruff>=0.4.6",
+    "pytest>=8.2.2",
+]
 
-[tool.poetry.scripts]
+[project.scripts]
 stock-portfolio-tracker = "stock_portfolio_tracker.__main__:_main"
 
-[tool.poetry.dependencies]
-python = "^3.11"
-requests = "^2.32.2"
-pandas = "^2.2.2"
-yfinance = "^0.2.40"
-pandas-datareader = "^0.10.0"
-python-dotenv = "^1.0.1"
-pre-commit = "^3.7.1"
-ruff = "^0.4.6"
-matplotlib = "^3.9.0"
-loguru = "^0.7.2"
-pytest = "^8.2.2"
-click = "^8.1.7"
+[tool.uv]
+package = true
 
 [tool.ruff]
 line-length = 100
@@ -29,7 +31,3 @@ lint.ignore = [
     "ANN002", "ANN003", "ANN401", "D203", "D205", "D213", "D402", "FA102", "PD901", "PLR0913",
     "S101", "TRY003"
 ]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

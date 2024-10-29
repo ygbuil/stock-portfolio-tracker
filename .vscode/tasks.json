@@ -4,8 +4,10 @@
         {
             "label": "pipeline",
             "type": "shell",
-            "command": "stock-portfolio-tracker",
+            "command": "uv",
             "args": [
+                "run",
+                "stock-portfolio-tracker",
                 "pipeline",
                 "--config-file-name", "config.json",
                 "--transactions-file-name", "transactions.csv",

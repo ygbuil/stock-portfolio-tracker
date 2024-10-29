@@ -1,13 +1,14 @@
 {
-    "name": "Python 3.11 & Poetry & Oh My Zsh",
+    "name": "Debian with Oh My Zsh, Git and UV",
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "postCreateCommand": "/bin/zsh -c 'poetry install && poetry run pre-commit install --hook-type pre-commit --hook-type pre-push'",
+    "postCreateCommand": "/bin/zsh .devcontainer/post-create.sh",
     "customizations": {
         "vscode": {
             "settings": {
                 "terminal.integrated.shell.linux": "/bin/zsh",
+                "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
                 "python.analysis.inlayHints.functionReturnTypes": true
             },
             "extensions": [

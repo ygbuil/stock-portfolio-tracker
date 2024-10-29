@@ -5,8 +5,8 @@
             "name": "pipeline",
             "type": "debugpy",
             "request": "launch",
-            "program": "stock_portfolio_tracker",
             "justMyCode": false,
+            "program": "${workspaceFolder}/.venv/bin/stock-portfolio-tracker",
             "args": [
                 "pipeline",
                 "--config-file-name", "config.json",
