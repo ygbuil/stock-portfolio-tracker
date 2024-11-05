@@ -12,9 +12,13 @@ def model_portfolio(
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Caclulates the following metrics for the assets:
-    - Total value of the entire portfolio for every day.
-    - Total gain of the entire portfolio for every day.
-    - Total percentage gain of the entire portfolio for every day.
+    - For the overall portfolio, on a daily basis:
+        - Value of the portfolio.
+        - Absoulte gain since start.
+        - Percentage gain since start.
+    - For each asset, on a daily basis:
+        - Value of the asset.
+        - Quantity of the asset.
     - Asset distribution (in value and percentage) as of latest date.
 
     :param portfolio_data: Transactions history and other portfolio data.
