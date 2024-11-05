@@ -127,10 +127,10 @@ def _plot_portfolio_percent_evolution(
     plt.figure(figsize=(10, 6))
     plt.plot(
         assets_perc_evolution["date"],
-        assets_perc_evolution["curr_perc_gain_asset"],
+        assets_perc_evolution["curr_perc_gain_portfolio"],
         linestyle="-",
         color="blue",
-        label=f"Portfolio. Current: {assets_perc_evolution['curr_perc_gain_asset'].iloc[0]} %",
+        label=f"Portfolio. Current: {assets_perc_evolution['curr_perc_gain_portfolio'].iloc[0]} %",
     )
     plt.plot(
         benchmark_perc_evolution["date"],

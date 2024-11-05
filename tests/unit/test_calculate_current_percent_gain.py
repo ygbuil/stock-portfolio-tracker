@@ -3,9 +3,8 @@
 import numpy as np
 import pandas as pd
 import pytest
-from pytest import FixtureRequest  # noqa: PT013
-
 import stock_portfolio_tracker.modelling._utils as utils
+from pytest import FixtureRequest  # noqa: PT013
 
 
 @pytest.fixture()
@@ -113,6 +112,5 @@ def test_calculate_curr_perc_gain(
     assert utils.calculate_curr_perc_gain(
         request.getfixturevalue(transactions),
         "asset",
-        "curr_val_asset",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     ).equals(request.getfixturevalue(curr_perc_gain))

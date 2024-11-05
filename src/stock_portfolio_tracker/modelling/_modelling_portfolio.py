@@ -57,9 +57,8 @@ def model_portfolio(
             portfolio_data.transactions[["date", "value_asset"]],
             how="left",
             on=["date"],
-        ),
-        "asset",
-        "curr_val_portfolio",
+        ).rename(columns={"value_asset": "value_portfolio"}),
+        "portfolio",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 

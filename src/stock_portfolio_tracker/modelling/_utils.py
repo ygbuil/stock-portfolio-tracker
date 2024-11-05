@@ -67,7 +67,6 @@ def calculate_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
 def calculate_curr_perc_gain(
     df: pd.DataFrame,
     position_type: str,
-    curr_val_column_name: str,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     df = (
@@ -86,7 +85,7 @@ def calculate_curr_perc_gain(
                 ),
             },
             **{
-                curr_val_column_name: lambda df: df[curr_val_column_name].replace(
+                f"curr_val_{position_type}": lambda df: df[f"curr_val_{position_type}"].replace(
                     np.nan,
                     0,
                 ),
@@ -107,7 +106,7 @@ def calculate_curr_perc_gain(
             )
 
         curr_money_in += max(0, df.loc[i, f"value_{position_type}"])
-        df.loc[i, "money_in"] = df.loc[i, curr_val_column_name] + curr_money_in
+        df.loc[i, "money_in"] = df.loc[i, f"curr_val_{position_type}"] + curr_money_in
 
     df = (
         df.assign(

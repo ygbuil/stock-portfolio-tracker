@@ -40,7 +40,6 @@ def model_benchmarks_absolute(
         )
         .rename(columns={"value_asset": "value_benchmark"}),
         "benchmark",
-        "curr_val_benchmark",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
@@ -105,14 +104,12 @@ def model_benchmarks_proportional(
         percent_gain_benchmark = utils.calculate_curr_perc_gain(
             group,
             "benchmark",
-            "curr_val_benchmark",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
         percent_gain_asset = utils.calculate_curr_perc_gain(
             group,
             "asset",
-            "curr_val_asset",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
