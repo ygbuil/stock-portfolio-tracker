@@ -47,7 +47,7 @@ def preprocess(
         "asset",
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
-    benchmarks = _load_prices(
+    benchmark = _load_prices(
         [config.benchmark_ticker],
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -58,7 +58,7 @@ def preprocess(
 
     logger.info("End of preprocess.")
 
-    return config, portfolio_data, asset_prices, benchmarks
+    return config, portfolio_data, asset_prices, benchmark
 
 
 def _load_config(config_file_name: str) -> Config:

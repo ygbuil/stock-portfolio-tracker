@@ -10,7 +10,7 @@ def model_portfolio(
     portfolio_data: PortfolioData,
     asset_prices: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Caclulates the following metrics for the assets:
     - For the overall portfolio, on a daily basis:
         - Value of the portfolio.
@@ -24,7 +24,7 @@ def model_portfolio(
     :param portfolio_data: Transactions history and other portfolio data.
     :param asset_prices: Daily prices of each asset as of Yahoo Finance.
     :param sorting_columns: Columns to sort for each returned dataframe.
-    :return: _description_
+    :return: Portfolio metrics, individual asset metrics and asset ditribution.
     """
     portfolio_model_grouped = asset_prices.merge(
         portfolio_data.transactions,
@@ -33,10 +33,7 @@ def model_portfolio(
     ).groupby("ticker_asset")
 
     portfolio_model = pd.concat(
-        [
-            utils.calculate_curr_qty(group, "quantity_asset", "asset")
-            for _, group in portfolio_model_grouped
-        ],
+        [utils.calculate_curr_qty(group, "asset") for _, group in portfolio_model_grouped],
     )
 
     portfolio_model = utils.calculate_curr_val(

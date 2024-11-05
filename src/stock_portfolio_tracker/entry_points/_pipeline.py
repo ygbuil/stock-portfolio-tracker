@@ -29,7 +29,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
     logger.info("Start of execution.")
 
     logger.info("Start of preprocess.")
-    config, portfolio_data, asset_prices, benchmarks = preprocessing.preprocess(
+    config, portfolio_data, asset_prices, benchmark = preprocessing.preprocess(
         config_file_name,
         transactions_file_name,
     )
@@ -43,7 +43,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         benchmark_perc_evolution,
     ) = modelling.model_data(
         portfolio_data,
-        benchmarks,
+        benchmark,
         asset_prices,
     )
 

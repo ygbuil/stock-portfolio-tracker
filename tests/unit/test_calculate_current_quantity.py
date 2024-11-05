@@ -3,9 +3,8 @@
 import numpy as np
 import pandas as pd
 import pytest
-from pytest import FixtureRequest  # noqa: PT013
-
 import stock_portfolio_tracker.modelling._utils as utils
+from pytest import FixtureRequest  # noqa: PT013
 
 
 @pytest.fixture()
@@ -126,6 +125,5 @@ def test_calculate_curr_qty(
     """
     assert utils.calculate_curr_qty(
         request.getfixturevalue(transactions),
-        "quantity_asset",
         "asset",
     ).equals(request.getfixturevalue(curr_qty))

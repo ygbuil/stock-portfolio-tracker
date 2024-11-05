@@ -6,14 +6,20 @@ from stock_portfolio_tracker.utils import sort_at_end
 
 def calculate_curr_qty(
     group: pd.DataFrame,
-    quantity_col_name: str,
     position_type: str,
 ) -> pd.DataFrame:
+    """Calculate the daily quantity of share for an asset based on the buy / sale transactions and
+    the stock splits.
+
+    :param group: Dataframe containing dates, transaction quantity and stock splits.
+    :param position_type: Type of position (asset, benchmark, etc).
+    :return: Dataframe with the daily amount of shares hold.
+    """
     group = (
         group.assign(
             **{f"curr_qty_{position_type}": np.nan},
             **{f"split_{position_type}": lambda df: df[f"split_{position_type}"].replace(0, 1)},
-            **{quantity_col_name: group[quantity_col_name].replace(np.nan, 0)},
+            **{f"quantity_{position_type}": group[f"quantity_{position_type}"].replace(np.nan, 0)},
         )
         .sort_values(["date"], ascending=False)
         .reset_index(drop=True)
@@ -25,21 +31,24 @@ def calculate_curr_qty(
     for i in iterator:
         # if first day
         if i == iterator[0]:
-            if np.isnan(group.loc[i, quantity_col_name]):
+            if np.isnan(group.loc[i, f"quantity_{position_type}"]):
                 group.loc[i, f"curr_qty_{position_type}"] = 0
             else:
-                group.loc[i, f"curr_qty_{position_type}"] = group.loc[i, quantity_col_name]
+                group.loc[i, f"curr_qty_{position_type}"] = group.loc[
+                    i,
+                    f"quantity_{position_type}",
+                ]
         else:
             # f"curr_qty_{position_type}" = quantity_purchased_or_sold + (yesterdays_quantity * f"split_{position_type}") # noqa: E501
             group.loc[i, f"curr_qty_{position_type}"] = (
-                group.loc[i, quantity_col_name]
+                group.loc[i, f"quantity_{position_type}"]
                 + group.loc[i + 1, f"curr_qty_{position_type}"]
                 * group.loc[i, f"split_{position_type}"]
             )
 
     return group.assign(
         **{f"split_{position_type}": group[f"split_{position_type}"].replace(1, 0)},
-        **{quantity_col_name: group[quantity_col_name].replace(0, np.nan)},
+        **{f"quantity_{position_type}": group[f"quantity_{position_type}"].replace(0, np.nan)},
         **{
             f"curr_qty_{position_type}": group[f"curr_qty_{position_type}"].replace(
                 0,

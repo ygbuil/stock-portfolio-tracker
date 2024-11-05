@@ -6,12 +6,12 @@ from . import _utils as utils
 
 
 @sort_at_end()
-def model_benchmarks_absolute(
+def model_benchmark_absolute(
     portfolio_data: PortfolioData,
-    benchmarks: pd.DataFrame,
+    benchmark: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
-    benchmark_val_evolution_abs = benchmarks.merge(
+    benchmark_val_evolution_abs = benchmark.merge(
         portfolio_data.transactions[["date", "quantity_asset", "value_asset"]],
         how="left",
         on=["date"],
@@ -22,7 +22,6 @@ def model_benchmarks_absolute(
 
     benchmark_val_evolution_abs = utils.calculate_curr_qty(
         benchmark_val_evolution_abs,
-        "quantity_benchmark",
         "benchmark",
     )
 
@@ -47,9 +46,9 @@ def model_benchmarks_absolute(
 
 
 @sort_at_end()
-def model_benchmarks_proportional(
+def model_benchmark_proportional(
     portfolio_model: pd.DataFrame,
-    benchmarks: pd.DataFrame,
+    benchmark: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     assets_vs_benchmark = pd.DataFrame(
@@ -61,7 +60,7 @@ def model_benchmarks_proportional(
     )
 
     for _, group in portfolio_model.groupby("ticker_asset"):
-        group = benchmarks[  # noqa: PLW2901
+        group = benchmark[  # noqa: PLW2901
             [
                 "date",
                 "ticker_benchmark",
@@ -87,7 +86,6 @@ def model_benchmarks_proportional(
 
         group = utils.calculate_curr_qty(  # noqa: PLW2901
             group,
-            "quantity_benchmark",
             "benchmark",
         )
 
