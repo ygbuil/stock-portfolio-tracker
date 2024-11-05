@@ -112,18 +112,18 @@ def curr_qty_2() -> pd.DataFrame:
         ("transactions_2", "curr_qty_2"),
     ],
 )
-def test_calculate_curr_qty(
+def test_calc_curr_qty(
     transactions: pd.DataFrame,
     curr_qty: pd.DataFrame,
     request: FixtureRequest,
 ) -> None:
-    """Test calculate_curr_qty.
+    """Test calc_curr_qty.
 
     :param transactions: Transactions.
     :param curr_qty: Resulting dataframe with the percent gain.
     :param request: FixtureRequest.
     """
-    assert utils.calculate_curr_qty(
+    assert utils.calc_curr_qty(
         request.getfixturevalue(transactions),
         "asset",
     ).equals(request.getfixturevalue(curr_qty))

@@ -3,9 +3,8 @@
 import numpy as np
 import pandas as pd
 import pytest
-from pytest import FixtureRequest  # noqa: PT013
-
 import stock_portfolio_tracker.modelling._utils as utils
+from pytest import FixtureRequest  # noqa: PT013
 
 
 @pytest.fixture()
@@ -115,18 +114,18 @@ def df_output_2() -> pd.DataFrame:
         ("df_input_2", "df_output_2"),
     ],
 )
-def test_calculate_curr_val(
+def test_calc_curr_val(
     df_input: pd.DataFrame,
     df_output: pd.DataFrame,
     request: FixtureRequest,
 ) -> None:
-    """Test calculate_curr_qty.
+    """Test calc_curr_qty.
 
     :param df_input: Input dataframe.
     :param df_output: Output dataframe.
     :param request: FixtureRequest.
     """
-    assert utils.calculate_curr_val(
+    assert utils.calc_curr_val(
         request.getfixturevalue(df_input),
         "asset",
     ).equals(request.getfixturevalue(df_output))

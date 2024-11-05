@@ -33,10 +33,10 @@ def model_portfolio(
     ).groupby("ticker_asset")
 
     portfolio_model = pd.concat(
-        [utils.calculate_curr_qty(group, "asset") for _, group in portfolio_model_grouped],
+        [utils.calc_curr_qty(group, "asset") for _, group in portfolio_model_grouped],
     )
 
-    portfolio_model = utils.calculate_curr_val(
+    portfolio_model = utils.calc_curr_val(
         portfolio_model,
         "asset",
     )
@@ -49,7 +49,7 @@ def model_portfolio(
         .assign(curr_val_portfolio=lambda df: round(df["curr_val_portfolio"], 2))
     )
 
-    portfolio_perc_evolution = utils.calculate_curr_perc_gain(
+    portfolio_perc_evolution = utils.calc_curr_perc_gain(
         portfolio_val_evolution.merge(
             portfolio_data.transactions[["date", "value_asset"]],
             how="left",

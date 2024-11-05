@@ -4,7 +4,7 @@ import pandas as pd
 from stock_portfolio_tracker.utils import sort_at_end
 
 
-def calculate_curr_qty(
+def calc_curr_qty(
     group: pd.DataFrame,
     position_type: str,
 ) -> pd.DataFrame:
@@ -58,7 +58,7 @@ def calculate_curr_qty(
     )
 
 
-def calculate_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
+def calc_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     return (
         df.assign(
             curr_val=df[f"curr_qty_{position_type}"]
@@ -73,7 +73,7 @@ def calculate_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
 
 
 @sort_at_end()
-def calculate_curr_perc_gain(
+def calc_curr_perc_gain(
     df: pd.DataFrame,
     position_type: str,
     sorting_columns: list[dict],  # noqa: ARG001
@@ -175,7 +175,7 @@ def calculat_assets_distribution(
     )
 
 
-def calculate_quantity_benchmark(
+def calc_qty_bench(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     df = (

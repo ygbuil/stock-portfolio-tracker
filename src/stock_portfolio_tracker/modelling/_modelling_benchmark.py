@@ -20,17 +20,17 @@ def model_benchmark_absolute(
         / df["close_unadj_local_currency_benchmark"],
     )
 
-    benchmark_val_evolution_abs = utils.calculate_curr_qty(
+    benchmark_val_evolution_abs = utils.calc_curr_qty(
         benchmark_val_evolution_abs,
         "benchmark",
     )
 
-    benchmark_val_evolution_abs = utils.calculate_curr_val(
+    benchmark_val_evolution_abs = utils.calc_curr_val(
         benchmark_val_evolution_abs,
         "benchmark",
     ).assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
 
-    benchmark_perc_evolution = utils.calculate_curr_perc_gain(
+    benchmark_perc_evolution = utils.calc_curr_perc_gain(
         benchmark_val_evolution_abs[["date", "ticker_benchmark", "curr_val_benchmark"]]
         .merge(
             portfolio_data.transactions[["date", "value_asset"]],
@@ -82,30 +82,30 @@ def model_benchmark_proportional(
             on=["date"],
         )
 
-        group = utils.calculate_quantity_benchmark(group)  # noqa: PLW2901
+        group = utils.calc_qty_bench(group)  # noqa: PLW2901
 
-        group = utils.calculate_curr_qty(  # noqa: PLW2901
+        group = utils.calc_curr_qty(  # noqa: PLW2901
             group,
             "benchmark",
         )
 
-        group = utils.calculate_curr_val(  # noqa: PLW2901
+        group = utils.calc_curr_val(  # noqa: PLW2901
             group,
             "benchmark",
         )
 
-        group = utils.calculate_curr_val(  # noqa: PLW2901
+        group = utils.calc_curr_val(  # noqa: PLW2901
             group,
             "asset",
         )
 
-        percent_gain_benchmark = utils.calculate_curr_perc_gain(
+        percent_gain_benchmark = utils.calc_curr_perc_gain(
             group,
             "benchmark",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
-        percent_gain_asset = utils.calculate_curr_perc_gain(
+        percent_gain_asset = utils.calc_curr_perc_gain(
             group,
             "asset",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
