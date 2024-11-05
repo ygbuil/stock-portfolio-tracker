@@ -36,8 +36,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
 
     logger.info("Start of modelling.")
     (
-        assets_val_evolution,
-        assets_perc_evolution,
+        portfolio_evolution,
         assets_distribution,
         benchmark_val_evolution_abs,
         assets_vs_benchmark,
@@ -51,8 +50,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
     logger.info("Start of generate reports.")
     reporting.generate_reports(
         config,
-        assets_val_evolution,
-        assets_perc_evolution,
+        portfolio_evolution,
         assets_distribution,
         benchmark_val_evolution_abs,
         assets_vs_benchmark,
