@@ -16,7 +16,7 @@ def model_data(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Calculate all necessary metrics.
 
-    :param portfolio_data: All data of user's portfolio.
+    :param portfolio_data: Transactions history and other portfolio data.
     :param benchmarks: Benchmark historical data.
     :param asset_prices: Asset prices historical data.
     :return: Relevant modelled data.

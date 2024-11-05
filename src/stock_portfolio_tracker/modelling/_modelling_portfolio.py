@@ -10,7 +10,18 @@ def model_portfolio(
     portfolio_data: PortfolioData,
     asset_prices: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Caclulates the following metrics for the assets:
+    - Total value of the entire portfolio for every day.
+    - Total gain of the entire portfolio for every day.
+    - Total percentage gain of the entire portfolio for every day.
+    - Asset distribution (in value and percentage) as of latest date.
+
+    :param portfolio_data: Transactions history and other portfolio data.
+    :param asset_prices: Daily prices of each asset as of Yahoo Finance.
+    :param sorting_columns: Columns to sort for each returned dataframe.
+    :return: _description_
+    """
     portfolio_model_grouped = asset_prices.merge(
         portfolio_data.transactions,
         how="left",
