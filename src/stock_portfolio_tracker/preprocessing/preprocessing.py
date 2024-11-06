@@ -209,7 +209,8 @@ def _load_prices(
     position_type: str,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
-    """Load historical prices and stock splits for all assets in you portfolio.
+    """Load historical prices and stock splits for all assets in you portfolio, converted to your
+    portfolio currency.
 
     :param tickers: List of tickers to load data for.
     :param start_date: Start date to load the data.
@@ -264,6 +265,15 @@ def _load_ticker_data(
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
 ) -> pd.DataFrame:
+    """Load the historical price at market close and the historical stock splits of an asset for a
+    given ticker.
+
+    :param ticker: Asset ticker
+    :param start_date: Start date to load the data.
+    :param end_date: End date to load the data.
+    :raises YahooFinanceError: Something went wrong with the Yahoo Finance API.
+    :return: Dataframe with the historical asset price and stock splits.
+    """
     try:
         asset = yf.Ticker(ticker)
         asset_price = (

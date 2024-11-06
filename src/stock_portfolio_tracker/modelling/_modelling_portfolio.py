@@ -59,7 +59,7 @@ def model_portfolio(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    assets_distribution = utils.calculat_assets_distribution(
+    assets_distribution = utils.calc_assets_distribution(
         portfolio_model,
         portfolio_data,
         "asset",

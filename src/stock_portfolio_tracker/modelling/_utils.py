@@ -153,11 +153,19 @@ def calc_curr_perc_gain(
     return df
 
 
-def calculat_assets_distribution(
+def calc_assets_distribution(
     portfolio_model: pd.DataFrame,
     portfolio_data: pd.DataFrame,
     position_type: str,
 ) -> pd.DataFrame:
+    """Calculate the percentage in size each asset represents to the overall portfolio as well as
+    the value of each asset, both at end date.
+
+    :param portfolio_model: _description_
+    :param portfolio_data: _description_
+    :param position_type: _description_
+    :return: Dataframe with the percentage and value of each asset at end date.
+    """
     assets_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
         [
             "date",
