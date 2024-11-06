@@ -5,52 +5,51 @@ from stock_portfolio_tracker.utils import sort_at_end
 
 
 def calc_curr_qty(
-    group: pd.DataFrame,
+    df: pd.DataFrame,
     position_type: str,
 ) -> pd.DataFrame:
     """Calculate the daily quantity of share for an asset based on the buy / sale transactions and
     the stock splits.
 
-    :param group: Dataframe containing dates, transaction quantity and stock splits.
+    :param df: Dataframe containing dates, transaction quantity and stock splits.
     :param position_type: Type of position (asset, benchmark, etc).
     :return: Dataframe with the daily amount of shares hold.
     """
-    group = (
-        group.assign(
+    df = (
+        df.assign(
             **{f"curr_qty_{position_type}": np.nan},
             **{f"split_{position_type}": lambda df: df[f"split_{position_type}"].replace(0, 1)},
-            **{f"quantity_{position_type}": group[f"quantity_{position_type}"].replace(np.nan, 0)},
+            **{f"quantity_{position_type}": df[f"quantity_{position_type}"].replace(np.nan, 0)},
         )
         .sort_values(["date"], ascending=False)
         .reset_index(drop=True)
     )
 
-    iterator = list(reversed(group.index))
+    iterator = list(reversed(df.index))
 
     # iterate from older to newer date
     for i in iterator:
         # if first day
         if i == iterator[0]:
-            if np.isnan(group.loc[i, f"quantity_{position_type}"]):
-                group.loc[i, f"curr_qty_{position_type}"] = 0
+            if np.isnan(df.loc[i, f"quantity_{position_type}"]):
+                df.loc[i, f"curr_qty_{position_type}"] = 0
             else:
-                group.loc[i, f"curr_qty_{position_type}"] = group.loc[
+                df.loc[i, f"curr_qty_{position_type}"] = df.loc[
                     i,
                     f"quantity_{position_type}",
                 ]
         else:
             # f"curr_qty_{position_type}" = quantity_purchased_or_sold + (yesterdays_quantity * f"split_{position_type}") # noqa: E501
-            group.loc[i, f"curr_qty_{position_type}"] = (
-                group.loc[i, f"quantity_{position_type}"]
-                + group.loc[i + 1, f"curr_qty_{position_type}"]
-                * group.loc[i, f"split_{position_type}"]
+            df.loc[i, f"curr_qty_{position_type}"] = (
+                df.loc[i, f"quantity_{position_type}"]
+                + df.loc[i + 1, f"curr_qty_{position_type}"] * df.loc[i, f"split_{position_type}"]
             )
 
-    return group.assign(
-        **{f"split_{position_type}": group[f"split_{position_type}"].replace(1, 0)},
-        **{f"quantity_{position_type}": group[f"quantity_{position_type}"].replace(0, np.nan)},
+    return df.assign(
+        **{f"split_{position_type}": df[f"split_{position_type}"].replace(1, 0)},
+        **{f"quantity_{position_type}": df[f"quantity_{position_type}"].replace(0, np.nan)},
         **{
-            f"curr_qty_{position_type}": group[f"curr_qty_{position_type}"].replace(
+            f"curr_qty_{position_type}": df[f"curr_qty_{position_type}"].replace(
                 0,
                 np.nan,
             ),
@@ -59,6 +58,12 @@ def calc_curr_qty(
 
 
 def calc_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
+    """Calculate the daily total value of the asset.
+
+    :param df: Dataframe containing daily asset quantity hold and daily price as in Yahoo Finance.
+    :param position_type: Type of position (asset, benchmark, etc).
+    :return: Dataframe with the daily position value.
+    """
     return (
         df.assign(
             curr_val=df[f"curr_qty_{position_type}"]
@@ -78,6 +83,15 @@ def calc_curr_perc_gain(
     position_type: str,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
+    """Calculate or the overall portfolio, on a daily basis:
+        - Absoulte gain since start.
+        - Percentage gain since start.
+
+    :param df: Dataframe with the daily portfolio value and the transaction value.
+    :param position_type: Type of position (asset, benchmark, etc).
+    :param sorting_columns: Columns to sort for each returned dataframe.
+    :return: Dataframe with the absolute and percentage gain.
+    """
     df = (
         df.sort_values(
             by=["date"],
