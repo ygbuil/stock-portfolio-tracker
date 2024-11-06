@@ -1,4 +1,4 @@
-date,transaction_type,ticker,quantity,value
+date,transaction_type,ticker,trans_qty,trans_val
 23-04-2024,Purchase,MSFT,6.00,2275.53
 28-03-2024,Sale,V,5.00,1297.35
 25-03-2024,Purchase,MSFT,7.00,2743.36

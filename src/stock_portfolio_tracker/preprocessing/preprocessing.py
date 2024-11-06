@@ -75,21 +75,21 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
                 "date": str,
                 "transaction_type": str,
                 "ticker": str,
-                "quantity": float,
-                "value": float,
+                "trans_qty": float,
+                "trans_val": float,
             },
         )
         .assign(
             date=lambda df: pd.to_datetime(df["date"], format="%d-%m-%Y"),
-            value=lambda df: np.where(
+            trans_val=lambda df: np.where(
                 df["transaction_type"] == "Sale",
-                abs(df["value"]),
-                -abs(df["value"]),
+                abs(df["trans_val"]),
+                -abs(df["trans_val"]),
             ),
-            quantity=lambda df: np.where(
+            trans_qty=lambda df: np.where(
                 df["transaction_type"] == "Sale",
-                -abs(df["quantity"]),
-                abs(df["quantity"]),
+                -abs(df["trans_qty"]),
+                abs(df["trans_qty"]),
             ),
         )
         .drop("transaction_type", axis=1)
@@ -100,8 +100,8 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         .rename(
             columns={
                 "ticker": "ticker_asset",
-                "quantity": "quantity_asset",
-                "value": "value_asset",
+                "trans_qty": "trans_qty_asset",
+                "trans_val": "trans_val_asset",
             },
         )
         .reset_index(drop=True)

@@ -12,11 +12,11 @@ def model_benchmark_absolute(
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     benchmark_val_evolution_abs = benchmark.merge(
-        portfolio_data.transactions[["date", "quantity_asset", "value_asset"]],
+        portfolio_data.transactions[["date", "trans_qty_asset", "trans_val_asset"]],
         how="left",
         on=["date"],
     ).assign(
-        quantity_benchmark=lambda df: -df["value_asset"]
+        trans_qty_benchmark=lambda df: -df["trans_val_asset"]
         / df["close_unadj_local_currency_benchmark"],
     )
 
@@ -33,11 +33,11 @@ def model_benchmark_absolute(
     benchmark_perc_evolution = utils.calc_curr_perc_gain(
         benchmark_val_evolution_abs[["date", "ticker_benchmark", "curr_val_benchmark"]]
         .merge(
-            portfolio_data.transactions[["date", "value_asset"]],
+            portfolio_data.transactions[["date", "trans_val_asset"]],
             how="left",
             on=["date"],
         )
-        .rename(columns={"value_asset": "value_benchmark"}),
+        .rename(columns={"trans_val_asset": "trans_val_benchmark"}),
         "benchmark",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
@@ -72,10 +72,10 @@ def model_benchmark_proportional(
                 [
                     "date",
                     "ticker_asset",
-                    "quantity_asset",
+                    "trans_qty_asset",
                     "curr_qty_asset",
                     "close_unadj_local_currency_asset",
-                    "value_asset",
+                    "trans_val_asset",
                 ]
             ],
             how="left",

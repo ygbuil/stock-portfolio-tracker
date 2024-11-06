@@ -19,7 +19,7 @@ def calc_curr_qty(
         df.assign(
             **{f"curr_qty_{position_type}": np.nan},
             **{f"split_{position_type}": lambda df: df[f"split_{position_type}"].replace(0, 1)},
-            **{f"quantity_{position_type}": df[f"quantity_{position_type}"].replace(np.nan, 0)},
+            **{f"trans_qty_{position_type}": df[f"trans_qty_{position_type}"].replace(np.nan, 0)},
         )
         .sort_values(["date"], ascending=False)
         .reset_index(drop=True)
@@ -31,23 +31,23 @@ def calc_curr_qty(
     for i in iterator:
         # if first day
         if i == iterator[0]:
-            if np.isnan(df.loc[i, f"quantity_{position_type}"]):
+            if np.isnan(df.loc[i, f"trans_qty_{position_type}"]):
                 df.loc[i, f"curr_qty_{position_type}"] = 0
             else:
                 df.loc[i, f"curr_qty_{position_type}"] = df.loc[
                     i,
-                    f"quantity_{position_type}",
+                    f"trans_qty_{position_type}",
                 ]
         else:
-            # f"curr_qty_{position_type}" = quantity_purchased_or_sold + (yesterdays_quantity * f"split_{position_type}") # noqa: E501
+            # f"curr_qty_{position_type}" = trans_qty_purchased_or_sold + (yesterdays_trans_qty * f"split_{position_type}") # noqa: E501
             df.loc[i, f"curr_qty_{position_type}"] = (
-                df.loc[i, f"quantity_{position_type}"]
+                df.loc[i, f"trans_qty_{position_type}"]
                 + df.loc[i + 1, f"curr_qty_{position_type}"] * df.loc[i, f"split_{position_type}"]
             )
 
     return df.assign(
         **{f"split_{position_type}": df[f"split_{position_type}"].replace(1, 0)},
-        **{f"quantity_{position_type}": df[f"quantity_{position_type}"].replace(0, np.nan)},
+        **{f"trans_qty_{position_type}": df[f"trans_qty_{position_type}"].replace(0, np.nan)},
         **{
             f"curr_qty_{position_type}": df[f"curr_qty_{position_type}"].replace(
                 0,
@@ -102,7 +102,7 @@ def calc_curr_perc_gain(
             money_out=np.nan,
             money_in=np.nan,
             **{
-                f"value_{position_type}": lambda df: df[f"value_{position_type}"].replace(
+                f"trans_val_{position_type}": lambda df: df[f"trans_val_{position_type}"].replace(
                     np.nan,
                     0,
                 ),
@@ -121,14 +121,14 @@ def calc_curr_perc_gain(
 
     for i in iterator:
         if i == iterator[0]:
-            df.loc[i, "money_out"] = min(df.loc[i, f"value_{position_type}"], 0)
+            df.loc[i, "money_out"] = min(df.loc[i, f"trans_val_{position_type}"], 0)
         else:
             df.loc[i, "money_out"] = df.loc[i + 1, "money_out"] + min(
-                df.loc[i, f"value_{position_type}"],
+                df.loc[i, f"trans_val_{position_type}"],
                 0,
             )
 
-        curr_money_in += max(0, df.loc[i, f"value_{position_type}"])
+        curr_money_in += max(0, df.loc[i, f"trans_val_{position_type}"])
         df.loc[i, "money_in"] = df.loc[i, f"curr_val_{position_type}"] + curr_money_in
 
     df = (
@@ -199,7 +199,7 @@ def calc_qty_bench(
         )
         .reset_index(drop=True)
         .assign(
-            quantity_benchmark=np.nan,
+            trans_qty_benchmark=np.nan,
         )
     )
 
@@ -209,22 +209,24 @@ def calc_qty_bench(
     for i in iterator:
         if (
             i == iterator[0]
-            and not np.isnan(df.loc[i, "quantity_asset"])
-            or not np.isnan(df.loc[i, "quantity_asset"])
+            and not np.isnan(df.loc[i, "trans_qty_asset"])
+            or not np.isnan(df.loc[i, "trans_qty_asset"])
             and np.isnan(df.loc[i + 1, "curr_qty_asset"])
         ):
-            df.loc[i, "quantity_benchmark"] = (
-                -df.loc[i, "value_asset"] / df.loc[i, "close_unadj_local_currency_benchmark"]
+            df.loc[i, "trans_qty_benchmark"] = (
+                -df.loc[i, "trans_val_asset"] / df.loc[i, "close_unadj_local_currency_benchmark"]
             )
-            latest_curr_qty_benchmark += df.loc[i, "quantity_benchmark"]
-        elif not np.isnan(df.loc[i, "quantity_asset"]):
-            df.loc[i, "quantity_benchmark"] = (
-                (df.loc[i, "quantity_asset"] + df.loc[i + 1, "curr_qty_asset"])
+            latest_curr_qty_benchmark += df.loc[i, "trans_qty_benchmark"]
+        elif not np.isnan(df.loc[i, "trans_qty_asset"]):
+            df.loc[i, "trans_qty_benchmark"] = (
+                (df.loc[i, "trans_qty_asset"] + df.loc[i + 1, "curr_qty_asset"])
                 / df.loc[i + 1, "curr_qty_asset"]
                 - 1
             ) * latest_curr_qty_benchmark
-            latest_curr_qty_benchmark += df.loc[i, "quantity_benchmark"]
+            latest_curr_qty_benchmark += df.loc[i, "trans_qty_benchmark"]
 
-    df["value_benchmark"] = -df["close_unadj_local_currency_benchmark"] * df["quantity_benchmark"]
+    df["trans_val_benchmark"] = (
+        -df["close_unadj_local_currency_benchmark"] * df["trans_qty_benchmark"]
+    )
 
     return df

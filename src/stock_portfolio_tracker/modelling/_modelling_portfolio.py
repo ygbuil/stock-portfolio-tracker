@@ -51,10 +51,10 @@ def model_portfolio(
 
     portfolio_perc_evolution = utils.calc_curr_perc_gain(
         portfolio_val_evolution.merge(
-            portfolio_data.transactions[["date", "value_asset"]],
+            portfolio_data.transactions[["date", "trans_val_asset"]],
             how="left",
             on=["date"],
-        ).rename(columns={"value_asset": "value_portfolio"}),
+        ).rename(columns={"trans_val_asset": "trans_val_portfolio"}),
         "portfolio",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )

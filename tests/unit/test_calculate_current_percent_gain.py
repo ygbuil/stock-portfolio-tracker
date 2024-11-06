@@ -22,7 +22,7 @@ def transactions_1() -> pd.DataFrame:
                 "2024-01-02",
                 "2024-01-01",
             ],
-            "value_asset": [-100, 130, 600, np.nan, np.nan, 120, np.nan, -1000],
+            "trans_val_asset": [-100, 130, 600, np.nan, np.nan, 120, np.nan, -1000],
             "curr_val_asset": [1150, 1000, 950, 1500, 1080, 1210, 1200, 1100],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
@@ -44,7 +44,7 @@ def transactions_2() -> pd.DataFrame:
                 "2024-01-01",
                 "2023-12-31",
             ],
-            "value_asset": [-100, 130, 600, np.nan, np.nan, 120, np.nan, -1000, np.nan],
+            "trans_val_asset": [-100, 130, 600, np.nan, np.nan, 120, np.nan, -1000, np.nan],
             "curr_val_asset": [1150, 1000, 950, 1500, 1080, 1210, 1200, 1100, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
