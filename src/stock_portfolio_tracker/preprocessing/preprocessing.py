@@ -62,11 +62,21 @@ def preprocess(
 
 
 def _load_config(config_file_name: str) -> Config:
+    """Load config.json.
+
+    :param config_file_name: Config file name.
+    :return: Config dataclass with the info of config.json.
+    """
     with (DIR_IN / Path(config_file_name)).open() as file:
         return Config(**json.load(file))
 
 
 def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
+    """Load all portfolio data, such as transactions, start date, etc.
+
+    :param transactions_file_name: Transactions file name.
+    :return: A class with all portfolio data.
+    """
     logger.info("Loading portfolio data.")
     transactions = (
         pd.read_csv(DIR_IN / Path(transactions_file_name))
@@ -130,6 +140,13 @@ def _load_currency_exchange(
     local_currency: str,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
+    """Load currency exchange data from Yahoo Finance.
+
+    :param portfolio_data: Transactions file name.
+    :param local_currency: Portfolio currency.
+    :param sorting_columns: Columns to sort for each returned dataframe.
+    :return: Dataframe with the currency exchanges for all assets in the portfolio.
+    """
     currency_exchanges = []
     portfolio_currencies = {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
         local_currency,
@@ -192,6 +209,16 @@ def _load_prices(
     position_type: str,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
+    """Load historical prices and stock splits for all assets in you portfolio.
+
+    :param tickers: List of tickers to load data for.
+    :param start_date: Start date to load the data.
+    :param end_date: End date to load the data.
+    :param currency_exchange: Dataframe with the currency exchanges for all assets to be loaded.
+    :param position_type: Type of position (asset, benchmark, etc).
+    :param sorting_columns: Columns to sort for each returned dataframe.
+    :return: Dataframe with all historical prices and stock splits.
+    """
     asset_prices = []
 
     for ticker in tickers:
