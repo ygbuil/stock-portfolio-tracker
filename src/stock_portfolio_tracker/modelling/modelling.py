@@ -43,7 +43,7 @@ def model_data(
             portfolio_data,
             benchmark,
             sorting_columns=[
-                {"columns": ["ticker_benchmark", "date"], "ascending": [True, False]},
+                {"columns": ["date"], "ascending": [False]},
                 {"columns": ["date"], "ascending": [False]},
             ],
         )

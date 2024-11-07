@@ -10,7 +10,18 @@ def model_benchmark_absolute(
     portfolio_data: PortfolioData,
     benchmark: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
-) -> pd.DataFrame:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Model the benchmark as if the same transaction value purchased of an asset of the portfolio
+    was purchased of the benchmark (in absoulte value). Under these simulation assumptions, the
+    metrics calculated are, on a daily basis:
+        - Value of the benchmark hold.
+        - Percentage gain since start.
+
+    :param portfolio_data: Transactions history and other portfolio data.
+    :param benchmark: Benchmark historical data.
+    :param sorting_columns: Columns to sort for each returned dataframe.
+    :return: Dataframes with benchmark value and percentage gain.
+    """
     benchmark_val_evolution_abs = benchmark.merge(
         portfolio_data.transactions[["date", "trans_qty_asset", "trans_val_asset"]],
         how="left",
@@ -42,7 +53,7 @@ def model_benchmark_absolute(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    return benchmark_val_evolution_abs, benchmark_perc_evolution
+    return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]], benchmark_perc_evolution
 
 
 @sort_at_end()
