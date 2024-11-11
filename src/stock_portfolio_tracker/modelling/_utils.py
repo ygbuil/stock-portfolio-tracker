@@ -161,9 +161,9 @@ def calc_assets_distribution(
     """Calculate the percentage in size each asset represents to the overall portfolio as well as
     the value of each asset, both at end date.
 
-    :param portfolio_model: _description_
-    :param portfolio_data: _description_
-    :param position_type: _description_
+    :param portfolio_model: Portfolio with curr_qty and curr_val for each asset.
+    :param portfolio_data: Transactions history and other portfolio data.
+    :param position_type: Type of position (asset, benchmark, etc).
     :return: Dataframe with the percentage and value of each asset at end date.
     """
     assets_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
@@ -200,6 +200,15 @@ def calc_assets_distribution(
 def calc_qty_bench(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Simulate what would happen to benchmark if it was purchased/sold the same way as the asset
+    in a proportional manner. Example: if curr_qty_asset is 100 and we buy 20 more, benchmark
+    quantity is also increase by 20% (for example, from 60 to 72). If then 120 shares are sold
+    (100%), 72 shares of benchmark are also sold (100%).
+
+    :param df: Dataframe with transaction history of asset and Yahoo finance prices for asset and
+    benchmark.
+    :return: Dataframe with trans_qty_benchmark and trans_val_benchmark.
+    """
     df = (
         df.sort_values(
             by=["date"],
