@@ -93,7 +93,7 @@ def model_benchmark_proportional(
             on=["date"],
         )
 
-        group = utils.calc_qty_bench(group)  # noqa: PLW2901
+        group = utils.simulate_benchmark_proportional(group)  # noqa: PLW2901
 
         group = utils.calc_curr_qty(  # noqa: PLW2901
             group,

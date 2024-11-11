@@ -197,7 +197,7 @@ def calc_assets_distribution(
     )
 
 
-def calc_qty_bench(
+def simulate_benchmark_proportional(
     df: pd.DataFrame,
 ) -> pd.DataFrame:
     """Simulate what would happen to benchmark if it was purchased/sold the same way as the asset
