@@ -119,7 +119,7 @@ def test_calc_curr_val(
     df_output: str,
     request: FixtureRequest,
 ) -> None:
-    """Test calc_curr_qty.
+    """Test calc_curr_val.
 
     :param df_input: Input dataframe.
     :param df_output: Output dataframe.
