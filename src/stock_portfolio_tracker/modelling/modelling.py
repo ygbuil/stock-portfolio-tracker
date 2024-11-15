@@ -13,7 +13,7 @@ def model_data(
     portfolio_data: PortfolioData,
     benchmark: pd.DataFrame,
     asset_prices: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Calculate all necessary metrics.
 
     :param portfolio_data: Transactions history and other portfolio data.

@@ -99,8 +99,8 @@ def curr_perc_gain_2() -> pd.DataFrame:
     ],
 )
 def test_calc_curr_perc_gain(
-    transactions: pd.DataFrame,
-    curr_perc_gain: pd.DataFrame,
+    transactions: str,
+    curr_perc_gain: str,
     request: FixtureRequest,
 ) -> None:
     """Test calc_curr_perc_gain.

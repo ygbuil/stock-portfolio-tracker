@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from stock_portfolio_tracker.utils import sort_at_end
+from stock_portfolio_tracker.utils import PortfolioData, sort_at_end
 
 
 def calc_curr_qty(
@@ -131,7 +131,7 @@ def calc_curr_perc_gain(
         curr_money_in += max(0, df.loc[i, f"trans_val_{position_type}"])
         df.loc[i, "money_in"] = df.loc[i, f"curr_val_{position_type}"] + curr_money_in
 
-    df = (
+    df = (  # type: ignore[reportAssignmentType]
         df.assign(
             **{f"curr_gain_{position_type}": df["money_out"] + df["money_in"]},
             **{
@@ -155,7 +155,7 @@ def calc_curr_perc_gain(
 
 def calc_assets_distribution(
     portfolio_model: pd.DataFrame,
-    portfolio_data: pd.DataFrame,
+    portfolio_data: PortfolioData,
     position_type: str,
 ) -> pd.DataFrame:
     """Calculate the percentage in size each asset represents to the overall portfolio as well as
@@ -173,7 +173,7 @@ def calc_assets_distribution(
             f"curr_qty_{position_type}",
             f"curr_val_{position_type}",
         ]
-    ].reset_index(
+    ].reset_index(  # type: ignore[reportArgumentType]
         drop=True,
     )
 
@@ -186,8 +186,8 @@ def calc_assets_distribution(
                 2,
             ),
             **{
-                f"curr_val_{position_type}": round(
-                    assets_distribution[f"curr_val_{position_type}"],
+                f"curr_val_{position_type}": round(  # type: ignore[reportCallIssue]
+                    assets_distribution[f"curr_val_{position_type}"],  # type: ignore[reportArgumentType]
                     2,
                 ),
             },

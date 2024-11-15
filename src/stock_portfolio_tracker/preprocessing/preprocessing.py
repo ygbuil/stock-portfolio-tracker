@@ -17,7 +17,7 @@ DIR_IN = Path("/workspaces/Stock-Portfolio-Tracker/data/in/")
 def preprocess(
     config_file_name: str,
     transactions_file_name: str,
-) -> tuple[Config, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[Config, PortfolioData, pd.DataFrame, pd.DataFrame]:
     """Load all necessary data from user input and yahoo finance API.
 
     :param config_file_name: File name for config.
@@ -40,7 +40,7 @@ def preprocess(
     )
 
     asset_prices = _load_prices(
-        portfolio_data.assets_info.keys(),
+        portfolio_data.assets_info.keys(),  # type: ignore[reportArgumentType]
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
@@ -228,7 +228,7 @@ def _load_prices(
         asset_prices.append(asset_price)
 
     # convert to local currency
-    return (
+    return (  # type: ignore[reportReturnType]
         pd.concat(asset_prices)
         .merge(
             currency_exchange,
@@ -300,7 +300,7 @@ def _load_ticker_data(
     # Example: NVDA traded at (aprox) 1000/share at 2024-06-09, and at 2024-06-10 at
     # market open it was trading at 100/share due to the split. Yahoo reported a 10
     # stock_split for at date 2024-06-10.
-    return (
+    return (  # type: ignore[reportReturnType]
         pd.DataFrame(
             {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
         )

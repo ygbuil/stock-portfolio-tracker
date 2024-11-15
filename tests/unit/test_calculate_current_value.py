@@ -115,8 +115,8 @@ def df_output_2() -> pd.DataFrame:
     ],
 )
 def test_calc_curr_val(
-    df_input: pd.DataFrame,
-    df_output: pd.DataFrame,
+    df_input: str,
+    df_output: str,
     request: FixtureRequest,
 ) -> None:
     """Test calc_curr_qty.

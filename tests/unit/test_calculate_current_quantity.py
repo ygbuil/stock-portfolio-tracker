@@ -113,8 +113,8 @@ def curr_qty_2() -> pd.DataFrame:
     ],
 )
 def test_calc_curr_qty(
-    transactions: pd.DataFrame,
-    curr_qty: pd.DataFrame,
+    transactions: str,
+    curr_qty: str,
     request: FixtureRequest,
 ) -> None:
     """Test calc_curr_qty.

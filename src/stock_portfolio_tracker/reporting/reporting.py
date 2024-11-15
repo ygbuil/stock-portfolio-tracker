@@ -89,11 +89,11 @@ def _plot_assets_distribution(
     sizes = assets_distribution["curr_val_asset"]
     tickers = assets_distribution["ticker_asset"]
 
-    wedges, _, _ = ax.pie(
+    wedges, _, _ = ax.pie(  # type: ignore[reportAssignmentType]
         sizes,
-        labels=tickers,
+        labels=tickers,  # type: ignore[reportArgumentType]
         startangle=90,
-        colors=plt.cm.Paired(range(len(tickers))),
+        colors=plt.cm.Paired(range(len(tickers))),  # type: ignore[reportArgumentType]
         counterclock=False,
         autopct=lambda pct: f"{pct:.1f}%\n{(pct/100 * sum(assets_distribution['curr_val_asset']) / 1000):.1f}k",  # noqa: E501
         wedgeprops={"width": 0.3},

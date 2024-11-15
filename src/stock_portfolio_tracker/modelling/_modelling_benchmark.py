@@ -53,7 +53,7 @@ def model_benchmark_absolute(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]], benchmark_perc_evolution
+    return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]], benchmark_perc_evolution  # type: ignore[reportReturnType]
 
 
 @sort_at_end()
