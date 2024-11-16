@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from stock_portfolio_tracker.utils import PortfolioData, sort_at_end
+from stock_portfolio_tracker.utils import sort_at_end
 
 
 def calc_curr_qty(
@@ -124,102 +124,5 @@ def calc_curr_perc_gain(
 
     df.loc[0, f"curr_abs_gain_{position_type}"] = 0
     df.loc[0, f"curr_perc_gain_{position_type}"] = 0
-
-    return df
-
-
-def calc_assets_distribution(
-    portfolio_model: pd.DataFrame,
-    portfolio_data: PortfolioData,
-    position_type: str,
-) -> pd.DataFrame:
-    """Calculate the percentage in size each asset represents to the overall portfolio as well as
-    the value of each asset, both at end date.
-
-    :param portfolio_model: Portfolio with curr_qty and curr_val for each asset.
-    :param portfolio_data: Transactions history and other portfolio data.
-    :param position_type: Type of position (asset, benchmark, etc).
-    :return: Dataframe with the percentage and value of each asset at end date.
-    """
-    assets_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
-        [
-            "date",
-            f"ticker_{position_type}",
-            f"curr_qty_{position_type}",
-            f"curr_val_{position_type}",
-        ]
-    ].reset_index(  # type: ignore[reportArgumentType]
-        drop=True,
-    )
-
-    return (
-        assets_distribution[assets_distribution["curr_qty_asset"] != 0]
-        .assign(  # type: ignore[reportAttributeAccessIssue]
-            percent=round(
-                assets_distribution[f"curr_val_{position_type}"]
-                / assets_distribution[f"curr_val_{position_type}"].sum()
-                * 100,
-                2,
-            ),
-            **{
-                f"curr_val_{position_type}": round(  # type: ignore[reportCallIssue]
-                    assets_distribution[f"curr_val_{position_type}"],  # type: ignore[reportArgumentType]
-                    2,
-                ),
-            },
-        )
-        .sort_values([f"curr_val_{position_type}"], ascending=False)
-        .reset_index(drop=True)
-    )
-
-
-def simulate_benchmark_proportional(
-    df: pd.DataFrame,
-) -> pd.DataFrame:
-    """Simulate what would happen to benchmark if it was purchased/sold the same way as the asset
-    in a proportional manner. Example: if curr_qty_asset is 100 and we buy 20 more, benchmark
-    quantity is also increase by 20% (for example, from 60 to 72). If then 120 shares are sold
-    (100%), 72 shares of benchmark are also sold (100%).
-
-    :param df: Dataframe with transaction history of asset and Yahoo finance prices for asset and
-    benchmark.
-    :return: Dataframe with trans_qty_benchmark and trans_val_benchmark.
-    """
-    df = (
-        df.sort_values(
-            by=["date"],
-            ascending=[False],
-        )
-        .reset_index(drop=True)
-        .assign(
-            trans_qty_benchmark=np.float64(0.0),
-        )
-    )
-
-    iterator = list(reversed(df.index))
-    latest_curr_qty_benchmark = 0
-    ever_purchased = False
-
-    for i in iterator:
-        # if first time purchasing
-        if not ever_purchased and df.loc[i, "trans_qty_asset"] != 0:
-            df.loc[i, "trans_qty_benchmark"] = (
-                -df.loc[i, "trans_val_asset"] / df.loc[i, "close_unadj_local_currency_benchmark"]
-            )
-            latest_curr_qty_benchmark += df.loc[i, "trans_qty_benchmark"]
-            ever_purchased = True
-
-        # if purchasing for a second or more time
-        elif df.loc[i, "trans_qty_asset"] != 0:
-            df.loc[i, "trans_qty_benchmark"] = (
-                (df.loc[i, "trans_qty_asset"] + df.loc[i + 1, "curr_qty_asset"])
-                / df.loc[i + 1, "curr_qty_asset"]
-                - 1
-            ) * latest_curr_qty_benchmark
-            latest_curr_qty_benchmark += df.loc[i, "trans_qty_benchmark"]
-
-    df["trans_val_benchmark"] = (
-        -df["close_unadj_local_currency_benchmark"] * df["trans_qty_benchmark"]
-    )
 
     return df

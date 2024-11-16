@@ -3,9 +3,9 @@
 import numpy as np
 import pandas as pd
 import pytest
-import stock_portfolio_tracker.modelling._utils as utils
 from pandas.testing import assert_frame_equal
 from pytest import FixtureRequest  # noqa: PT013
+from stock_portfolio_tracker.modelling._modelling_benchmark import _simulate_benchmark_proportional
 
 
 @pytest.fixture()
@@ -139,7 +139,7 @@ def test_simulate_benchmark_proportional(
     :param request: FixtureRequest.
     """
     assert_frame_equal(
-        utils.simulate_benchmark_proportional(request.getfixturevalue(df_input)),
+        _simulate_benchmark_proportional(request.getfixturevalue(df_input)),
         request.getfixturevalue(df_output),
         rtol=1e-7,
         atol=1e-8,

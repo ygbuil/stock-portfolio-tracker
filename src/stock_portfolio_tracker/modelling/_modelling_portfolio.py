@@ -69,7 +69,7 @@ def model_portfolio(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    assets_distribution = utils.calc_assets_distribution(
+    assets_distribution = _calc_asset_dist(
         portfolio_model,
         portfolio_data,
         "asset",
@@ -83,4 +83,49 @@ def model_portfolio(
         ),
         assets_distribution,
         portfolio_model,
+    )
+
+
+def _calc_asset_dist(
+    portfolio_model: pd.DataFrame,
+    portfolio_data: PortfolioData,
+    position_type: str,
+) -> pd.DataFrame:
+    """Calculate the percentage in size each asset represents to the overall portfolio as well as
+    the value of each asset, both at end date.
+
+    :param portfolio_model: Portfolio with curr_qty and curr_val for each asset.
+    :param portfolio_data: Transactions history and other portfolio data.
+    :param position_type: Type of position (asset, benchmark, etc).
+    :return: Dataframe with the percentage and value of each asset at end date.
+    """
+    assets_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
+        [
+            "date",
+            f"ticker_{position_type}",
+            f"curr_qty_{position_type}",
+            f"curr_val_{position_type}",
+        ]
+    ].reset_index(  # type: ignore[reportArgumentType]
+        drop=True,
+    )
+
+    return (
+        assets_distribution[assets_distribution["curr_qty_asset"] != 0]
+        .assign(  # type: ignore[reportAttributeAccessIssue]
+            percent=round(
+                assets_distribution[f"curr_val_{position_type}"]
+                / assets_distribution[f"curr_val_{position_type}"].sum()
+                * 100,
+                2,
+            ),
+            **{
+                f"curr_val_{position_type}": round(  # type: ignore[reportCallIssue]
+                    assets_distribution[f"curr_val_{position_type}"],  # type: ignore[reportArgumentType]
+                    2,
+                ),
+            },
+        )
+        .sort_values([f"curr_val_{position_type}"], ascending=False)
+        .reset_index(drop=True)
     )
