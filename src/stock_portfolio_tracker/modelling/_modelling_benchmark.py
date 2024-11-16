@@ -170,11 +170,10 @@ def _simulate_benchmark_proportional(
         )
     )
 
-    iterator = list(reversed(df.index))
     latest_curr_qty_benchmark = 0
     ever_purchased = False
 
-    for i in iterator:
+    for i in list(reversed(df.index)):
         # if first time purchasing
         if not ever_purchased and df.loc[i, "trans_qty_asset"] != 0:
             df.loc[i, "trans_qty_benchmark"] = (
@@ -192,8 +191,6 @@ def _simulate_benchmark_proportional(
             ) * latest_curr_qty_benchmark
             latest_curr_qty_benchmark += df.loc[i, "trans_qty_benchmark"]
 
-    df["trans_val_benchmark"] = (
-        -df["close_unadj_local_currency_benchmark"] * df["trans_qty_benchmark"]
+    return df.assign(
+        trans_val_benchmark=-df["close_unadj_local_currency_benchmark"] * df["trans_qty_benchmark"],
     )
-
-    return df

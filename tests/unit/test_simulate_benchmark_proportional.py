@@ -114,8 +114,8 @@ def df_output_2() -> pd.DataFrame:
             "curr_qty_asset": [70, 70, 80, 50, 50, 50, 2, np.nan],
             "close_unadj_local_currency_asset": [100, 95, 90, 110, 120, 100, 1100, 1000],
             "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
-            "trans_qty_benchmark": [0, -2, 6, 0, 0, 6, 4, 0],
-            "trans_val_benchmark": [0, 1240, -3600, 0, 0, -3480, -2200, 0],
+            "trans_qty_benchmark": [0.0, -2.0, 6.0, 0.0, 0.0, 6.0, 4.0, 0.0],
+            "trans_val_benchmark": [0.0, 1240.0, -3600.0, 0.0, 0.0, -3480.0, -2200.0, 0.0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
