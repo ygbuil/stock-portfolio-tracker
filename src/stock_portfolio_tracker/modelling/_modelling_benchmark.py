@@ -48,7 +48,9 @@ def model_benchmark_absolute(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]], benchmark_perc_evolution  # type: ignore[reportReturnType]
+    return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].assign(
+        curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2),
+    ), benchmark_perc_evolution  # type: ignore[reportReturnType]
 
 
 @sort_at_end()
