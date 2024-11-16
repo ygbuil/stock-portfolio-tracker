@@ -23,17 +23,13 @@ def calc_curr_qty(
         .reset_index(drop=True)
     )
 
-    # iterate from older to newer date
     for i in (iterator := list(reversed(df.index))):
         # if first day
         if i == iterator[0]:
-            if np.isnan(df.loc[i, f"trans_qty_{position_type}"]):
-                df.loc[i, f"curr_qty_{position_type}"] = 0
-            else:
-                df.loc[i, f"curr_qty_{position_type}"] = df.loc[
-                    i,
-                    f"trans_qty_{position_type}",
-                ]
+            df.loc[i, f"curr_qty_{position_type}"] = df.loc[
+                i,
+                f"trans_qty_{position_type}",
+            ]
         else:
             df.loc[i, f"curr_qty_{position_type}"] = (
                 df.loc[i, f"trans_qty_{position_type}"]
@@ -96,10 +92,9 @@ def calc_curr_perc_gain(
         )
     )
 
-    iterator = list(reversed(df.index))
     curr_money_in = 0
 
-    for i in iterator:
+    for i in (iterator := list(reversed(df.index))):
         if i == iterator[0]:
             df.loc[i, "money_out"] = min(df.loc[i, f"trans_val_{position_type}"], 0)
         else:
