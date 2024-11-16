@@ -82,6 +82,7 @@ def model_benchmark_proportional(
                     "ticker_asset",
                     "trans_qty_asset",
                     "curr_qty_asset",
+                    "curr_val_asset",
                     "close_unadj_local_currency_asset",
                     "trans_val_asset",
                 ]
@@ -100,11 +101,6 @@ def model_benchmark_proportional(
         group = utils.calc_curr_val(  # noqa: PLW2901
             group,
             "benchmark",
-        )
-
-        group = utils.calc_curr_val(  # noqa: PLW2901
-            group,
-            "asset",
         )
 
         percent_gain_benchmark = utils.calc_curr_perc_gain(
