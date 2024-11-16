@@ -17,16 +17,14 @@ def calc_curr_qty(
     """
     df = (
         df.assign(
-            **{f"curr_qty_{position_type}": np.nan},
+            **{f"curr_qty_{position_type}": np.float64(0)},
         )
         .sort_values(["date"], ascending=False)
         .reset_index(drop=True)
     )
 
-    iterator = list(reversed(df.index))
-
     # iterate from older to newer date
-    for i in iterator:
+    for i in (iterator := list(reversed(df.index))):
         # if first day
         if i == iterator[0]:
             if np.isnan(df.loc[i, f"trans_qty_{position_type}"]):
@@ -42,14 +40,7 @@ def calc_curr_qty(
                 + df.loc[i + 1, f"curr_qty_{position_type}"] * df.loc[i, f"split_{position_type}"]
             )
 
-    return df.assign(
-        **{
-            f"curr_qty_{position_type}": df[f"curr_qty_{position_type}"].replace(
-                0,
-                np.nan,
-            ),
-        },
-    )
+    return df
 
 
 def calc_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
@@ -167,7 +158,8 @@ def calc_assets_distribution(
     )
 
     return (
-        assets_distribution.assign(
+        assets_distribution[assets_distribution["curr_qty_asset"] != 0]
+        .assign(  # type: ignore[reportAttributeAccessIssue]
             percent=round(
                 assets_distribution[f"curr_val_{position_type}"]
                 / assets_distribution[f"curr_val_{position_type}"].sum()

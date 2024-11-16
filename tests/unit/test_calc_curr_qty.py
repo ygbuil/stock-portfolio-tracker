@@ -1,6 +1,5 @@
 """Modelling unit tests."""
 
-import numpy as np
 import pandas as pd
 import pytest
 import stock_portfolio_tracker.modelling._utils as utils
@@ -75,7 +74,7 @@ def curr_qty_1() -> pd.DataFrame:
             "split_asset": [1, 1, 1, 1, 10, 1, 1, 1],
             "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
             "trans_val_asset": [0, 100, -285, 0, 0, -3000, -2200, 0],
-            "curr_qty_asset": [52, 52, 53, 50, 50, 5, 2, np.nan],
+            "curr_qty_asset": [52, 52, 53, 50, 50, 5, 2, 0.0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -100,7 +99,7 @@ def curr_qty_2() -> pd.DataFrame:
             "split_asset": [1, 1, 1, 1, 10, 1, 1, 1],
             "trans_qty_asset": [0, -1, 3, 0, 4, 3, 2, 0],
             "trans_val_asset": [0, 100, -285, 0, -360, -3000, -2200, 0],
-            "curr_qty_asset": [56, 56, 57, 54, 54, 5, 2, np.nan],
+            "curr_qty_asset": [56.0, 56.0, 57.0, 54.0, 54.0, 5.0, 2.0, 0.0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
