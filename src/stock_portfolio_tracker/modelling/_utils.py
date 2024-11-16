@@ -222,18 +222,18 @@ def simulate_benchmark_proportional(
 
     iterator = list(reversed(df.index))
     latest_curr_qty_benchmark = 0
+    ever_purchased = False
 
     for i in iterator:
-        if (
-            i == iterator[0]
-            and not np.isnan(df.loc[i, "trans_qty_asset"])
-            or not np.isnan(df.loc[i, "trans_qty_asset"])
-            and np.isnan(df.loc[i + 1, "curr_qty_asset"])
-        ):
+        # if first time purchasing
+        if not ever_purchased and not np.isnan(df.loc[i, "trans_qty_asset"]):
             df.loc[i, "trans_qty_benchmark"] = (
                 -df.loc[i, "trans_val_asset"] / df.loc[i, "close_unadj_local_currency_benchmark"]
             )
             latest_curr_qty_benchmark += df.loc[i, "trans_qty_benchmark"]
+            ever_purchased = True
+
+        # if purchasing for a second or more time
         elif not np.isnan(df.loc[i, "trans_qty_asset"]):
             df.loc[i, "trans_qty_benchmark"] = (
                 (df.loc[i, "trans_qty_asset"] + df.loc[i + 1, "curr_qty_asset"])
