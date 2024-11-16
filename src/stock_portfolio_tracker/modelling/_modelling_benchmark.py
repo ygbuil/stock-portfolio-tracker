@@ -81,11 +81,11 @@ def model_benchmark_proportional(
                     "date",
                     "ticker_asset",
                     "split_asset",
+                    "close_unadj_local_currency_asset",
                     "trans_qty_asset",
+                    "trans_val_asset",
                     "curr_qty_asset",
                     "curr_val_asset",
-                    "close_unadj_local_currency_asset",
-                    "trans_val_asset",
                 ]
             ],
             how="left",
