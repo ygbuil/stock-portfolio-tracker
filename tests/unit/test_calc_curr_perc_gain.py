@@ -64,7 +64,7 @@ def curr_perc_gain_1() -> pd.DataFrame:
                 "2024-01-02",
                 "2024-01-01",
             ],
-            "curr_gain_asset": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 0.0],
+            "curr_abs_gain_asset": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 0.0],
             "curr_perc_gain_asset": [81.82, 85.0, 62.0, 20.0, 33.0, 20.0, 0.0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
@@ -85,7 +85,7 @@ def curr_perc_gain_2() -> pd.DataFrame:
                 "2024-01-01",
                 "2023-12-31",
             ],
-            "curr_gain_asset": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 100, 0],
+            "curr_abs_gain_asset": [900.0, 850.0, 620.0, 200.0, 330.0, 200.0, 100, 0],
             "curr_perc_gain_asset": [81.82, 85.0, 62.0, 20.0, 33.0, 20.0, 10.0, 0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))

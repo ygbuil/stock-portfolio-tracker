@@ -108,7 +108,7 @@ def calc_curr_perc_gain(
 
     df = (  # type: ignore[reportAssignmentType]
         df.assign(
-            **{f"curr_gain_{position_type}": df["money_out"] + df["money_in"]},
+            **{f"curr_abs_gain_{position_type}": df["money_out"] + df["money_in"]},
             **{
                 f"curr_perc_gain_{position_type}": np.where(
                     df["money_out"] != 0,
@@ -120,9 +120,9 @@ def calc_curr_perc_gain(
         .groupby("date")
         .first()
         .reset_index()
-    )[["date", f"curr_gain_{position_type}", f"curr_perc_gain_{position_type}"]]
+    )[["date", f"curr_abs_gain_{position_type}", f"curr_perc_gain_{position_type}"]]
 
-    df.loc[0, f"curr_gain_{position_type}"] = 0
+    df.loc[0, f"curr_abs_gain_{position_type}"] = 0
     df.loc[0, f"curr_perc_gain_{position_type}"] = 0
 
     return df
