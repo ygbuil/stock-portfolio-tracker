@@ -26,14 +26,17 @@ def model_portfolio(
     :param sorting_columns: Columns to sort for each returned dataframe.
     :return: Portfolio metrics, individual asset metrics and asset ditribution.
     """
-    portfolio_model_grouped = asset_prices.merge(
-        portfolio_data.transactions,
-        how="left",
-        on=["date", "ticker_asset"],
-    ).groupby("ticker_asset")
-
     portfolio_model = pd.concat(
-        [utils.calc_curr_qty(group, "asset") for _, group in portfolio_model_grouped],
+        [
+            utils.calc_curr_qty(group, "asset")
+            for _, group in (
+                asset_prices.merge(
+                    portfolio_data.transactions,
+                    how="left",
+                    on=["date", "ticker_asset"],
+                ).groupby("ticker_asset")
+            )
+        ],
     )
 
     portfolio_model = utils.calc_curr_val(

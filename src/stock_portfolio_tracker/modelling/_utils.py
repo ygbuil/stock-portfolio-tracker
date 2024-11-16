@@ -18,7 +18,6 @@ def calc_curr_qty(
     df = (
         df.assign(
             **{f"curr_qty_{position_type}": np.nan},
-            **{f"split_{position_type}": lambda df: df[f"split_{position_type}"].replace(0, 1)},
             **{f"trans_qty_{position_type}": df[f"trans_qty_{position_type}"].replace(np.nan, 0)},
         )
         .sort_values(["date"], ascending=False)
@@ -39,14 +38,12 @@ def calc_curr_qty(
                     f"trans_qty_{position_type}",
                 ]
         else:
-            # f"curr_qty_{position_type}" = trans_qty_purchased_or_sold + (yesterdays_trans_qty * f"split_{position_type}") # noqa: E501
             df.loc[i, f"curr_qty_{position_type}"] = (
                 df.loc[i, f"trans_qty_{position_type}"]
                 + df.loc[i + 1, f"curr_qty_{position_type}"] * df.loc[i, f"split_{position_type}"]
             )
 
     return df.assign(
-        **{f"split_{position_type}": df[f"split_{position_type}"].replace(1, 0)},
         **{f"trans_qty_{position_type}": df[f"trans_qty_{position_type}"].replace(0, np.nan)},
         **{
             f"curr_qty_{position_type}": df[f"curr_qty_{position_type}"].replace(

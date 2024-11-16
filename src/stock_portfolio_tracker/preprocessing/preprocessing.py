@@ -310,9 +310,9 @@ def _load_ticker_data(
             on="date",
         )
         .assign(
-            split=lambda df: df["split"].fillna(0),
+            split=lambda df: df["split"].fillna(1).replace(0, 1),
             close_adj_origin_currency=lambda df: df["close_adj_origin_currency"].bfill().ffill(),
-            split_cumsum=lambda df: df["split"].replace(0, 1).cumprod().shift(1).fillna(1),
+            split_cumsum=lambda df: df["split"].cumprod().shift(1).fillna(1),
             close_unadj_origin_currency=lambda df: df["close_adj_origin_currency"]
             * df["split_cumsum"],
             origin_currency=asset.info.get("currency"),
