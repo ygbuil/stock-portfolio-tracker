@@ -18,7 +18,6 @@ def calc_curr_qty(
     df = (
         df.assign(
             **{f"curr_qty_{position_type}": np.nan},
-            **{f"trans_qty_{position_type}": df[f"trans_qty_{position_type}"].replace(np.nan, 0)},
         )
         .sort_values(["date"], ascending=False)
         .reset_index(drop=True)
@@ -44,7 +43,6 @@ def calc_curr_qty(
             )
 
     return df.assign(
-        **{f"trans_qty_{position_type}": df[f"trans_qty_{position_type}"].replace(0, np.nan)},
         **{
             f"curr_qty_{position_type}": df[f"curr_qty_{position_type}"].replace(
                 0,
@@ -98,12 +96,6 @@ def calc_curr_perc_gain(
         .assign(
             money_out=np.nan,
             money_in=np.nan,
-            **{
-                f"trans_val_{position_type}": lambda df: df[f"trans_val_{position_type}"].replace(
-                    np.nan,
-                    0,
-                ),
-            },
             **{
                 f"curr_val_{position_type}": lambda df: df[f"curr_val_{position_type}"].replace(
                     np.nan,
@@ -213,7 +205,7 @@ def simulate_benchmark_proportional(
         )
         .reset_index(drop=True)
         .assign(
-            trans_qty_benchmark=np.nan,
+            trans_qty_benchmark=np.float64(0.0),
         )
     )
 
@@ -223,7 +215,7 @@ def simulate_benchmark_proportional(
 
     for i in iterator:
         # if first time purchasing
-        if not ever_purchased and not np.isnan(df.loc[i, "trans_qty_asset"]):
+        if not ever_purchased and df.loc[i, "trans_qty_asset"] != 0:
             df.loc[i, "trans_qty_benchmark"] = (
                 -df.loc[i, "trans_val_asset"] / df.loc[i, "close_unadj_local_currency_benchmark"]
             )
@@ -231,7 +223,7 @@ def simulate_benchmark_proportional(
             ever_purchased = True
 
         # if purchasing for a second or more time
-        elif not np.isnan(df.loc[i, "trans_qty_asset"]):
+        elif df.loc[i, "trans_qty_asset"] != 0:
             df.loc[i, "trans_qty_benchmark"] = (
                 (df.loc[i, "trans_qty_asset"] + df.loc[i + 1, "curr_qty_asset"])
                 / df.loc[i + 1, "curr_qty_asset"]

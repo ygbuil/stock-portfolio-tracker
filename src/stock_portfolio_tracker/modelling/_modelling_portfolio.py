@@ -34,7 +34,12 @@ def model_portfolio(
                     portfolio_data.transactions,
                     how="left",
                     on=["date", "ticker_asset"],
-                ).groupby("ticker_asset")
+                )
+                .assign(
+                    trans_qty_asset=lambda df: df["trans_qty_asset"].fillna(0),
+                    trans_val_asset=lambda df: df["trans_val_asset"].fillna(0),
+                )
+                .groupby("ticker_asset")
             )
         ],
     )
@@ -57,7 +62,9 @@ def model_portfolio(
             portfolio_data.transactions[["date", "trans_val_asset"]],
             how="left",
             on=["date"],
-        ).rename(columns={"trans_val_asset": "trans_val_portfolio"}),
+        )
+        .assign(trans_val_asset=lambda df: df["trans_val_asset"].fillna(0))
+        .rename(columns={"trans_val_asset": "trans_val_portfolio"}),
         "portfolio",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )

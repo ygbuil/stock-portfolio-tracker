@@ -27,6 +27,8 @@ def model_benchmark_absolute(
         how="left",
         on=["date"],
     ).assign(
+        trans_val_asset=lambda df: df["trans_val_asset"].fillna(0),
+        trans_qty_asset=lambda df: df["trans_qty_asset"].fillna(0),
         trans_qty_benchmark=lambda df: -df["trans_val_asset"]
         / df["close_unadj_local_currency_benchmark"],
     )
@@ -48,6 +50,7 @@ def model_benchmark_absolute(
             how="left",
             on=["date"],
         )
+        .assign(trans_val_asset=lambda df: df["trans_val_asset"].fillna(0))
         .rename(columns={"trans_val_asset": "trans_val_benchmark"}),
         "benchmark",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],

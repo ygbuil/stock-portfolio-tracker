@@ -27,10 +27,10 @@ def df_input_1() -> pd.DataFrame:
             "split_benchmark": [0] * 8,
             "close_unadj_local_currency_benchmark": [140, 620, 600, 600, 540, 580, 550, 100],
             "ticker_asset": ["NVDA"] * 8,
-            "trans_qty_asset": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
+            "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
             "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, np.nan],
             "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
-            "trans_val_asset": [np.nan, 950, -1800, np.nan, np.nan, -3000, -2200, np.nan],
+            "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -54,10 +54,10 @@ def df_input_2() -> pd.DataFrame:
             "split_benchmark": [0, 0, 0, 0, 0, 10, 0, 0],
             "close_unadj_local_currency_benchmark": [140, 620, 600, 600, 540, 580, 550, 100],
             "ticker_asset": ["NVDA"] * 8,
-            "trans_qty_asset": [np.nan, -10, 30, np.nan, np.nan, 30, 2, np.nan],
+            "trans_qty_asset": [0, -10, 30, 0, 0, 30, 2, 0],
             "curr_qty_asset": [70, 70, 80, 50, 50, 50, 2, np.nan],
             "close_unadj_local_currency_asset": [100, 95, 90, 110, 120, 100, 1100, 1000],
-            "trans_val_asset": [np.nan, 950, -1800, np.nan, np.nan, -3000, -2200, np.nan],
+            "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -81,12 +81,12 @@ def df_output_1() -> pd.DataFrame:
             "split_benchmark": [0] * 8,
             "close_unadj_local_currency_benchmark": [140, 620, 600, 600, 540, 580, 550, 100],
             "ticker_asset": ["NVDA"] * 8,
-            "trans_qty_asset": [np.nan, -1, 3, np.nan, np.nan, 3, 2, np.nan],
+            "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
             "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, np.nan],
             "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
-            "trans_val_asset": [np.nan, 950, -1800, np.nan, np.nan, -3000, -2200, np.nan],
-            "trans_qty_benchmark": [np.nan, -2, 6, np.nan, np.nan, 6, 4, np.nan],
-            "trans_val_benchmark": [np.nan, 1240, -3600, np.nan, np.nan, -3480, -2200, np.nan],
+            "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
+            "trans_qty_benchmark": [0.0, -2.0, 6.0, 0.0, 0.0, 6.0, 4.0, 0.0],
+            "trans_val_benchmark": [0.0, 1240.0, -3600.0, 0.0, 0.0, -3480.0, -2200.0, 0.0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -110,12 +110,12 @@ def df_output_2() -> pd.DataFrame:
             "split_benchmark": [0, 0, 0, 0, 0, 10, 0, 0],
             "close_unadj_local_currency_benchmark": [140, 620, 600, 600, 540, 580, 550, 100],
             "ticker_asset": ["NVDA"] * 8,
-            "trans_qty_asset": [np.nan, -10, 30, np.nan, np.nan, 30, 2, np.nan],
+            "trans_qty_asset": [0, -10, 30, 0, 0, 30, 2, 0],
             "curr_qty_asset": [70, 70, 80, 50, 50, 50, 2, np.nan],
             "close_unadj_local_currency_asset": [100, 95, 90, 110, 120, 100, 1100, 1000],
-            "trans_val_asset": [np.nan, 950, -1800, np.nan, np.nan, -3000, -2200, np.nan],
-            "trans_qty_benchmark": [np.nan, -2, 6, np.nan, np.nan, 6, 4, np.nan],
-            "trans_val_benchmark": [np.nan, 1240, -3600, np.nan, np.nan, -3480, -2200, np.nan],
+            "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
+            "trans_qty_benchmark": [0, -2, 6, 0, 0, 6, 4, 0],
+            "trans_val_benchmark": [0, 1240, -3600, 0, 0, -3480, -2200, 0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
