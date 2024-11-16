@@ -57,7 +57,7 @@ def model_portfolio(
         .assign(curr_val_portfolio=lambda df: round(df["curr_val_portfolio"], 2))
     )
 
-    portfolio_perc_evolution = utils.calc_curr_perc_gain(
+    portfolio_perc_evolution = utils.calc_curr_gain(
         portfolio_val_evolution.merge(
             portfolio_data.transactions[["date", "trans_val_asset"]],
             how="left",

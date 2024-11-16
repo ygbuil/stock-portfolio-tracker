@@ -18,24 +18,33 @@ def generate_reports(
     assets_distribution: pd.DataFrame,
     benchmark_val_evolution_abs: pd.DataFrame,
     assets_vs_benchmark: pd.DataFrame,
-    benchmark_perc_evolution: pd.DataFrame,
+    benchmark_gain_evolution: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
     :param portfolio_evolution: Stock portfolio hisorical price.
     :param benchmark_val_evolution_abs: Benchmark hisorical price.
     """
-    logger.info("Plotting portfolio absolute evolution.")
-    _plot_portfolio_absolute_evolution(
+    logger.info("Plotting portfolio value evolution.")
+    _plot_portfolio_value_evolution(
         config,
         portfolio_evolution,
         benchmark_val_evolution_abs,
     )
 
-    logger.info("Plotting portfolio percent evolution.")
-    _plot_portfolio_percent_evolution(
+    logger.info("Plotting portfolio gain evolution.")
+    _plot_portfolio_gain_evolution(
+        config.portfolio_currency,
         portfolio_evolution,
-        benchmark_perc_evolution,
+        benchmark_gain_evolution,
+        "abs",
+    )
+
+    _plot_portfolio_gain_evolution(
+        config.portfolio_currency,
+        portfolio_evolution,
+        benchmark_gain_evolution,
+        "perc",
     )
 
     logger.info("Plotting asset distribution.")
@@ -47,7 +56,7 @@ def generate_reports(
     logger.info("End of generate reports.")
 
 
-def _plot_portfolio_absolute_evolution(
+def _plot_portfolio_value_evolution(
     config: Config,
     portfolio_evolution: pd.DataFrame,
     benchmark_val_evolution_abs: pd.DataFrame,
@@ -76,7 +85,7 @@ def _plot_portfolio_absolute_evolution(
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(DIR_OUT / Path("portfolio_absolute_evolution.png"))
+    plt.savefig(DIR_OUT / Path("portfolio_value_evolution.png"))
     plt.close()
 
 
@@ -119,36 +128,39 @@ def _plot_assets_distribution(
     plt.close()
 
 
-def _plot_portfolio_percent_evolution(
+def _plot_portfolio_gain_evolution(
+    portfolio_currency: str,
     portfolio_evolution: pd.DataFrame,
-    benchmark_perc_evolution: pd.DataFrame,
+    benchmark_gain_evolution: pd.DataFrame,
+    gain_type: str,
 ) -> None:
+    unit = "%" if gain_type == "perc" else portfolio_currency
     plt.figure(figsize=(10, 6))
     plt.plot(
         portfolio_evolution["date"],
-        portfolio_evolution["curr_perc_gain_portfolio"],
+        portfolio_evolution[f"curr_{gain_type}_gain_portfolio"],
         linestyle="-",
         color="blue",
-        label=f"Portfolio. Current: {portfolio_evolution['curr_perc_gain_portfolio'].iloc[0]} %",
+        label=f"Portfolio. Current: {portfolio_evolution[f'curr_{gain_type}_gain_portfolio'].iloc[0]} {unit}",  # noqa: E501
     )
     plt.plot(
-        benchmark_perc_evolution["date"],
-        benchmark_perc_evolution["curr_perc_gain_benchmark"],
+        benchmark_gain_evolution["date"],
+        benchmark_gain_evolution[f"curr_{gain_type}_gain_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark. Current: {benchmark_perc_evolution['curr_perc_gain_benchmark'].iloc[0]} %",  # noqa: E501
+        label=f"Benchmark. Current: {benchmark_gain_evolution[f'curr_{gain_type}_gain_benchmark'].iloc[0]} {unit}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
-    plt.ylabel("Percentage gain (%)")
+    plt.ylabel(f"{gain_type[0].upper() + gain_type[1:]} gain ({unit})")
     plt.title(
-        f"Date ({benchmark_perc_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_perc_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
+        f"Date ({benchmark_gain_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_gain_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
     plt.savefig(
-        DIR_OUT / Path("portfolio_percent_evolution.png"),
+        DIR_OUT / Path(f"portfolio_{gain_type}_gain_evolution.png"),
     )
     plt.close()
 

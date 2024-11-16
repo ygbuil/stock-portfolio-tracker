@@ -60,7 +60,7 @@ def calc_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
 
 
 @sort_at_end()
-def calc_curr_perc_gain(
+def calc_curr_gain(
     df: pd.DataFrame,
     position_type: str,
     sorting_columns: list[dict],  # noqa: ARG001
@@ -108,7 +108,7 @@ def calc_curr_perc_gain(
 
     df = (  # type: ignore[reportAssignmentType]
         df.assign(
-            **{f"curr_abs_gain_{position_type}": df["money_out"] + df["money_in"]},
+            **{f"curr_abs_gain_{position_type}": round(df["money_out"] + df["money_in"], 2)},
             **{
                 f"curr_perc_gain_{position_type}": np.where(
                     df["money_out"] != 0,

@@ -98,18 +98,18 @@ def curr_perc_gain_2() -> pd.DataFrame:
         ("transactions_2", "curr_perc_gain_2"),
     ],
 )
-def test_calc_curr_perc_gain(
+def test_calc_curr_gain(
     transactions: str,
     curr_perc_gain: str,
     request: FixtureRequest,
 ) -> None:
-    """Test calc_curr_perc_gain.
+    """Test calc_curr_gain.
 
     :param transactions: Transactions.
     :param curr_perc_gain: Resulting dataframe with the percent gain.
     :param request: FixtureRequest.
     """
-    assert utils.calc_curr_perc_gain(
+    assert utils.calc_curr_gain(
         request.getfixturevalue(transactions),
         "asset",
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],

@@ -35,7 +35,7 @@ def model_benchmark_absolute(
         "benchmark",
     ).assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
 
-    benchmark_perc_evolution = utils.calc_curr_perc_gain(
+    benchmark_gain_evolution = utils.calc_curr_gain(
         benchmark_val_evolution_abs[["date", "ticker_benchmark", "curr_val_benchmark"]]
         .merge(
             portfolio_data.transactions[["date", "trans_val_asset"]],
@@ -50,7 +50,7 @@ def model_benchmark_absolute(
 
     return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].assign(
         curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2),
-    ), benchmark_perc_evolution  # type: ignore[reportReturnType]
+    ), benchmark_gain_evolution  # type: ignore[reportReturnType]
 
 
 @sort_at_end()
@@ -103,13 +103,13 @@ def model_benchmark_proportional(
             "benchmark",
         )
 
-        percent_gain_benchmark = utils.calc_curr_perc_gain(
+        percent_gain_benchmark = utils.calc_curr_gain(
             group,
             "benchmark",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         )
 
-        percent_gain_asset = utils.calc_curr_perc_gain(
+        percent_gain_asset = utils.calc_curr_gain(
             group,
             "asset",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],

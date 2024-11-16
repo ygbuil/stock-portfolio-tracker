@@ -38,7 +38,7 @@ def model_data(
     )
 
     logger.info("Modelling benchmark absolute.")
-    benchmark_val_evolution_abs, benchmark_perc_evolution = (
+    benchmark_val_evolution_abs, benchmark_gain_evolution = (
         modelling_benchmark.model_benchmark_absolute(
             portfolio_data,
             benchmark,
@@ -63,5 +63,5 @@ def model_data(
         assets_distribution,
         benchmark_val_evolution_abs,
         assets_vs_benchmark,
-        benchmark_perc_evolution,
+        benchmark_gain_evolution,
     )
