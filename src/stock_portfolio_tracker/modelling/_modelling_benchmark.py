@@ -160,39 +160,46 @@ def _simulate_benchmark_proportional(
     benchmark.
     :return: Dataframe with trans_qty_benchmark and trans_val_benchmark.
     """
-    df = (
-        df.sort_values(
-            by=["date"],
-            ascending=[False],
-        )
-        .reset_index(drop=True)
-        .assign(
-            trans_qty_benchmark=np.float64(0.0),
-        )
+    df = df.sort_values(by=["date"], ascending=[False]).reset_index(drop=True)
+
+    (
+        split_benchmark,
+        trans_qty_asset,
+        trans_val_asset,
+        curr_qty_asset,
+        close_unadj_local_currency_benchmark,
+        split_asset,
+    ) = (
+        df["split_benchmark"].to_numpy(),
+        df["trans_qty_asset"].to_numpy(),
+        df["trans_val_asset"].to_numpy(),
+        df["curr_qty_asset"].to_numpy(),
+        df["close_unadj_local_currency_benchmark"].to_numpy(),
+        df["split_asset"].to_numpy(),
     )
 
+    trans_qty_benchmark = np.zeros(len(df), dtype=np.float64)
     latest_curr_qty_benchmark = 0
     ever_purchased = False
 
-    for i in list(reversed(df.index)):
-        latest_curr_qty_benchmark *= df.loc[i, "split_benchmark"]
+    for i in range(1, len(df) + 1):
+        latest_curr_qty_benchmark *= split_benchmark[-i]
 
-        # if first time purchasing
-        if not ever_purchased and df.loc[i, "trans_qty_asset"] != 0:
-            df.loc[i, "trans_qty_benchmark"] = (
-                -df.loc[i, "trans_val_asset"] / df.loc[i, "close_unadj_local_currency_benchmark"]
+        if not ever_purchased and trans_qty_asset[-i] != 0:
+            trans_qty_benchmark[-i] = (
+                -trans_val_asset[-i] / close_unadj_local_currency_benchmark[-i]
             )
-            latest_curr_qty_benchmark += df.loc[i, "trans_qty_benchmark"]
+            latest_curr_qty_benchmark += trans_qty_benchmark[-i]
             ever_purchased = True
 
-        # if purchasing for a second or more time
-        elif df.loc[i, "trans_qty_asset"] != 0:
-            yesterdas_curr_qty = df.loc[i + 1, "curr_qty_asset"] * df.loc[i, "split_asset"]
-            df.loc[i, "trans_qty_benchmark"] = (
-                (df.loc[i, "trans_qty_asset"] + yesterdas_curr_qty) / yesterdas_curr_qty - 1
+        elif trans_qty_asset[-i] != 0:
+            yesterdas_curr_qty = curr_qty_asset[-(i - 1)] * split_asset[-i]
+            trans_qty_benchmark[-i] = (
+                (trans_qty_asset[-i] + yesterdas_curr_qty) / yesterdas_curr_qty - 1
             ) * latest_curr_qty_benchmark
-            latest_curr_qty_benchmark += df.loc[i, "trans_qty_benchmark"]
+            latest_curr_qty_benchmark += trans_qty_benchmark[-i]
 
     return df.assign(
-        trans_val_benchmark=-df["close_unadj_local_currency_benchmark"] * df["trans_qty_benchmark"],
+        trans_qty_benchmark=trans_qty_benchmark,
+        trans_val_benchmark=-close_unadj_local_currency_benchmark * trans_qty_benchmark,
     )
