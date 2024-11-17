@@ -23,10 +23,9 @@ def calc_curr_qty(
     )
 
     curr_qty = np.zeros(len(trans_qty), dtype=np.float64)
-    curr_qty[-1] = trans_qty[-1]
 
-    for i in range(2, len(trans_qty) + 1):
-        curr_qty[-i] = trans_qty[-i] + curr_qty[-(i - 1)] * split[-i]
+    for i in range(1, len(trans_qty) + 1):
+        curr_qty[-i] = trans_qty[-i] + (0 if i == 1 else curr_qty[-(i - 1)] * split[-i])
 
     return df.assign(**{f"curr_qty_{position_type}": curr_qty})
 
@@ -67,41 +66,30 @@ def calc_curr_gain(
     :param sorting_columns: Columns to sort for each returned dataframe.
     :return: Dataframe with the absolute and percentage gain.
     """
-    df = (
-        df.sort_values(
-            by=["date"],
-            ascending=[False],
-        )
-        .reset_index(drop=True)
-        .assign(
-            money_out=np.nan,
-            money_in=np.nan,
-        )
-    )
+    df = df.sort_values(by=["date"], ascending=[False]).reset_index(drop=True)
 
     curr_money_in = 0
+    trans_val = df[f"trans_val_{position_type}"].to_numpy()
+    curr_val = df[f"curr_val_{position_type}"].to_numpy()
+    money_in = np.zeros(len(df), dtype=np.float64)
+    money_out = np.zeros(len(df), dtype=np.float64)
 
-    for i in (iterator := list(reversed(df.index))):
-        if i == iterator[0]:
-            df.loc[i, "money_out"] = min(df.loc[i, f"trans_val_{position_type}"], 0)
-        else:
-            df.loc[i, "money_out"] = df.loc[i + 1, "money_out"] + min(
-                df.loc[i, f"trans_val_{position_type}"],
-                0,
-            )
+    for i in range(1, len(df) + 1):
+        money_out[-i] = (0 if i == 1 else money_out[-(i - 1)]) + min(trans_val[-i], 0)
 
-        curr_money_in += max(0, df.loc[i, f"trans_val_{position_type}"])
-        df.loc[i, "money_in"] = df.loc[i, f"curr_val_{position_type}"] + curr_money_in
+        curr_money_in += max(0, trans_val[-i])
+        money_in[-i] = curr_val[-i] + curr_money_in
 
     df = (  # type: ignore[reportAssignmentType]
         df.assign(
-            **{f"curr_abs_gain_{position_type}": round(df["money_out"] + df["money_in"], 2)},
+            money_out=money_out,
+            money_in=money_in,
+            **{f"curr_abs_gain_{position_type}": np.round(money_out + money_in, 2)},
             **{
-                f"curr_perc_gain_{position_type}": np.where(
-                    df["money_out"] != 0,
-                    round((abs(df["money_in"] / df["money_out"]) - 1) * 100, 2),
-                    0,
-                ),
+                f"curr_perc_gain_{position_type}": [
+                    round((abs(x / y) - 1) * 100, 2) if y != 0 else np.float64(0)
+                    for x, y in zip(money_in, money_out, strict=False)
+                ],
             },
         )
         .groupby("date")
