@@ -15,28 +15,20 @@ def calc_curr_qty(
     :param position_type: Type of position (asset, benchmark, etc).
     :return: Dataframe with the daily amount of shares hold.
     """
-    df = (
-        df.assign(
-            **{f"curr_qty_{position_type}": np.float64(0)},
-        )
-        .sort_values(["date"], ascending=False)
-        .reset_index(drop=True)
+    df = df.sort_values(["date"], ascending=False).reset_index(drop=True)
+
+    trans_qty, split = (
+        df[f"trans_qty_{position_type}"].to_numpy(),
+        df[f"split_{position_type}"].to_numpy(),
     )
 
-    for i in (iterator := list(reversed(df.index))):
-        # if first day
-        if i == iterator[0]:
-            df.loc[i, f"curr_qty_{position_type}"] = df.loc[
-                i,
-                f"trans_qty_{position_type}",
-            ]
-        else:
-            df.loc[i, f"curr_qty_{position_type}"] = (
-                df.loc[i, f"trans_qty_{position_type}"]
-                + df.loc[i + 1, f"curr_qty_{position_type}"] * df.loc[i, f"split_{position_type}"]
-            )
+    curr_qty = np.zeros(len(trans_qty), dtype=np.float64)
+    curr_qty[-1] = trans_qty[-1]
 
-    return df
+    for i in range(2, len(trans_qty) + 1):
+        curr_qty[-i] = trans_qty[-i] + curr_qty[-(i - 1)] * split[-i]
+
+    return df.assign(**{f"curr_qty_{position_type}": curr_qty})
 
 
 def calc_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
