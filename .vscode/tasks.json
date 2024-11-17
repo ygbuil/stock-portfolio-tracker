@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "pipeline",
+            "label": "Pipeline",
             "type": "shell",
             "command": "uv",
             "args": [
@@ -11,6 +11,16 @@
                 "pipeline",
                 "--config-file-name", "config.json",
                 "--transactions-file-name", "transactions.csv",
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "Generate integration artifacts",
+            "type": "shell",
+            "command": "${workspaceFolder}/.venv/bin/python",
+            "args": [
+                "-m",
+                "tests.integration.integration_artifacts",
             ],
             "problemMatcher": []
         }

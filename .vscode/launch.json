@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "configurations": [
         {
-            "name": "pipeline",
+            "name": "Pipeline",
             "type": "debugpy",
             "request": "launch",
             "justMyCode": false,
