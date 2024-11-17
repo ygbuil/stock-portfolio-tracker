@@ -52,7 +52,7 @@ def df_input_2() -> pd.DataFrame:
                 "2024-01-01",
             ],
             "ticker_benchmark": ["IUSA.DE"] * 8,
-            "split_benchmark": [0, 0, 0, 0, 0, 10, 0, 0],
+            "split_benchmark": [1] * 8,
             "close_unadj_local_currency_benchmark": [140, 620, 600, 600, 540, 580, 550, 100],
             "ticker_asset": ["NVDA"] * 8,
             "split_asset": [1, 1, 1, 1, 1, 10, 1, 1],
@@ -60,6 +60,34 @@ def df_input_2() -> pd.DataFrame:
             "trans_qty_asset": [0, -10, 30, 0, 0, 30, 2, 0],
             "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
             "curr_qty_asset": [70, 70, 80, 50, 50, 50, 2, np.nan],
+        },
+    ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
+
+
+@pytest.fixture()
+def df_input_3() -> pd.DataFrame:
+    """Transsactions."""
+    return pd.DataFrame(
+        {
+            "date": [
+                "2024-01-08",
+                "2024-01-07",
+                "2024-01-06",
+                "2024-01-05",
+                "2024-01-04",
+                "2024-01-03",
+                "2024-01-02",
+                "2024-01-01",
+            ],
+            "ticker_benchmark": ["IUSA.DE"] * 8,
+            "split_benchmark": [1, 1, 1, 10, 1, 1, 1, 1],
+            "close_unadj_local_currency_benchmark": [14, 62, 60, 60, 540, 580, 550, 100],
+            "ticker_asset": ["NVDA"] * 8,
+            "split_asset": [1] * 8,
+            "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
+            "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
+            "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
+            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, np.nan],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
@@ -110,7 +138,7 @@ def df_output_2() -> pd.DataFrame:
                 "2024-01-01",
             ],
             "ticker_benchmark": ["IUSA.DE"] * 8,
-            "split_benchmark": [0, 0, 0, 0, 0, 10, 0, 0],
+            "split_benchmark": [1] * 8,
             "close_unadj_local_currency_benchmark": [140, 620, 600, 600, 540, 580, 550, 100],
             "ticker_asset": ["NVDA"] * 8,
             "split_asset": [1, 1, 1, 1, 1, 10, 1, 1],
@@ -124,11 +152,42 @@ def df_output_2() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
+@pytest.fixture()
+def df_output_3() -> pd.DataFrame:
+    """Transsactions."""
+    return pd.DataFrame(
+        {
+            "date": [
+                "2024-01-08",
+                "2024-01-07",
+                "2024-01-06",
+                "2024-01-05",
+                "2024-01-04",
+                "2024-01-03",
+                "2024-01-02",
+                "2024-01-01",
+            ],
+            "ticker_benchmark": ["IUSA.DE"] * 8,
+            "split_benchmark": [1, 1, 1, 10, 1, 1, 1, 1],
+            "close_unadj_local_currency_benchmark": [14, 62, 60, 60, 540, 580, 550, 100],
+            "ticker_asset": ["NVDA"] * 8,
+            "split_asset": [1] * 8,
+            "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
+            "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
+            "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
+            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, np.nan],
+            "trans_qty_benchmark": [0.0, -20.0, 60.0, 0.0, 0.0, 6.0, 4.0, 0.0],
+            "trans_val_benchmark": [0.0, 1240.0, -3600.0, 0.0, 0.0, -3480.0, -2200.0, 0.0],
+        },
+    ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
+
+
 @pytest.mark.parametrize(
     ("df_input", "df_output"),
     [
         ("df_input_1", "df_output_1"),
         ("df_input_2", "df_output_2"),
+        ("df_input_3", "df_output_3"),
     ],
 )
 def test_simulate_benchmark_proportional(

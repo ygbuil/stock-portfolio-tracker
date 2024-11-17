@@ -175,6 +175,8 @@ def _simulate_benchmark_proportional(
     ever_purchased = False
 
     for i in list(reversed(df.index)):
+        latest_curr_qty_benchmark *= df.loc[i, "split_benchmark"]
+
         # if first time purchasing
         if not ever_purchased and df.loc[i, "trans_qty_asset"] != 0:
             df.loc[i, "trans_qty_benchmark"] = (
@@ -185,11 +187,7 @@ def _simulate_benchmark_proportional(
 
         # if purchasing for a second or more time
         elif df.loc[i, "trans_qty_asset"] != 0:
-            yesterdas_curr_qty = (
-                df.loc[i + 1, "curr_qty_asset"]
-                if df.loc[i, "split_asset"] == 1
-                else df.loc[i + 1, "curr_qty_asset"] * df.loc[i, "split_asset"]
-            )
+            yesterdas_curr_qty = df.loc[i + 1, "curr_qty_asset"] * df.loc[i, "split_asset"]
             df.loc[i, "trans_qty_benchmark"] = (
                 (df.loc[i, "trans_qty_asset"] + yesterdas_curr_qty) / yesterdas_curr_qty - 1
             ) * latest_curr_qty_benchmark
