@@ -40,10 +40,11 @@ def calc_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     """
     return (
         df.assign(
-            curr_val=df[f"curr_qty_{position_type}"]
-            * df[f"close_unadj_local_currency_{position_type}"],
+            **{
+                f"curr_val_{position_type}": df[f"curr_qty_{position_type}"]
+                * df[f"close_unadj_local_currency_{position_type}"],
+            },
         )
-        .rename(columns={"curr_val": f"curr_val_{position_type}"})
         .groupby(["date", f"ticker_{position_type}"])
         .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
         .sort_values(by=[f"ticker_{position_type}", "date"], ascending=[True, False])
@@ -75,12 +76,6 @@ def calc_curr_gain(
         .assign(
             money_out=np.nan,
             money_in=np.nan,
-            **{
-                f"curr_val_{position_type}": lambda df: df[f"curr_val_{position_type}"].replace(
-                    np.nan,
-                    0,
-                ),
-            },
         )
     )
 
