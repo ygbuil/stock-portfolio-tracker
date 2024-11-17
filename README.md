@@ -8,7 +8,7 @@ Some of the reports you will get are the following:
 ![Alt text](images/assets_distribution.png)
 
 * Portfolio percent evolution:
-![Alt text](images/portfolio_percent_evolution.png)
+![Alt text](images/portfolio_perc_gain_evolution.png)
 
 * Individual assets vs benchmark returns:
 ![Alt text](images/assets_vs_benchmark.png)
