@@ -34,7 +34,7 @@ def model_benchmark_absolute(
         benchmark_val_evolution_abs,
         "benchmark",
         sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
-    ).assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
+    )
 
     benchmark_gain_evolution = utils.calc_curr_gain(
         benchmark_val_evolution_abs[["date", "ticker_benchmark", "curr_val_benchmark"]]
