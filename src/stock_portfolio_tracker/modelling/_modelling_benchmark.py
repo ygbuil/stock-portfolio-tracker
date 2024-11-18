@@ -37,7 +37,7 @@ def model_benchmark_absolute(
     )
 
     benchmark_val_evolution_abs = (
-        benchmark_val_evolution_abs.groupby(["date", "ticker_benchmark"])
+        benchmark_val_evolution_abs.groupby("date")
         .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
         .reset_index()
         .assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
