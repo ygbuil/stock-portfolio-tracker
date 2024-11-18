@@ -36,6 +36,12 @@ def model_benchmark_absolute(
         sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
     )
 
+    benchmark_val_evolution_abs = (
+        benchmark_val_evolution_abs.groupby(["date", "ticker_benchmark"])
+        .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
+        .reset_index()
+    )
+
     benchmark_gain_evolution = utils.calc_curr_gain(
         benchmark_val_evolution_abs[["date", "ticker_benchmark", "curr_val_benchmark"]]
         .merge(
@@ -104,6 +110,12 @@ def model_benchmark_proportional(
             group,
             "benchmark",
             sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
+        )
+
+        group = (  # noqa: PLW2901
+            group.groupby(["date", "ticker_benchmark"])
+            .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
+            .reset_index()
         )
 
         percent_gain_benchmark = utils.calc_curr_gain(

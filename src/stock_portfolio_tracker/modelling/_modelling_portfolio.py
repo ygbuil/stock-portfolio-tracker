@@ -50,6 +50,12 @@ def model_portfolio(
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
 
+    portfolio_model = (
+        portfolio_model.groupby(["date", "ticker_asset"])
+        .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
+        .reset_index()
+    )
+
     portfolio_val_evolution = (
         portfolio_model.groupby("date")["curr_val_asset"]
         .sum()

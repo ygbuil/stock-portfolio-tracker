@@ -42,16 +42,11 @@ def calc_curr_val(
     :param position_type: Type of position (asset, benchmark, etc).
     :return: Dataframe with the daily position value.
     """
-    return (
-        df.assign(
-            **{
-                f"curr_val_{position_type}": df[f"curr_qty_{position_type}"]
-                * df[f"close_unadj_local_currency_{position_type}"],
-            },
-        )
-        .groupby(["date", f"ticker_{position_type}"])
-        .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
-        .reset_index()
+    return df.assign(
+        **{
+            f"curr_val_{position_type}": df[f"curr_qty_{position_type}"]
+            * df[f"close_unadj_local_currency_{position_type}"],
+        },
     )
 
 
