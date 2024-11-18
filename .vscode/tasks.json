@@ -15,12 +15,12 @@
             "problemMatcher": []
         },
         {
-            "label": "Generate integration artifacts",
+            "label": "Generate artifacts integration tests",
             "type": "shell",
             "command": "${workspaceFolder}/.venv/bin/python",
             "args": [
                 "-m",
-                "tests.integration.integration_artifacts",
+                "tests.integration.generate_artifacts",
             ],
             "problemMatcher": []
         }

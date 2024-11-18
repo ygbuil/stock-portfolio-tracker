@@ -9,7 +9,7 @@ from stock_portfolio_tracker import modelling, preprocessing
 from . import ARTIFACTS_PATH
 
 
-def generate_integration_artifacts(config_file_name: str, transactions_file_name: str) -> None:
+def generate_artifacts(config_file_name: str, transactions_file_name: str) -> None:
     """Generate static preprocess and model_data outputs so that an snapshot of known successful
     input outpus can be saved for integration testing.
 
@@ -85,4 +85,4 @@ def _save_artifacts(artifacts: dict) -> None:
 
 
 if __name__ == "__main__":
-    generate_integration_artifacts("example_config.json", "example_transactions.csv")
+    generate_artifacts("example_config.json", "example_transactions.csv")
