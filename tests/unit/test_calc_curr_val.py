@@ -128,4 +128,5 @@ def test_calc_curr_val(
     assert utils.calc_curr_val(
         request.getfixturevalue(df_input),
         "asset",
+        sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     ).equals(request.getfixturevalue(df_output))

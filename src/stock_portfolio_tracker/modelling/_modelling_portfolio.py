@@ -47,6 +47,7 @@ def model_portfolio(
     portfolio_model = utils.calc_curr_val(
         portfolio_model,
         "asset",
+        sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
 
     portfolio_val_evolution = (

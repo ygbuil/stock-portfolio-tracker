@@ -33,6 +33,7 @@ def model_benchmark_absolute(
     benchmark_val_evolution_abs = utils.calc_curr_val(
         benchmark_val_evolution_abs,
         "benchmark",
+        sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
     ).assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
 
     benchmark_gain_evolution = utils.calc_curr_gain(
@@ -102,6 +103,7 @@ def model_benchmark_proportional(
         group = utils.calc_curr_val(  # noqa: PLW2901
             group,
             "benchmark",
+            sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
         )
 
         percent_gain_benchmark = utils.calc_curr_gain(

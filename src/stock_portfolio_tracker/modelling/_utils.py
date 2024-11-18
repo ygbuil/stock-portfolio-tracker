@@ -30,7 +30,12 @@ def calc_curr_qty(
     return df.assign(**{f"curr_qty_{position_type}": curr_qty})
 
 
-def calc_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
+@sort_at_end()
+def calc_curr_val(
+    df: pd.DataFrame,
+    position_type: str,
+    sorting_columns: list[dict],  # noqa: ARG001
+) -> pd.DataFrame:
     """Calculate the daily total value of the asset.
 
     :param df: Dataframe containing daily asset quantity hold and daily price as in Yahoo Finance.
@@ -46,7 +51,6 @@ def calc_curr_val(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
         )
         .groupby(["date", f"ticker_{position_type}"])
         .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
-        .sort_values(by=[f"ticker_{position_type}", "date"], ascending=[True, False])
         .reset_index()
     )
 
