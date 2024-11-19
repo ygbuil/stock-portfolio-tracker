@@ -70,10 +70,10 @@ def calc_curr_gain(
     curr_money_in = 0
     trans_val = df[f"trans_val_{position_type}"].to_numpy()
     curr_val = df[f"curr_val_{position_type}"].to_numpy()
-    money_in = np.zeros(len(df), dtype=np.float64)
-    money_out = np.zeros(len(df), dtype=np.float64)
+    money_in = np.zeros(df_dim := len(trans_val), dtype=np.float64)
+    money_out = np.zeros(df_dim, dtype=np.float64)
 
-    for i in range(1, len(df) + 1):
+    for i in range(1, df_dim + 1):
         money_out[-i] = (0 if i == 1 else money_out[-(i - 1)]) + min(trans_val[-i], 0)
 
         curr_money_in += max(0, trans_val[-i])
