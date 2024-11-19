@@ -12,6 +12,14 @@
                 "--config-file-name", "config.json",
                 "--transactions-file-name", "transactions.csv",
             ],
+        },
+        {
+            "name": "Generate artifacts integration tests",
+            "type": "debugpy",
+            "request": "launch",
+            "justMyCode": false,
+            "program": "generate_artifacts.py",
+            "cwd": "${workspaceFolder}/tests/integration",
         }
     ],
 }
