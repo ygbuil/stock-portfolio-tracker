@@ -6,7 +6,7 @@ from pathlib import Path
 from loguru import logger
 from stock_portfolio_tracker import modelling, preprocessing
 
-from . import ARTIFACTS_PATH
+ARTIFACTS_PATH = Path("tests/integration/artifacts")
 
 
 def generate_artifacts(config_file_name: str, transactions_file_name: str) -> None:
