@@ -4,10 +4,14 @@
 class YahooFinanceError(Exception):
     """Error with the Yahoo Finance API."""
 
+    def __init__(self: "YahooFinanceError", msg: None | str = None) -> None:
+        """Provide the error message."""
+        super().__init__(msg or "Something went wrong retrieving Yahoo Finance.")
+
 
 class UnsortedError(Exception):
-    """The data is not sorted as expected."""
+    """Error with data sorting."""
 
-    def __init__(self: "UnsortedError", message: None | str = None) -> None:
+    def __init__(self: "UnsortedError", msg: None | str = None) -> None:
         """Provide the error message."""
-        super().__init__(message or "The data is not sorted as expected.")
+        super().__init__(msg or "The data is not sorted as expected.")

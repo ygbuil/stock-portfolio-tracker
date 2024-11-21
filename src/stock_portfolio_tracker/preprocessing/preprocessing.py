@@ -177,7 +177,7 @@ def _load_currency_exchange(
                     .rename(columns={"Close": "close_currency_rate", "Date": "date"})
                     .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
                 )
-            except YahooFinanceError as exc:
+            except Exception as exc:
                 msg = f"""Something went wrong retrieving Yahoo Finance data for
                     ticker {ticker}: {exc}"""
                 raise YahooFinanceError(
@@ -289,7 +289,7 @@ def _load_ticker_data(
             )
             .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
         )
-    except YahooFinanceError as exc:
+    except Exception as exc:
         msg = f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}"
         raise YahooFinanceError(
             msg,
