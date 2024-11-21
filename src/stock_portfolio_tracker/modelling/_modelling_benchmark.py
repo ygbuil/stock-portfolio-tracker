@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from stock_portfolio_tracker.exceptions import UnsortedError
 from stock_portfolio_tracker.utils import PortfolioData, sort_at_end
 
 from . import _utils as utils
@@ -40,6 +41,8 @@ def model_benchmark_absolute(
         benchmark_val_evolution_abs.groupby("date")
         .first()  # get the latest current state when there are multiple transactions at the same day for a ticker # noqa: E501
         .reset_index()
+        .sort_values(by=["date"], ascending=[False])
+        .reset_index(drop=True)
         .assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
     )
 
@@ -167,7 +170,8 @@ def _simulate_benchmark_proportional(
     benchmark.
     :return: Dataframe with trans_qty_benchmark and trans_val_benchmark.
     """
-    df = df.sort_values(by=["date"], ascending=[False]).reset_index(drop=True)
+    if not df["date"].is_monotonic_decreasing:
+        raise UnsortedError
 
     (
         split_benchmark,

@@ -55,6 +55,8 @@ def model_portfolio(
         .sum()
         .reset_index()
         .rename(columns={"curr_val_asset": "curr_val_portfolio"})
+        .sort_values(by=["date"], ascending=[False])
+        .reset_index(drop=True)
         .assign(curr_val_portfolio=lambda df: round(df["curr_val_portfolio"], 2))
     )
 

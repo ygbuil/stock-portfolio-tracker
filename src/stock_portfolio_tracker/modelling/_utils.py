@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 
+from stock_portfolio_tracker.exceptions import UnsortedError
 from stock_portfolio_tracker.utils import sort_at_end
 
 
@@ -15,16 +16,17 @@ def calc_curr_qty(
     :param position_type: Type of position (asset, benchmark, etc).
     :return: Dataframe with the daily amount of shares hold.
     """
-    df = df.sort_values(["date"], ascending=False).reset_index(drop=True)
+    if not df["date"].is_monotonic_decreasing:
+        raise UnsortedError
 
     trans_qty, split = (
         df[f"trans_qty_{position_type}"].to_numpy(),
         df[f"split_{position_type}"].to_numpy(),
     )
 
-    curr_qty = np.zeros(len(trans_qty), dtype=np.float64)
+    curr_qty = np.zeros(df_len := len(trans_qty), dtype=np.float64)
 
-    for i in range(1, len(trans_qty) + 1):
+    for i in range(1, df_len + 1):
         curr_qty[-i] = trans_qty[-i] + (0 if i == 1 else curr_qty[-(i - 1)] * split[-i])
 
     return df.assign(**{f"curr_qty_{position_type}": curr_qty})
@@ -65,7 +67,8 @@ def calc_curr_gain(
     :param sorting_columns: Columns to sort for each returned dataframe.
     :return: Dataframe with the absolute and percentage gain.
     """
-    df = df.sort_values(by=["date"], ascending=[False]).reset_index(drop=True)
+    if not df["date"].is_monotonic_decreasing:
+        raise UnsortedError
 
     curr_money_in = 0
     trans_val = df[f"trans_val_{position_type}"].to_numpy()
