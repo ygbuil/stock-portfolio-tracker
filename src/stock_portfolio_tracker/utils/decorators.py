@@ -16,16 +16,14 @@ def sort_at_end() -> Callable:
             sorting_columns = kwargs.get("sorting_columns")
             dfs = func(*args, **kwargs)
 
-            # if only 1 df is returned
-            if isinstance(dfs, pd.DataFrame):
-                return dfs.sort_values(
-                    by=sorting_columns[0]["columns"],  # type: ignore[reportOptionalSubscript]
-                    ascending=sorting_columns[0]["ascending"],  # type: ignore[reportOptionalSubscript]
-                ).reset_index(drop=True)
-
-            # if more than 1 df is returned
             output = []
-            for df, sorting_column in zip(dfs, sorting_columns, strict=False):  # type: ignore[reportArgumentType]
+            single_df = isinstance(dfs, pd.DataFrame)
+
+            for df, sorting_column in zip(
+                (dfs,) if single_df else dfs,
+                sorting_columns,  # type: ignore[reportArgumentType]
+                strict=False,
+            ):
                 output.append(
                     df.sort_values(
                         by=sorting_column["columns"],
@@ -33,7 +31,7 @@ def sort_at_end() -> Callable:
                     ).reset_index(drop=True),
                 )
 
-            return output
+            return output[0] if single_df else output
 
         return wrapper
 
