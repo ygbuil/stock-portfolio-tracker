@@ -39,7 +39,7 @@ def preprocess(
         ],
     )
 
-    asset_prices, asset_dividends = _load_ticker_data(
+    asset_data = _load_ticker_data(
         portfolio_data.assets_info.keys(),  # type: ignore[reportArgumentType]
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -47,7 +47,7 @@ def preprocess(
         "asset",
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
-    benchmark, benchmark_dividends = _load_ticker_data(
+    benchmark_data = _load_ticker_data(
         [config.benchmark_ticker],
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -58,7 +58,30 @@ def preprocess(
 
     logger.info("End of preprocess.")
 
-    return config, portfolio_data, asset_prices, asset_dividends, benchmark, benchmark_dividends
+    return (  # type: ignore[reportReturnType]
+        config,
+        portfolio_data,
+        asset_data[
+            [
+                "date",
+                "ticker_asset",
+                "split_asset",
+                "close_unadj_local_currency_asset",
+            ]
+        ],
+        asset_data[["date", "ticker_asset", "close_unadj_local_currency_dividends_asset"]],
+        benchmark_data[
+            [
+                "date",
+                "ticker_benchmark",
+                "split_benchmark",
+                "close_unadj_local_currency_benchmark",
+            ]
+        ],
+        benchmark_data[
+            ["date", "ticker_benchmark", "close_unadj_local_currency_dividends_benchmark"]
+        ],
+    )
 
 
 def _load_config(config_file_name: str) -> Config:
@@ -220,39 +243,33 @@ def _load_ticker_data(
     :param sorting_columns: Columns to sort for each returned dataframe.
     :return: Dataframe with all historical prices and stock splits.
     """
-    asset_prices = []
-    asset_dividends = []
+    asset_data = []
 
     for ticker in tickers:
         logger.info(f"Loading historical asset prices for {ticker}")
-        asset_price, dividends = _load_prices_and_dividends(ticker, start_date, end_date)
-        asset_prices.append(asset_price)
-        asset_dividends.append(dividends)
+        asset_data.append(_load_prices_and_dividends(ticker, start_date, end_date))
 
-    asset_prices = _convert_to_local_currency(
-        pd.concat(asset_prices).merge(
-            currency_exchange,
-            "left",
-            left_on=["date", "origin_currency"],
-            right_on=["date", "ticker_exch_rate"],
-        ),
+    asset_data = pd.concat(asset_data).merge(
+        currency_exchange,
+        "left",
+        left_on=["date", "origin_currency"],
+        right_on=["date", "ticker_exch_rate"],
+    )
+
+    asset_data = _convert_to_local_currency(
+        asset_data,
         "close_unadj_origin_currency",
         f"close_unadj_local_currency_{position_type}",
     )
 
-    dividends = _convert_to_local_currency(
-        pd.concat(asset_dividends).merge(
-            currency_exchange,
-            "left",
-            left_on=["date", "origin_currency"],
-            right_on=["date", "ticker_exch_rate"],
-        ),
-        "close_adj_dividends",
-        f"close_unadj_dividends_{position_type}",
+    asset_data = _convert_to_local_currency(
+        asset_data,
+        "close_unadj_origin_currency_dividends",
+        f"close_unadj_local_currency_dividends_{position_type}",
     )
 
     return (  # type: ignore[reportReturnType]
-        asset_prices.rename(
+        asset_data.rename(
             columns={
                 "ticker": f"ticker_{position_type}",
                 "split": f"split_{position_type}",
@@ -263,9 +280,9 @@ def _load_ticker_data(
                 f"ticker_{position_type}",
                 f"split_{position_type}",
                 f"close_unadj_local_currency_{position_type}",
+                f"close_unadj_local_currency_dividends_{position_type}",
             ]
-        ],
-        dividends[["date", f"ticker_{position_type}", "close_adj_dividends"]],
+        ]
     )
 
 
@@ -296,7 +313,7 @@ def _load_prices_and_dividends(
                     "Close": "close_adj_origin_currency",
                     "Date": "date",
                     "Stock Splits": "split",
-                    "Dividends": "close_adj_dividends",
+                    "Dividends": "close_adj_origin_currency_dividends",
                 },
             )
             .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
@@ -317,14 +334,9 @@ def _load_prices_and_dividends(
             "date",
             "ticker",
             "close_unadj_origin_currency",
+            "close_unadj_origin_currency_dividends",
             "origin_currency",
             "split",
-        ]
-    ], asset_data[
-        [
-            "date",
-            "ticker",
-            "close_unadj_dividends",
         ]
     ]
 
@@ -358,11 +370,16 @@ def _convert_to_unadj(
         .assign(
             split=lambda df: df["split"].fillna(1).replace(0, 1),
             close_adj_origin_currency=lambda df: df["close_adj_origin_currency"].bfill().ffill(),
-            close_adj_dividends=lambda df: df["close_adj_dividends"].fillna(0),
+            close_adj_origin_currency_dividends=lambda df: df[
+                "close_adj_origin_currency_dividends"
+            ].fillna(0),
             split_cumsum=lambda df: df["split"].cumprod().shift(1).fillna(1),
             close_unadj_origin_currency=lambda df: df["close_adj_origin_currency"]
             * df["split_cumsum"],
-            close_unadj_dividends=lambda df: df["close_adj_dividends"] * df["split_cumsum"],
+            close_unadj_origin_currency_dividends=lambda df: df[
+                "close_adj_origin_currency_dividends"
+            ]
+            * df["split_cumsum"],
         )
     )
 
