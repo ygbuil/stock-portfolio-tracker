@@ -17,7 +17,7 @@ DIR_IN = Path("/workspaces/Stock-Portfolio-Tracker/data/in/")
 def preprocess(
     config_file_name: str,
     transactions_file_name: str,
-) -> tuple[Config, PortfolioData, pd.DataFrame, pd.DataFrame]:
+) -> tuple[Config, PortfolioData, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load all necessary data from user input and yahoo finance API.
 
     :param config_file_name: File name for config.
@@ -39,7 +39,7 @@ def preprocess(
         ],
     )
 
-    asset_prices = _load_ticker_data(
+    asset_prices, asset_dividends = _load_ticker_data(
         portfolio_data.assets_info.keys(),  # type: ignore[reportArgumentType]
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -47,7 +47,7 @@ def preprocess(
         "asset",
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
-    benchmark = _load_ticker_data(
+    benchmark, benchmark_dividends = _load_ticker_data(
         [config.benchmark_ticker],
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -58,7 +58,7 @@ def preprocess(
 
     logger.info("End of preprocess.")
 
-    return config, portfolio_data, asset_prices, benchmark
+    return config, portfolio_data, asset_prices, asset_dividends, benchmark, benchmark_dividends
 
 
 def _load_config(config_file_name: str) -> Config:
@@ -229,24 +229,30 @@ def _load_ticker_data(
         asset_prices.append(asset_price)
         asset_dividends.append(dividends)
 
-    # convert to local currency
-    return (  # type: ignore[reportReturnType]
-        pd.concat(asset_prices)
-        .merge(
+    asset_prices = _convert_to_local_currency(
+        pd.concat(asset_prices).merge(
             currency_exchange,
             "left",
             left_on=["date", "origin_currency"],
             right_on=["date", "ticker_exch_rate"],
-        )
-        .assign(
-            **{
-                f"close_unadj_local_currency_{position_type}": lambda df: df[
-                    "close_unadj_origin_currency"
-                ]
-                / df["close_currency_rate"],
-            },
-        )
-        .rename(
+        ),
+        "close_unadj_origin_currency",
+        f"close_unadj_local_currency_{position_type}",
+    )
+
+    dividends = _convert_to_local_currency(
+        pd.concat(asset_dividends).merge(
+            currency_exchange,
+            "left",
+            left_on=["date", "origin_currency"],
+            right_on=["date", "ticker_exch_rate"],
+        ),
+        "close_adj_dividends",
+        f"close_unadj_dividends_{position_type}",
+    )
+
+    return (  # type: ignore[reportReturnType]
+        asset_prices.rename(
             columns={
                 "ticker": f"ticker_{position_type}",
                 "split": f"split_{position_type}",
@@ -258,7 +264,8 @@ def _load_ticker_data(
                 f"split_{position_type}",
                 f"close_unadj_local_currency_{position_type}",
             ]
-        ]
+        ],
+        dividends[["date", f"ticker_{position_type}", "close_adj_dividends"]],
     )
 
 
@@ -357,4 +364,23 @@ def _convert_to_unadj(
             * df["split_cumsum"],
             close_unadj_dividends=lambda df: df["close_adj_dividends"] * df["split_cumsum"],
         )
+    )
+
+
+def _convert_to_local_currency(
+    df: pd.DataFrame,
+    origin_curr_col_name: str,
+    local_curr_col_name: str,
+) -> pd.DataFrame:
+    """Convert origin to local currency for the specified column.
+
+    :param df: Dataframe to convert.
+    :param origin_curr_col_name: Name of the column with origin currency to convert.
+    :param local_curr_col_name: Name of the column with the converted currency.
+    :return: Datframe with the currency in local price.
+    """
+    return df.assign(
+        **{
+            local_curr_col_name: lambda df: df[origin_curr_col_name] / df["close_currency_rate"],
+        },
     )
