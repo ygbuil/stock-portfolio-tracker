@@ -2,11 +2,12 @@
 
 import pandas as pd
 import pytest
-import stock_portfolio_tracker.modelling._utils as utils
 from pytest import FixtureRequest  # noqa: PT013
 
+import stock_portfolio_tracker.modelling._utils as utils
 
-@pytest.fixture()
+
+@pytest.fixture
 def transactions_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
@@ -30,7 +31,7 @@ def transactions_1() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def transactions_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
@@ -54,7 +55,7 @@ def transactions_2() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def curr_qty_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
@@ -79,7 +80,7 @@ def curr_qty_1() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def curr_qty_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(

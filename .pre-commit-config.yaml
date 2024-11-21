@@ -1,17 +1,29 @@
 repos:
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.4.6
-    hooks:
-      - id: ruff-format
-        name: Ruff formater
-        stages: [pre-commit]
-      - id: ruff
-        name: Ruff linter
-        args: [ --fix ]
-        stages: [pre-commit]
+  # - repo: https://github.com/charliermarsh/ruff-pre-commit
+  #   rev: v0.4.6
+  #   hooks:
+  #     - id: ruff-format
+  #       name: Ruff formater
+  #       stages: [pre-commit]
+  #     - id: ruff
+  #       name: Ruff linter
+  #       args: [ --fix ]
+  #       stages: [pre-commit]
 
   - repo: local
     hooks:
+      - id: check-lock
+        name: Check lock up to date
+        entry: uv run ruff format .
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
+      - id: check-lock
+        name: Check lock up to date
+        entry: uv run ruff check . --fix
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
       - id: check-lock
         name: Check lock up to date
         entry: uv lock --locked

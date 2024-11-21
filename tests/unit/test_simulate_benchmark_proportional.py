@@ -5,10 +5,11 @@ import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
 from pytest import FixtureRequest  # noqa: PT013
+
 from stock_portfolio_tracker.modelling._modelling_benchmark import _simulate_benchmark_proportional
 
 
-@pytest.fixture()
+@pytest.fixture
 def df_input_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
@@ -36,7 +37,7 @@ def df_input_1() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def df_input_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
@@ -64,7 +65,7 @@ def df_input_2() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def df_input_3() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
@@ -92,7 +93,7 @@ def df_input_3() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def df_output_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
@@ -122,7 +123,7 @@ def df_output_1() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def df_output_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
@@ -152,7 +153,7 @@ def df_output_2() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-@pytest.fixture()
+@pytest.fixture
 def df_output_3() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
