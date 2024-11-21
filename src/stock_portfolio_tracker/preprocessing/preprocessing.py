@@ -39,7 +39,7 @@ def preprocess(
         ],
     )
 
-    asset_prices = _load_prices(
+    asset_prices = _load_ticker_data(
         portfolio_data.assets_info.keys(),  # type: ignore[reportArgumentType]
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -47,7 +47,7 @@ def preprocess(
         "asset",
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
-    benchmark = _load_prices(
+    benchmark = _load_ticker_data(
         [config.benchmark_ticker],
         portfolio_data.start_date,
         portfolio_data.end_date,
@@ -201,7 +201,7 @@ def _load_currency_exchange(
 
 
 @sort_at_end()
-def _load_prices(
+def _load_ticker_data(
     tickers: list[str],
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
@@ -221,11 +221,13 @@ def _load_prices(
     :return: Dataframe with all historical prices and stock splits.
     """
     asset_prices = []
+    asset_dividends = []
 
     for ticker in tickers:
         logger.info(f"Loading historical asset prices for {ticker}")
-        asset_price = _load_ticker_data(ticker, start_date, end_date)
+        asset_price, dividends = _load_prices_and_dividends(ticker, start_date, end_date)
         asset_prices.append(asset_price)
+        asset_dividends.append(dividends)
 
     # convert to local currency
     return (  # type: ignore[reportReturnType]
@@ -260,13 +262,15 @@ def _load_prices(
     )
 
 
-def _load_ticker_data(
+def _load_prices_and_dividends(
     ticker: str,
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
-) -> pd.DataFrame:
-    """Load the historical price at market close and the historical stock splits of an asset for a
-    given ticker.
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Load the following daily data at market close for a given ticker:
+        - Unadjusted asset price.
+        - Stock splits.
+        - Dividends (at Ex-Dividend Date).
 
     :param ticker: Asset ticker
     :param start_date: Start date to load the data.
@@ -276,8 +280,8 @@ def _load_ticker_data(
     """
     try:
         asset = yf.Ticker(ticker)
-        asset_price = (
-            asset.history(start=start_date)[["Close", "Stock Splits"]]
+        asset_data = (
+            asset.history(start=start_date)[["Close", "Stock Splits", "Dividends"]]
             .sort_index(ascending=False)
             .reset_index()
             .rename(
@@ -285,6 +289,7 @@ def _load_ticker_data(
                     "Close": "close_adj_origin_currency",
                     "Date": "date",
                     "Stock Splits": "split",
+                    "Dividends": "close_adj_dividends",
                 },
             )
             .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
@@ -295,30 +300,12 @@ def _load_ticker_data(
             msg,
         ) from exc
 
-    # calculate unadj stock price
-    # NOTE: yahoo finance reports the split the day that the split already takes place:
-    # Example: NVDA traded at (aprox) 1000/share at 2024-06-09, and at 2024-06-10 at
-    # market open it was trading at 100/share due to the split. Yahoo reported a 10
-    # stock_split for at date 2024-06-10.
-    return (  # type: ignore[reportReturnType]
-        pd.DataFrame(
-            {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
-        )
-        .merge(
-            asset_price,
-            "left",
-            on="date",
-        )
-        .assign(
-            split=lambda df: df["split"].fillna(1).replace(0, 1),
-            close_adj_origin_currency=lambda df: df["close_adj_origin_currency"].bfill().ffill(),
-            split_cumsum=lambda df: df["split"].cumprod().shift(1).fillna(1),
-            close_unadj_origin_currency=lambda df: df["close_adj_origin_currency"]
-            * df["split_cumsum"],
-            origin_currency=asset.info.get("currency"),
-            ticker=ticker,
-        )
-    )[
+    asset_data = _convert_to_unadj(start_date, end_date, asset_data).assign(
+        origin_currency=asset.info.get("currency"),
+        ticker=ticker,
+    )
+
+    return asset_data[  # type: ignore[reportReturnType]
         [
             "date",
             "ticker",
@@ -326,4 +313,48 @@ def _load_ticker_data(
             "origin_currency",
             "split",
         ]
+    ], asset_data[
+        [
+            "date",
+            "ticker",
+            "close_unadj_dividends",
+        ]
     ]
+
+
+def _convert_to_unadj(
+    start_date: pd.Timestamp,
+    end_date: pd.Timestamp,
+    asset_data: pd.DataFrame,
+) -> pd.DataFrame:
+    """Calculate unadjusted stock price and dividends.
+
+    Yahoo finance reports the split the day that the split already takes place:
+    Example: NVDA traded at (aprox) 1000/share at 2024-06-09, and at 2024-06-10 at
+    market open it was trading at 100/share due to the split. Yahoo reported a 10
+    stock_split for at date 2024-06-10.
+
+    :param start_date: Start date to load the data.
+    :param end_date: End date to load the data.
+    :param asset_data: Asset price, dividends and splits.
+    :return: Adjusted price and dividends.
+    """
+    return (  # type: ignore[reportReturnType]
+        pd.DataFrame(
+            {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
+        )
+        .merge(
+            asset_data,
+            "left",
+            on="date",
+        )
+        .assign(
+            split=lambda df: df["split"].fillna(1).replace(0, 1),
+            close_adj_origin_currency=lambda df: df["close_adj_origin_currency"].bfill().ffill(),
+            close_adj_dividends=lambda df: df["close_adj_dividends"].fillna(0),
+            split_cumsum=lambda df: df["split"].cumprod().shift(1).fillna(1),
+            close_unadj_origin_currency=lambda df: df["close_adj_origin_currency"]
+            * df["split_cumsum"],
+            close_unadj_dividends=lambda df: df["close_adj_dividends"] * df["split_cumsum"],
+        )
+    )
