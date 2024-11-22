@@ -11,7 +11,7 @@ from . import _modelling_portfolio as modelling_portfolio
 
 def model_data(
     portfolio_data: PortfolioData,
-    benchmark: pd.DataFrame,
+    benchmark_prices: pd.DataFrame,
     asset_prices: pd.DataFrame,
     asset_dividends: pd.DataFrame,
 ) -> tuple[
@@ -26,7 +26,7 @@ def model_data(
     """Calculate all necessary metrics.
 
     :param portfolio_data: Transactions history and other portfolio data.
-    :param benchmark: Benchmark historical data.
+    :param benchmark_prices: Benchmark historical data.
     :param asset_prices: Asset prices historical data.
     :return: Relevant modelled data.
     """
@@ -54,7 +54,7 @@ def model_data(
     benchmark_val_evolution_abs, benchmark_gain_evolution = (
         modelling_benchmark.model_benchmark_absolute(
             portfolio_data,
-            benchmark,
+            benchmark_prices,
             sorting_columns=[
                 {"columns": ["date"], "ascending": [False]},
                 {"columns": ["date"], "ascending": [False]},
@@ -65,7 +65,7 @@ def model_data(
     logger.info("Modelling benchmark proportional.")
     assets_vs_benchmark = modelling_benchmark.model_benchmark_proportional(
         portfolio_model,
-        benchmark,
+        benchmark_prices,
         sorting_columns=[{"columns": ["curr_perc_gain_asset"], "ascending": [False]}],
     )
 

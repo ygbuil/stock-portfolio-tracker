@@ -29,7 +29,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
     logger.info("Start of execution.")
 
     logger.info("Start of preprocess.")
-    config, portfolio_data, asset_prices, asset_dividends, benchmark, benchmark_dividends = (
+    config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
         preprocessing.preprocess(
             config_file_name,
             transactions_file_name,
@@ -47,7 +47,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         dividends_year,
     ) = modelling.model_data(
         portfolio_data,
-        benchmark,
+        benchmark_prices,
         asset_prices,
         asset_dividends,
     )

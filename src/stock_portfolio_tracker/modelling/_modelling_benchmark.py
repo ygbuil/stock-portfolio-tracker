@@ -10,7 +10,7 @@ from . import _utils as utils
 @sort_at_end()
 def model_benchmark_absolute(
     portfolio_data: PortfolioData,
-    benchmark: pd.DataFrame,
+    benchmark_prices: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Model the benchmark as if the same transaction value purchased of an asset of the portfolio
@@ -20,11 +20,11 @@ def model_benchmark_absolute(
         - Percentage gain since start.
 
     :param portfolio_data: Transactions history and other portfolio data.
-    :param benchmark: Benchmark historical data.
+    :param benchmark_prices: Benchmark historical data.
     :param sorting_columns: Columns to sort for each returned dataframe.
     :return: Dataframes with benchmark value and percentage gain.
     """
-    benchmark_val_evolution_abs = _simulate_benchmark_absolute(benchmark, portfolio_data)
+    benchmark_val_evolution_abs = _simulate_benchmark_absolute(benchmark_prices, portfolio_data)
 
     benchmark_val_evolution_abs = utils.calc_curr_qty(
         benchmark_val_evolution_abs,
@@ -65,7 +65,7 @@ def model_benchmark_absolute(
 @sort_at_end()
 def model_benchmark_proportional(
     portfolio_model: pd.DataFrame,
-    benchmark: pd.DataFrame,
+    benchmark_prices: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
     assets_vs_benchmark = pd.DataFrame(
@@ -77,7 +77,7 @@ def model_benchmark_proportional(
     )
 
     for _, group in portfolio_model.groupby("ticker_asset"):
-        group = benchmark[  # noqa: PLW2901
+        group = benchmark_prices[  # noqa: PLW2901
             [
                 "date",
                 "ticker_benchmark",

@@ -35,6 +35,7 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
             "portfolio_data": portfolio_data,
             "asset_prices": asset_prices,
             "benchmark": benchmark,
+            "asset_dividends": asset_dividends,
         },
     )
 
@@ -62,6 +63,8 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
             "benchmark_val_evolution_abs": benchmark_val_evolution_abs,
             "assets_vs_benchmark": assets_vs_benchmark,
             "benchmark_gain_evolution": benchmark_gain_evolution,
+            "dividends_company": dividends_company,
+            "dividends_year": dividends_year,
         },
     )
 
