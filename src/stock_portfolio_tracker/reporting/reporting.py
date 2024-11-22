@@ -19,6 +19,8 @@ def generate_reports(
     benchmark_val_evolution_abs: pd.DataFrame,
     assets_vs_benchmark: pd.DataFrame,
     benchmark_gain_evolution: pd.DataFrame,
+    dividends_company: pd.DataFrame,
+    dividends_year: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
@@ -52,6 +54,12 @@ def generate_reports(
 
     logger.info("Plotting individual assets vs benchmark.")
     _plot_assets_vs_benchmark(assets_vs_benchmark)
+
+    logger.info("Plotting dividends by company.")
+    _plot_dividends_company(config.portfolio_currency, dividends_company)
+
+    logger.info("Plotting dividends by year.")
+    _plot_dividends_year(config.portfolio_currency, dividends_year)
 
     logger.info("End of generate reports.")
 
@@ -229,6 +237,121 @@ def _plot_assets_vs_benchmark(
         DIR_OUT
         / Path(
             "assets_vs_benchmark.png",
+        ),
+    )
+    plt.close()
+
+
+def _plot_dividends_company(
+    portfolio_currency: str,
+    dividends_company: pd.DataFrame,
+) -> None:
+    tickers, dividends = (
+        dividends_company["ticker_asset"],
+        dividends_company["total_dividend_asset"],
+    )
+    n = len(tickers)
+    bar_width = 0.4
+    index = np.arange(n)
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+
+    ax.bar(index, dividends, bar_width, label="Dividend amount", color="blue")
+
+    top_y_lim = max(list(dividends))
+    bottom_y_lim = min(list(dividends))
+    margin = (abs(top_y_lim) + abs(bottom_y_lim)) * 0.02
+
+    top_y_lim += margin
+    bottom_y_lim -= margin
+    y_len = abs(top_y_lim) + abs(bottom_y_lim)
+
+    # Set fixed axis limits (frame position)
+    ax.set_xlim((-0.5, n))
+    ax.set_ylim((bottom_y_lim, top_y_lim))
+
+    # Add labels and title
+    ax.set_ylabel("Dividend amount (EUR)")
+    ax.set_title("Dividends per company")
+    ax.set_xticks(index)
+    ax.set_xticklabels(tickers)
+
+    # Add legend
+    ax.legend()
+
+    y_offset = bottom_y_lim - y_len * 0.11
+
+    for i in index:
+        plt.text(
+            i,
+            y_offset,
+            f"{dividends_company['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",
+            ha="center",
+            color="blue",
+            fontweight="bold",
+            rotation=0,
+        )
+
+    plt.savefig(
+        DIR_OUT
+        / Path(
+            "dividends_company.png",
+        ),
+    )
+    plt.close()
+
+
+def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) -> None:
+    years, dividends = (
+        dividends_year["date"],
+        dividends_year["total_dividend_asset"],
+    )
+    n = len(dividends)
+    bar_width = 0.4
+    index = np.arange(n)
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+
+    ax.bar(index, dividends, bar_width, label="Dividend amount", color="blue")
+
+    top_y_lim = max(list(dividends))
+    bottom_y_lim = min(list(dividends))
+    margin = (abs(top_y_lim) + abs(bottom_y_lim)) * 0.02
+
+    top_y_lim += margin
+    bottom_y_lim -= margin
+    y_len = abs(top_y_lim) + abs(bottom_y_lim)
+
+    # Set fixed axis limits (frame position)
+    ax.set_xlim((-0.5, n))
+    ax.set_ylim((bottom_y_lim, top_y_lim))
+
+    # Add labels and title
+    ax.set_ylabel("Dividend amount (EUR)")
+    ax.set_title("Dividends per company")
+    ax.set_xticks(index)
+    ax.set_xticklabels(years)
+
+    # Add legend
+    ax.legend()
+
+    y_offset = bottom_y_lim - y_len * 0.11
+
+    for i in index:
+        plt.text(
+            i,
+            y_offset,
+            f"{dividends_year['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",
+            ha="center",
+            color="blue",
+            fontweight="bold",
+            rotation=0,
+        )
+
+    plt.savefig(
+        DIR_OUT
+        / Path(
+            "dividends_year.png",
         ),
     )
     plt.close()

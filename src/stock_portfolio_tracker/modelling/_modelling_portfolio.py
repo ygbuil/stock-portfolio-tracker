@@ -1,5 +1,6 @@
 import pandas as pd
 
+from stock_portfolio_tracker.exceptions import UnsortedError
 from stock_portfolio_tracker.utils import PortfolioData, sort_at_end
 
 from . import _utils as utils
@@ -9,8 +10,9 @@ from . import _utils as utils
 def model_portfolio(
     portfolio_data: PortfolioData,
     asset_prices: pd.DataFrame,
+    asset_dividends: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Caclulates the following metrics for the assets:
     - For the overall portfolio, on a daily basis:
         - Value of the portfolio.
@@ -42,6 +44,14 @@ def model_portfolio(
                 .groupby("ticker_asset")
             )
         ],
+    )
+
+    dividends_company, dividends_year = _calc_dividends(
+        asset_dividends.merge(
+            portfolio_model[["date", "ticker_asset", "curr_qty_asset"]],
+            how="left",
+            on=["date", "ticker_asset"],
+        ),
     )
 
     portfolio_model = utils.calc_curr_val(
@@ -86,6 +96,8 @@ def model_portfolio(
         ),
         assets_distribution,
         portfolio_model,
+        dividends_company,
+        dividends_year,
     )
 
 
@@ -132,3 +144,33 @@ def _calc_asset_dist(
         .sort_values([f"curr_val_{position_type}"], ascending=False)
         .reset_index(drop=True)
     )
+
+
+def _calc_dividends(asset_dividends: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Calculate the total dividend received for every asset.
+
+    :param asset_dividends: Dataframe containing the dividend amount on the Ex-Dividend Date
+    curr_qty_asset.
+    :raises UnsortedError: Unsorted data.
+    :return: Dataframe with total dividend amount.
+    """
+    if not all(
+        group[1].is_monotonic_decreasing
+        for group in asset_dividends.groupby("ticker_asset")["date"]
+    ):
+        raise UnsortedError
+
+    asset_dividends = asset_dividends.assign(
+        total_dividend_asset=asset_dividends.groupby("ticker_asset")["curr_qty_asset"]
+        .shift(
+            -1,
+        )  # shift one because we need to take into account yesterday's total shares hold on Ex-Dividend Date # noqa: E501
+        .fillna(0)
+        * asset_dividends["close_unadj_local_currency_dividends_asset"],
+    )
+
+    return asset_dividends.groupby("ticker_asset")[
+        "total_dividend_asset"
+    ].sum().reset_index(), asset_dividends.groupby(asset_dividends["date"].dt.year)[
+        "total_dividend_asset"
+    ].sum().reset_index()

@@ -13,7 +13,16 @@ def model_data(
     portfolio_data: PortfolioData,
     benchmark: pd.DataFrame,
     asset_prices: pd.DataFrame,
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    asset_dividends: pd.DataFrame,
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+]:
     """Calculate all necessary metrics.
 
     :param portfolio_data: Transactions history and other portfolio data.
@@ -26,14 +35,18 @@ def model_data(
         portfolio_evolution,
         assets_distribution,
         portfolio_model,
+        dividends_company,
+        dividends_year,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
+        asset_dividends,
         sorting_columns=[
-            {"columns": ["date"], "ascending": [False]},
             {"columns": ["date"], "ascending": [False]},
             {"columns": ["curr_val_asset"], "ascending": [False]},
             {"columns": ["ticker_asset", "date"], "ascending": [True, False]},
+            {"columns": ["total_dividend_asset"], "ascending": [False]},
+            {"columns": ["date"], "ascending": [True]},
         ],
     )
 
@@ -64,4 +77,6 @@ def model_data(
         benchmark_val_evolution_abs,
         assets_vs_benchmark,
         benchmark_gain_evolution,
+        dividends_company,
+        dividends_year,
     )

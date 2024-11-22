@@ -43,10 +43,13 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         benchmark_val_evolution_abs,
         assets_vs_benchmark,
         benchmark_gain_evolution,
+        dividends_company,
+        dividends_year,
     ) = modelling.model_data(
         portfolio_data,
         benchmark,
         asset_prices,
+        asset_dividends,
     )
 
     logger.info("Start of generate reports.")
@@ -57,6 +60,8 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         benchmark_val_evolution_abs,
         assets_vs_benchmark,
         benchmark_gain_evolution,
+        dividends_company,
+        dividends_year,
     )
 
     logger.info("End of execution.")

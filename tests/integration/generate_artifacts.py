@@ -45,10 +45,13 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
         benchmark_val_evolution_abs,
         assets_vs_benchmark,
         benchmark_gain_evolution,
+        dividends_company,
+        dividends_year,
     ) = modelling.model_data(
         portfolio_data,
         benchmark,
         asset_prices,
+        asset_dividends,
     )
 
     logger.info("Saving pickle outputs.")
