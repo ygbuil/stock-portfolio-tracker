@@ -47,9 +47,9 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         dividends_year,
     ) = modelling.model_data(
         portfolio_data,
-        benchmark_prices,
         asset_prices,
         asset_dividends,
+        benchmark_prices,
     )
 
     logger.info("Start of generate reports.")

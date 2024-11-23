@@ -21,7 +21,7 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
     _delete_current_artifacts(ARTIFACTS_PATH)
 
     logger.info("Start of preprocess.")
-    config, portfolio_data, asset_prices, asset_dividends, benchmark, benchmark_dividends = (
+    config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
         preprocessing.preprocess(
             config_file_name,
             transactions_file_name,
@@ -34,8 +34,8 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
             "config": config,
             "portfolio_data": portfolio_data,
             "asset_prices": asset_prices,
-            "benchmark": benchmark,
             "asset_dividends": asset_dividends,
+            "benchmark_prices": benchmark_prices,
         },
     )
 
@@ -50,9 +50,9 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
         dividends_year,
     ) = modelling.model_data(
         portfolio_data,
-        benchmark,
         asset_prices,
         asset_dividends,
+        benchmark_prices,
     )
 
     logger.info("Saving pickle outputs.")

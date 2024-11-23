@@ -11,9 +11,9 @@ from . import _modelling_portfolio as modelling_portfolio
 
 def model_data(
     portfolio_data: PortfolioData,
-    benchmark_prices: pd.DataFrame,
     asset_prices: pd.DataFrame,
     asset_dividends: pd.DataFrame,
+    benchmark_prices: pd.DataFrame,
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
@@ -28,6 +28,7 @@ def model_data(
     :param portfolio_data: Transactions history and other portfolio data.
     :param benchmark_prices: Benchmark historical data.
     :param asset_prices: Asset prices historical data.
+    :param asset_dividends: Dataframe containing the dividend amount on the Ex-Dividend Date.
     :return: Relevant modelled data.
     """
     logger.info("Modelling portfolio.")

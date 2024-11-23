@@ -14,16 +14,18 @@ def test_modelling() -> None:
     """Test the entire module package."""
     logger.info("Read artifacts.")
 
-    config, portfolio_data, asset_prices, asset_dividends, benchmark = _read_artifacts(
-        ["config", "portfolio_data", "asset_prices", "asset_dividends", "benchmark"],
+    config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
+        _read_artifacts(
+            ["config", "portfolio_data", "asset_prices", "asset_dividends", "benchmark"],
+        )
     )
 
     logger.info("Start of modelling.")
     outputs = modelling.model_data(
         portfolio_data,
-        benchmark,
         asset_prices,
         asset_dividends,
+        benchmark_prices,
     )
 
     expected_outputs = _read_artifacts(

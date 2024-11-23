@@ -152,7 +152,7 @@ def _calc_dividends(asset_dividends: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
     :param asset_dividends: Dataframe containing the dividend amount on the Ex-Dividend Date
     curr_qty_asset.
     :raises UnsortedError: Unsorted data.
-    :return: Dataframe with total dividend amount.
+    :return: Total dividends per company and total yearly dividends.
     """
     if not all(
         group[1].is_monotonic_decreasing
