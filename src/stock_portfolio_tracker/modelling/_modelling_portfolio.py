@@ -82,7 +82,7 @@ def model_portfolio(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    assets_distribution = _calc_asset_dist(
+    asset_distribution = _calc_asset_dist(
         portfolio_model,
         portfolio_data,
         "asset",
@@ -94,7 +94,7 @@ def model_portfolio(
             how="left",
             on=["date"],
         ),
-        assets_distribution,
+        asset_distribution,
         portfolio_model,
         dividends_company,
         dividends_year,
@@ -114,7 +114,7 @@ def _calc_asset_dist(
     :param position_type: Type of position (asset, benchmark, etc).
     :return: Dataframe with the percentage and value of each asset at end date.
     """
-    assets_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
+    asset_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
         [
             "date",
             f"ticker_{position_type}",
@@ -126,17 +126,17 @@ def _calc_asset_dist(
     )
 
     return (
-        assets_distribution[assets_distribution["curr_qty_asset"] != 0]
+        asset_distribution[asset_distribution["curr_qty_asset"] != 0]
         .assign(  # type: ignore[reportAttributeAccessIssue]
             percent=round(
-                assets_distribution[f"curr_val_{position_type}"]
-                / assets_distribution[f"curr_val_{position_type}"].sum()
+                asset_distribution[f"curr_val_{position_type}"]
+                / asset_distribution[f"curr_val_{position_type}"].sum()
                 * 100,
                 2,
             ),
             **{
                 f"curr_val_{position_type}": round(  # type: ignore[reportCallIssue]
-                    assets_distribution[f"curr_val_{position_type}"],  # type: ignore[reportArgumentType]
+                    asset_distribution[f"curr_val_{position_type}"],  # type: ignore[reportArgumentType]
                     2,
                 ),
             },

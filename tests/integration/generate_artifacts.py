@@ -42,10 +42,9 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
     logger.info("Start of modelling.")
     (
         portfolio_evolution,
-        assets_distribution,
-        benchmark_val_evolution_abs,
+        benchmark_evolution,
+        asset_distribution,
         assets_vs_benchmark,
-        benchmark_gain_evolution,
         dividends_company,
         dividends_year,
     ) = modelling.model_data(
@@ -59,10 +58,9 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
     _save_artifacts(
         {
             "portfolio_evolution": portfolio_evolution,
-            "assets_distribution": assets_distribution,
-            "benchmark_val_evolution_abs": benchmark_val_evolution_abs,
+            "benchmark_evolution": benchmark_evolution,
+            "asset_distribution": asset_distribution,
             "assets_vs_benchmark": assets_vs_benchmark,
-            "benchmark_gain_evolution": benchmark_gain_evolution,
             "dividends_company": dividends_company,
             "dividends_year": dividends_year,
         },

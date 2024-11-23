@@ -15,42 +15,41 @@ DIR_OUT = Path("/workspaces/Stock-Portfolio-Tracker/data/out/")
 def generate_reports(
     config: Config,
     portfolio_evolution: pd.DataFrame,
-    assets_distribution: pd.DataFrame,
-    benchmark_val_evolution_abs: pd.DataFrame,
+    benchmark_evolution: pd.DataFrame,
+    asset_distribution: pd.DataFrame,
     assets_vs_benchmark: pd.DataFrame,
-    benchmark_gain_evolution: pd.DataFrame,
     dividends_company: pd.DataFrame,
     dividends_year: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
     :param portfolio_evolution: Stock portfolio hisorical price.
-    :param benchmark_val_evolution_abs: Benchmark hisorical price.
+    :param benchmark_evolution: Benchmark hisorical price.
     """
     logger.info("Plotting portfolio value evolution.")
     _plot_portfolio_value_evolution(
         config,
         portfolio_evolution,
-        benchmark_val_evolution_abs,
+        benchmark_evolution,
     )
 
     logger.info("Plotting portfolio gain evolution.")
     _plot_portfolio_gain_evolution(
         config.portfolio_currency,
         portfolio_evolution,
-        benchmark_gain_evolution,
+        benchmark_evolution,
         "abs",
     )
 
     _plot_portfolio_gain_evolution(
         config.portfolio_currency,
         portfolio_evolution,
-        benchmark_gain_evolution,
+        benchmark_evolution,
         "perc",
     )
 
     logger.info("Plotting asset distribution.")
-    _plot_assets_distribution(config, assets_distribution)
+    _plot_asset_distribution(config, asset_distribution)
 
     logger.info("Plotting individual assets vs benchmark.")
     _plot_assets_vs_benchmark(assets_vs_benchmark)
@@ -67,7 +66,7 @@ def generate_reports(
 def _plot_portfolio_value_evolution(
     config: Config,
     portfolio_evolution: pd.DataFrame,
-    benchmark_val_evolution_abs: pd.DataFrame,
+    benchmark_evolution: pd.DataFrame,
 ) -> None:
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -78,11 +77,11 @@ def _plot_portfolio_value_evolution(
         label=f"Portfolio value. Current: {portfolio_evolution['curr_val_portfolio'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.plot(
-        benchmark_val_evolution_abs["date"],
-        benchmark_val_evolution_abs["curr_val_benchmark"],
+        benchmark_evolution["date"],
+        benchmark_evolution["curr_val_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark value. Current: {benchmark_val_evolution_abs['curr_val_benchmark'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
+        label=f"Benchmark value. Current: {benchmark_evolution['curr_val_benchmark'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")
@@ -97,14 +96,14 @@ def _plot_portfolio_value_evolution(
     plt.close()
 
 
-def _plot_assets_distribution(
+def _plot_asset_distribution(
     config: Config,
-    assets_distribution: pd.DataFrame,
+    asset_distribution: pd.DataFrame,
 ) -> None:
-    assets_distribution = assets_distribution.dropna()
+    asset_distribution = asset_distribution.dropna()
     _, ax = plt.subplots(figsize=(10, 8))
-    sizes = assets_distribution["curr_val_asset"]
-    tickers = assets_distribution["ticker_asset"]
+    sizes = asset_distribution["curr_val_asset"]
+    tickers = asset_distribution["ticker_asset"]
 
     wedges, _, _ = ax.pie(  # type: ignore[reportAssignmentType]
         sizes,
@@ -112,12 +111,12 @@ def _plot_assets_distribution(
         startangle=90,
         colors=plt.cm.Paired(range(len(tickers))),  # type: ignore[reportArgumentType]
         counterclock=False,
-        autopct=lambda pct: f"{pct:.1f}%\n{(pct/100 * sum(assets_distribution['curr_val_asset']) / 1000):.1f}k",  # noqa: E501
+        autopct=lambda pct: f"{pct:.1f}%\n{(pct/100 * sum(asset_distribution['curr_val_asset']) / 1000):.1f}k",  # noqa: E501
         wedgeprops={"width": 0.3},
     )
 
     legend_tickers = []
-    for _, row in assets_distribution[
+    for _, row in asset_distribution[
         ["ticker_asset", "curr_val_asset", "percent", "curr_qty_asset"]
     ].iterrows():
         ticker, curr_val_asset, percent, curr_qty = list(row)
@@ -130,7 +129,7 @@ def _plot_assets_distribution(
     ax.set(aspect="equal", title="Asset Distribution")
 
     plt.savefig(
-        DIR_OUT / Path("assets_distribution.png"),
+        DIR_OUT / Path("asset_distribution.png"),
         bbox_inches="tight",
     )
     plt.close()
@@ -139,7 +138,7 @@ def _plot_assets_distribution(
 def _plot_portfolio_gain_evolution(
     portfolio_currency: str,
     portfolio_evolution: pd.DataFrame,
-    benchmark_gain_evolution: pd.DataFrame,
+    benchmark_evolution: pd.DataFrame,
     gain_type: str,
 ) -> None:
     unit = "%" if gain_type == "perc" else portfolio_currency
@@ -152,16 +151,16 @@ def _plot_portfolio_gain_evolution(
         label=f"Portfolio. Current: {portfolio_evolution[f'curr_{gain_type}_gain_portfolio'].iloc[0]} {unit}",  # noqa: E501
     )
     plt.plot(
-        benchmark_gain_evolution["date"],
-        benchmark_gain_evolution[f"curr_{gain_type}_gain_benchmark"],
+        benchmark_evolution["date"],
+        benchmark_evolution[f"curr_{gain_type}_gain_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark. Current: {benchmark_gain_evolution[f'curr_{gain_type}_gain_benchmark'].iloc[0]} {unit}",  # noqa: E501
+        label=f"Benchmark. Current: {benchmark_evolution[f'curr_{gain_type}_gain_benchmark'].iloc[0]} {unit}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"{gain_type[0].upper() + gain_type[1:]} gain ({unit})")
     plt.title(
-        f"Date ({benchmark_gain_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_gain_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
+        f"Date ({benchmark_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)

@@ -21,7 +21,6 @@ def model_data(
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
-    pd.DataFrame,
 ]:
     """Calculate all necessary metrics.
 
@@ -34,7 +33,7 @@ def model_data(
     logger.info("Modelling portfolio.")
     (
         portfolio_evolution,
-        assets_distribution,
+        asset_distribution,
         portfolio_model,
         dividends_company,
         dividends_year,
@@ -52,15 +51,13 @@ def model_data(
     )
 
     logger.info("Modelling benchmark absolute.")
-    benchmark_val_evolution_abs, benchmark_gain_evolution = (
-        modelling_benchmark.model_benchmark_absolute(
-            portfolio_data,
-            benchmark_prices,
-            sorting_columns=[
-                {"columns": ["date"], "ascending": [False]},
-                {"columns": ["date"], "ascending": [False]},
-            ],
-        )
+    benchmark_evolution = modelling_benchmark.model_benchmark_absolute(
+        portfolio_data,
+        benchmark_prices,
+        sorting_columns=[
+            {"columns": ["date"], "ascending": [False]},
+            {"columns": ["date"], "ascending": [False]},
+        ],
     )
 
     logger.info("Modelling benchmark proportional.")
@@ -74,10 +71,9 @@ def model_data(
 
     return (
         portfolio_evolution,
-        assets_distribution,
-        benchmark_val_evolution_abs,
+        benchmark_evolution,
+        asset_distribution,
         assets_vs_benchmark,
-        benchmark_gain_evolution,
         dividends_company,
         dividends_year,
     )
