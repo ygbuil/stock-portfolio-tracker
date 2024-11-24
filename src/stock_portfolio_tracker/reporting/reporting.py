@@ -163,10 +163,10 @@ def _plot_portfolio_gain_evolution(
     """Plot portfolio gain evolution.
 
     Args:
-        portfolio_currency: _description_
+        portfolio_currency: Currency of the portfolio.
         portfolio_evolution: Portfolio value and gains evolution.
         benchmark_evolution: Benchmark value and gains evolution.
-        gain_type: _description_
+        gain_type: Type of gain. "perc" or "abs".
     """
     unit = "%" if gain_type == "perc" else portfolio_currency
     plt.figure(figsize=(10, 6))
