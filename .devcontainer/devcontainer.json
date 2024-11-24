@@ -3,11 +3,11 @@
     "build": {
         "dockerfile": "Dockerfile"
     },
-    "postCreateCommand": "/bin/sh .devcontainer/post-create.sh",
+    "postCreateCommand": "/bin/bash .devcontainer/post-create.sh",
     "customizations": {
         "vscode": {
             "settings": {
-                "terminal.integrated.shell.linux": "/bin/sh",
+                "terminal.integrated.shell.linux": "/bin/bash",
                 "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
                 "python.testing.pytestArgs": ["tests"],
                 "python.testing.unittestEnabled": false,
