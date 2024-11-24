@@ -14,8 +14,9 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
     """Generate static preprocess and model_data outputs so that an snapshot of known successful
     input outpus can be saved for integration testing.
 
-    :param config_file_name: File name for config.
-    :param transactions_file_name: File name for transactions.
+    Args:
+        config_file_name: File name for config.
+        transactions_file_name: File name for transactions.
     """
     logger.info("Start of execution.")
     _delete_current_artifacts(ARTIFACTS_PATH)
@@ -72,7 +73,8 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
 def _delete_current_artifacts(directory: Path) -> None:
     """Delete all artifacts in the specified directory except for `.gitkeep` files.
 
-    :param directory: The path to the directory where files should be deleted.
+    Args:
+        directory: The path to the directory where files should be deleted.
     """
     logger.info("Deleting existing artifacts.")
     for file_path in directory.iterdir():
@@ -84,7 +86,8 @@ def _delete_current_artifacts(directory: Path) -> None:
 def _save_artifacts(artifacts: dict) -> None:
     """Save artifacts.
 
-    :param artifacts: Dictionary containing key=<artifact_file_name> and value=<artifact_objetc>.
+    Args:
+        artifacts: Dictionary containing key=<artifact_file_name> and value=<artifact_objetc>.
     """
     for file_name, artifact in artifacts.items():
         with Path.open(ARTIFACTS_PATH / Path(f"{file_name}.pkl"), "wb") as file:

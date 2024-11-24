@@ -44,6 +44,14 @@ def test_modelling() -> None:
 
 
 def _read_artifacts(artifact_names: list[str]) -> list:
+    """Read saved artifacts.
+
+    Args:
+        artifact_names: Artifact names to read.
+
+    Returns:
+        Artifact objetcs.
+    """
     artifacts_loaded = []
 
     for artifact_name in artifact_names:

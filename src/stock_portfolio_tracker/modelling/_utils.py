@@ -12,9 +12,15 @@ def calc_curr_qty(
     """Calculate the daily quantity of share for an asset based on the buy / sale transactions and
     the stock splits.
 
-    :param df: Dataframe containing dates, transaction quantity and stock splits.
-    :param position_type: Type of position (asset, benchmark, etc).
-    :return: Dataframe with the daily amount of shares hold.
+    Args:
+        df: Dataframe containing dates, transaction quantity and stock splits.
+        position_type: Type of position (asset, benchmark, etc).
+
+    Raises:
+        UnsortedError: Unsorted input data.
+
+    Returns:
+        Dataframe with the daily amount of shares hold.
     """
     if not df["date"].is_monotonic_decreasing:
         raise UnsortedError
@@ -40,9 +46,13 @@ def calc_curr_val(
 ) -> pd.DataFrame:
     """Calculate the daily total value of the asset.
 
-    :param df: Dataframe containing daily asset quantity hold and daily price as in Yahoo Finance.
-    :param position_type: Type of position (asset, benchmark, etc).
-    :return: Dataframe with the daily position value.
+    Args:
+        df: Dataframe containing daily asset quantity hold and daily price as in Yahoo Finance.
+        position_type: Type of position (asset, benchmark, etc).
+        sorting_columns: Columns to sort for each returned dataframe.
+
+    Returns:
+        Dataframe with the daily position value.
     """
     return df.assign(
         **{
@@ -62,10 +72,16 @@ def calc_curr_gain(
         - Absoulte gain since start.
         - Percentage gain since start.
 
-    :param df: Dataframe with the daily portfolio value and the transaction value.
-    :param position_type: Type of position (asset, benchmark, etc).
-    :param sorting_columns: Columns to sort for each returned dataframe.
-    :return: Dataframe with the absolute and percentage gain.
+    Args:
+        df: Dataframe with the daily portfolio value and the transaction value.
+        position_type: Type of position (asset, benchmark, etc).
+        sorting_columns: Columns to sort for each returned dataframe.
+
+    Raises:
+        UnsortedError: Unsorted input data.
+
+    Returns:
+        Dataframe with the absolute and percentage gain.
     """
     if not df["date"].is_monotonic_decreasing:
         raise UnsortedError

@@ -13,8 +13,9 @@ from stock_portfolio_tracker.utils import timer
 def pipeline(config_file_name: str, transactions_file_name: str) -> None:
     """Entry point for pipeline.
 
-    :param config_file_name: File name for config.
-    :param transactions_file_name: File name for transactions.
+    Args:
+        config_file_name: File name for config.
+        transactions_file_name: File name for transactions.
     """
     _pipeline(config_file_name, transactions_file_name)
 
@@ -23,8 +24,9 @@ def pipeline(config_file_name: str, transactions_file_name: str) -> None:
 def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
     """Execute the project end to end.
 
-    :param config_file_name: File name for config.
-    :param transactions_file_name: File name for transactions.
+    Args:
+        config_file_name: File name for config.
+        transactions_file_name: File name for transactions.
     """
     logger.info("Start of execution.")
 

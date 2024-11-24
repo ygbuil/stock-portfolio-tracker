@@ -196,11 +196,12 @@ def test_simulate_benchmark_proportional(
     df_output: str,
     request: FixtureRequest,
 ) -> None:
-    """Test simulate_benchmark_proportional.
+    """Test _simulate_benchmark_proportional.
 
-    :param df_input: Input dataframe.
-    :param df_output: Output dataframe.
-    :param request: FixtureRequest.
+    Args:
+        df_input: Input dataframe.
+        df_output: Output dataframe.
+        request: FixtureRequest.
     """
     assert_frame_equal(
         _simulate_benchmark_proportional(request.getfixturevalue(df_input)),

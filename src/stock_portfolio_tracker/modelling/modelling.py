@@ -24,11 +24,14 @@ def model_data(
 ]:
     """Calculate all necessary metrics.
 
-    :param portfolio_data: Transactions history and other portfolio data.
-    :param benchmark_prices: Benchmark historical data.
-    :param asset_prices: Asset prices historical data.
-    :param asset_dividends: Dataframe containing the dividend amount on the Ex-Dividend Date.
-    :return: Relevant modelled data.
+    Args:
+        portfolio_data: Transactions history and other portfolio data.
+        asset_prices: Benchmark historical data.
+        asset_dividends: Asset prices historical data.
+        benchmark_prices: Dataframe containing the dividend amount on the Ex-Dividend Date.
+
+    Returns:
+        Relevant modelled data.
     """
     logger.info("Modelling portfolio.")
     (

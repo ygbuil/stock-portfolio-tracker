@@ -13,7 +13,7 @@
                 "python.testing.unittestEnabled": false,
                 "python.testing.pytestEnabled": true,
                 "python.analysis.inlayHints.functionReturnTypes": true,
-                "autoDocstring.docstringFormat": "sphinx-notypes"
+                "autoDocstring.docstringFormat": "google-notypes"
             },
             "extensions": [
                 "ms-python.python",

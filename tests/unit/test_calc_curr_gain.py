@@ -106,9 +106,10 @@ def test_calc_curr_gain(
 ) -> None:
     """Test calc_curr_gain.
 
-    :param transactions: Transactions.
-    :param curr_perc_gain: Resulting dataframe with the percent gain.
-    :param request: FixtureRequest.
+    Args:
+        transactions: Transactions.
+        curr_perc_gain: Resulting dataframe with the percent gain.
+        request: FixtureRequest.
     """
     assert utils.calc_curr_gain(
         request.getfixturevalue(transactions),

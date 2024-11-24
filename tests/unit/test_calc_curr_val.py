@@ -124,9 +124,10 @@ def test_calc_curr_val(
 ) -> None:
     """Test calc_curr_val.
 
-    :param df_input: Input dataframe.
-    :param df_output: Output dataframe.
-    :param request: FixtureRequest.
+    Args:
+        df_input: Input dataframe.
+        df_output: Output dataframe.
+        request: FixtureRequest.
     """
     assert utils.calc_curr_val(
         request.getfixturevalue(df_input),

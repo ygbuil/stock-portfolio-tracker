@@ -16,13 +16,16 @@ def model_benchmark_absolute(
     """Model the benchmark as if the same transaction value purchased of an asset of the portfolio
     was purchased of the benchmark (in absoulte value). Under these simulation assumptions, the
     metrics calculated are, on a daily basis:
-        - Value of the benchmark hold.
-        - Percentage gain since start.
+        - Value of the benchmark held.
+        - Percentage gain since the start.
 
-    :param portfolio_data: Transactions history and other portfolio data.
-    :param benchmark_prices: Benchmark historical data.
-    :param sorting_columns: Columns to sort for each returned dataframe.
-    :return: Dataframes with benchmark value and percentage gain.
+    Args:
+        portfolio_data: Transactions history and other portfolio data.
+        benchmark_prices: Benchmark historical data.
+        sorting_columns: Columns to sort for each returned dataframe.
+
+    Returns:
+        DataFrames with benchmark value and percentage gain.
     """
     benchmark_val_evolution_abs = _simulate_benchmark_absolute(benchmark_prices, portfolio_data)
 
@@ -72,6 +75,17 @@ def model_benchmark_proportional(
     benchmark_prices: pd.DataFrame,
     sorting_columns: list[dict],  # noqa: ARG001
 ) -> pd.DataFrame:
+    """Compare individual asset performance against the benchmark proportionally, as explained in
+    _simulate_benchmark_proportional().
+
+    Args:
+        portfolio_model: Portfolio with curr_qty and curr_val for each asset.
+        benchmark_prices: Benchmark historical prices.
+        sorting_columns: Columns to sort for each returned dataframe.
+
+    Returns:
+        DataFrame comparing asset and benchmark percentage gains.
+    """
     assets_vs_benchmark = pd.DataFrame(
         {
             "ticker_asset": [],
@@ -146,9 +160,12 @@ def _simulate_benchmark_absolute(
     """Model the benchmark as if the same transaction value purchased of an asset of the portfolio
     was purchased of the benchmark (in absoulte value).
 
-    :param benchmark: Benchmark historical data.
-    :param portfolio_data: Transactions history and other portfolio data.
-    :return: Dataframe with the simulated trans_qty_benchmark.
+    Args:
+        benchmark: Benchmark historical data.
+        portfolio_data: Transactions history and other portfolio data.
+
+    Returns:
+        Dataframe with the simulated trans_qty_benchmark.
     """
     return benchmark.merge(
         portfolio_data.transactions[["date", "trans_qty_asset", "trans_val_asset"]],
@@ -170,9 +187,12 @@ def _simulate_benchmark_proportional(
     quantity is also increase by 20% (for example, from 60 to 72). If then 120 shares are sold
     (100%), 72 shares of benchmark are also sold (100%).
 
-    :param df: Dataframe with transaction history of asset and Yahoo finance prices for asset and
-    benchmark.
-    :return: Dataframe with trans_qty_benchmark and trans_val_benchmark.
+    Args:
+        df: Dataframe with transaction history of asset and Yahoo finance prices for asset and
+        benchmark.
+
+    Returns:
+        Dataframe with trans_qty_benchmark and trans_val_benchmark.
     """
     if not df["date"].is_monotonic_decreasing:
         raise UnsortedError

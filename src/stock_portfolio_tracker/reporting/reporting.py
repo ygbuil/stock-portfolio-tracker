@@ -23,8 +23,14 @@ def generate_reports(
 ) -> None:
     """Generate all final reports for the user.
 
-    :param portfolio_evolution: Stock portfolio hisorical price.
-    :param benchmark_evolution: Benchmark hisorical price.
+    Args:
+        config: Config class.
+        portfolio_evolution: Portfolio value and gains evolution.
+        benchmark_evolution: Benchmark value and gains evolution.
+        asset_distribution: Percentage and amount of each asset held.
+        assets_vs_benchmark: Individual asset percetnage returns vs benchmark.
+        dividends_company: Total dividends paied by company.
+        dividends_year: Total dividends paied by year.
     """
     logger.info("Plotting portfolio value evolution.")
     _plot_portfolio_value_evolution(
@@ -68,6 +74,13 @@ def _plot_portfolio_value_evolution(
     portfolio_evolution: pd.DataFrame,
     benchmark_evolution: pd.DataFrame,
 ) -> None:
+    """Plot portfolio value evolution.
+
+    Args:
+        config: Config class.
+        portfolio_evolution: Portfolio value and gains evolution.
+        benchmark_evolution: Benchmark value and gains evolution.
+    """
     plt.figure(figsize=(10, 6))
     plt.plot(
         portfolio_evolution["date"],
@@ -100,6 +113,12 @@ def _plot_asset_distribution(
     config: Config,
     asset_distribution: pd.DataFrame,
 ) -> None:
+    """Plot asset distribution.
+
+    Args:
+        config: Config class.
+        asset_distribution: Percentage and amount of each asset held.
+    """
     asset_distribution = asset_distribution.dropna()
     _, ax = plt.subplots(figsize=(10, 8))
     sizes = asset_distribution["curr_val_asset"]
@@ -141,6 +160,14 @@ def _plot_portfolio_gain_evolution(
     benchmark_evolution: pd.DataFrame,
     gain_type: str,
 ) -> None:
+    """Plot portfolio gain evolution.
+
+    Args:
+        portfolio_currency: _description_
+        portfolio_evolution: Portfolio value and gains evolution.
+        benchmark_evolution: Benchmark value and gains evolution.
+        gain_type: _description_
+    """
     unit = "%" if gain_type == "perc" else portfolio_currency
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -175,6 +202,11 @@ def _plot_portfolio_gain_evolution(
 def _plot_assets_vs_benchmark(
     assets_vs_benchmark: pd.DataFrame,
 ) -> None:
+    """Plot assets vs benchmark.
+
+    Args:
+        assets_vs_benchmark: Individual asset percetnage returns vs benchmark.
+    """
     tickers, asset_gains, benchmark_gains = (
         assets_vs_benchmark["ticker_asset"],
         assets_vs_benchmark["curr_perc_gain_asset"],
@@ -245,6 +277,12 @@ def _plot_dividends_company(
     portfolio_currency: str,
     dividends_company: pd.DataFrame,
 ) -> None:
+    """Plot dividends company.
+
+    Args:
+        portfolio_currency: Currency of the portfolio.
+        dividends_company: Total dividends paied by company.
+    """
     tickers, dividends = (
         dividends_company["ticker_asset"],
         dividends_company["total_dividend_asset"],
@@ -301,6 +339,12 @@ def _plot_dividends_company(
 
 
 def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) -> None:
+    """Plot dividends year.
+
+    Args:
+        portfolio_currency: Currency of the portfolio.
+        dividends_year: Total dividends paied by year.
+    """
     years, dividends = (
         dividends_year["date"],
         dividends_year["total_dividend_asset"],

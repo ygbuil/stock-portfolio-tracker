@@ -20,9 +20,12 @@ def preprocess(
 ) -> tuple[Config, PortfolioData, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Load all necessary data from user input and yahoo finance API.
 
-    :param config_file_name: File name for config.
-    :param transactions_file_name: File name for transactions.
-    :return: All necessary input data for the calculations.
+    Args:
+        config_file_name: File name for config.
+        transactions_file_name: File name for transactions.
+
+    Returns:
+        All necessary input data for the calculations.
     """
     config = _load_config(config_file_name)
 
@@ -87,8 +90,11 @@ def preprocess(
 def _load_config(config_file_name: str) -> Config:
     """Load config.json.
 
-    :param config_file_name: Config file name.
-    :return: Config dataclass with the info of config.json.
+    Args:
+        config_file_name: Config file name.
+
+    Returns:
+        Config dataclass with the info of config.json.
     """
     with (DIR_IN / Path(config_file_name)).open() as file:
         return Config(**json.load(file))
@@ -97,8 +103,11 @@ def _load_config(config_file_name: str) -> Config:
 def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
     """Load all portfolio data, such as transactions, start date, etc.
 
-    :param transactions_file_name: Transactions file name.
-    :return: A class with all portfolio data.
+    Args:
+        transactions_file_name: Transactions file name.
+
+    Returns:
+        A class with all portfolio data.
     """
     logger.info("Loading portfolio data.")
     transactions = (
@@ -165,10 +174,14 @@ def _load_currency_exchange(
 ) -> pd.DataFrame:
     """Load currency exchange data from Yahoo Finance.
 
-    :param portfolio_data: Transactions file name.
-    :param local_currency: Portfolio currency.
-    :param sorting_columns: Columns to sort for each returned dataframe.
-    :return: Dataframe with the currency exchanges for all assets in the portfolio.
+    Args:
+        portfolio_data: Transactions file name.
+        local_currency: Portfolio currency.
+        sorting_columns: Columns to sort for each returned dataframe.
+
+    Returns:
+        Dataframe with the currency exchanges for all assets in the portfolio.
+
     """
     currency_exchanges = []
     portfolio_currencies = {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
@@ -235,13 +248,16 @@ def _load_ticker_data(
     """Load historical prices and stock splits for all assets in you portfolio, converted to your
     portfolio currency.
 
-    :param tickers: List of tickers to load data for.
-    :param start_date: Start date to load the data.
-    :param end_date: End date to load the data.
-    :param currency_exchange: Dataframe with the currency exchanges for all assets to be loaded.
-    :param position_type: Type of position (asset, benchmark, etc).
-    :param sorting_columns: Columns to sort for each returned dataframe.
-    :return: Dataframe with all historical prices and stock splits.
+    Args:
+        tickers: List of tickers to load data for.
+        start_date: Start date to load the data.
+        end_date: End date to load the data.
+        currency_exchange: Dataframe with the currency exchanges for all assets to be loaded.
+        position_type: Type of position (asset, benchmark, etc).
+        sorting_columns: Columns to sort for each returned dataframe.
+
+    Returns:
+        Dataframe with all historical prices and stock splits.
     """
     asset_data = []
 
@@ -296,11 +312,16 @@ def _load_prices_and_dividends(
         - Stock splits.
         - Dividends (at Ex-Dividend Date).
 
-    :param ticker: Asset ticker
-    :param start_date: Start date to load the data.
-    :param end_date: End date to load the data.
-    :raises YahooFinanceError: Something went wrong with the Yahoo Finance API.
-    :return: Dataframe with the historical asset price and stock splits.
+    Args:
+        ticker: Asset ticker
+        start_date: Start date to load the data.
+        end_date: End date to load the data.
+
+    Raises:
+        YahooFinanceError: Something went wrong with the Yahoo Finance API.
+
+    Returns:
+        Dataframe with the historical asset price and stock splits.
     """
     try:
         asset = yf.Ticker(ticker)
@@ -353,10 +374,13 @@ def _convert_to_unadj(
     market open it was trading at 100/share due to the split. Yahoo reported a 10
     stock_split for at date 2024-06-10.
 
-    :param start_date: Start date to load the data.
-    :param end_date: End date to load the data.
-    :param asset_data: Asset price, dividends and splits.
-    :return: Adjusted price and dividends.
+    Args:
+        start_date: Start date to load the data.
+        end_date: End date to load the data.
+        asset_data: Asset price, dividends and splits.
+
+    Returns:
+        Adjusted price and dividends.
     """
     return (  # type: ignore[reportReturnType]
         pd.DataFrame(
@@ -391,10 +415,13 @@ def _convert_to_local_currency(
 ) -> pd.DataFrame:
     """Convert origin to local currency for the specified column.
 
-    :param df: Dataframe to convert.
-    :param origin_curr_col_name: Name of the column with origin currency to convert.
-    :param local_curr_col_name: Name of the column with the converted currency.
-    :return: Datframe with the currency in local price.
+    Args:
+        df: Dataframe to convert.
+        origin_curr_col_name: Name of the column with origin currency to convert.
+        local_curr_col_name: Name of the column with the converted currency.
+
+    Returns:
+        Datframe with the currency in local price.
     """
     return df.assign(
         **{

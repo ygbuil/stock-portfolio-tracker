@@ -23,10 +23,15 @@ def model_portfolio(
         - Quantity of the asset.
     - Asset distribution (in value and percentage) as of latest date.
 
-    :param portfolio_data: Transactions history and other portfolio data.
-    :param asset_prices: Daily prices of each asset as of Yahoo Finance.
-    :param sorting_columns: Columns to sort for each returned dataframe.
-    :return: Portfolio metrics, individual asset metrics and asset ditribution.
+
+    Args:
+        portfolio_data: Transactions history and other portfolio data.
+        asset_prices: Daily prices of each asset as of Yahoo Finance.
+        asset_dividends: Dataframe containing the dividend amount on the Ex-Dividend Date.
+        sorting_columns: Columns to sort for each returned dataframe.
+
+    Returns:
+        Portfolio metrics, individual asset metrics and asset ditribution.
     """
     portfolio_model = pd.concat(
         [
@@ -109,10 +114,13 @@ def _calc_asset_dist(
     """Calculate the percentage in size each asset represents to the overall portfolio as well as
     the value of each asset, both at end date.
 
-    :param portfolio_model: Portfolio with curr_qty and curr_val for each asset.
-    :param portfolio_data: Transactions history and other portfolio data.
-    :param position_type: Type of position (asset, benchmark, etc).
-    :return: Dataframe with the percentage and value of each asset at end date.
+    Args:
+        portfolio_model: Portfolio with curr_qty and curr_val for each asset.
+        portfolio_data: Transactions history and other portfolio data.
+        position_type: Type of position (asset, benchmark, etc).
+
+    Returns:
+        Dataframe with the percentage and value of each asset at end date.
     """
     asset_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
         [
@@ -149,10 +157,14 @@ def _calc_asset_dist(
 def _calc_dividends(asset_dividends: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Calculate the total dividend received for every asset.
 
-    :param asset_dividends: Dataframe containing the dividend amount on the Ex-Dividend Date
-    curr_qty_asset.
-    :raises UnsortedError: Unsorted data.
-    :return: Total dividends per company and total yearly dividends.
+    Args:
+        asset_dividends: Dataframe containing the dividend amount on the Ex-Dividend Date.
+
+    Raises:
+        UnsortedError: Unsorted input data.
+
+    Returns:
+        Total dividends per company and total yearly dividends.
     """
     if not all(
         group[1].is_monotonic_decreasing
