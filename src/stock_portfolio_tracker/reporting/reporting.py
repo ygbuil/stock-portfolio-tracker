@@ -371,7 +371,7 @@ def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) 
 
     # Add labels and title
     ax.set_ylabel("Dividend amount (EUR)")
-    ax.set_title("Dividends per company")
+    ax.set_title("Dividends per year")
     ax.set_xticks(index)
     ax.set_xticklabels(years)
 
