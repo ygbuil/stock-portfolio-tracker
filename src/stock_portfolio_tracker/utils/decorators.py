@@ -13,7 +13,7 @@ def sort_at_end() -> Callable:
 
     def decorator(func: Callable) -> Callable:
         def wrapper(*args, **kwargs) -> pd.DataFrame | list[pd.DataFrame]:
-            sorting_columns = kwargs.get("sorting_columns")
+            sorting_columns = kwargs["sorting_columns"]
             dfs = func(*args, **kwargs)
 
             output = []

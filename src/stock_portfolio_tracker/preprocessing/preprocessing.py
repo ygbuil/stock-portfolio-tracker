@@ -43,7 +43,7 @@ def preprocess(
     )
 
     asset_data = _load_ticker_data(
-        portfolio_data.assets_info.keys(),
+        list(portfolio_data.assets_info.keys()),
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
@@ -304,7 +304,7 @@ def _load_prices_and_dividends(
     ticker: str,
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> pd.DataFrame:
     """Load the following daily data at market close for a given ticker:
         - Unadjusted asset price.
         - Stock splits.
