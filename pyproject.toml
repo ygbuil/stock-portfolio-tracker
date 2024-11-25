@@ -29,7 +29,7 @@ line-length = 100
 lint.select = ["ALL"]
 lint.ignore = [
     "ANN002", "ANN003", "ANN401", "COM812", "D203", "D205", "D213", "D402", "EXE002", "FA102",
-    "ISC001", "PD901", "PLR0913", "S101", "TRY003"
+    "ISC001", "PD901", "PGH003", "PLR0913", "S101", "TRY003"
 ]
 
 [tool.ruff.lint.pydocstyle]
