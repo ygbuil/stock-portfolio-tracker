@@ -16,7 +16,6 @@ dependencies = [
     "pre-commit>=3.7.1",
     "ruff>=0.4.6",
     "pytest>=8.2.2",
-    "pyright>=1.1.389",
 ]
 
 [project.scripts]

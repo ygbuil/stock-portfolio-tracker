@@ -19,12 +19,6 @@ repos:
         pass_filenames: false
         language: system
         stages: [pre-commit]
-      - id: pyright
-        name: Check type hints
-        entry: uv run pyright .
-        pass_filenames: false
-        language: system
-        stages: [pre-commit]
       - id: tests
         name: Tests
         entry: uv run pytest

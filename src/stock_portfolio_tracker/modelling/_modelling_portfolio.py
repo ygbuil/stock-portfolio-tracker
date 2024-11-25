@@ -129,13 +129,13 @@ def _calc_asset_dist(
             f"curr_qty_{position_type}",
             f"curr_val_{position_type}",
         ]
-    ].reset_index(  # type: ignore[reportArgumentType]
+    ].reset_index(
         drop=True,
     )
 
     return (
         asset_distribution[asset_distribution["curr_qty_asset"] != 0]
-        .assign(  # type: ignore[reportAttributeAccessIssue]
+        .assign(
             percent=round(
                 asset_distribution[f"curr_val_{position_type}"]
                 / asset_distribution[f"curr_val_{position_type}"].sum()
@@ -143,8 +143,8 @@ def _calc_asset_dist(
                 2,
             ),
             **{
-                f"curr_val_{position_type}": round(  # type: ignore[reportCallIssue]
-                    asset_distribution[f"curr_val_{position_type}"],  # type: ignore[reportArgumentType]
+                f"curr_val_{position_type}": round(
+                    asset_distribution[f"curr_val_{position_type}"],
                     2,
                 ),
             },

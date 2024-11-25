@@ -43,7 +43,7 @@ def preprocess(
     )
 
     asset_data = _load_ticker_data(
-        portfolio_data.assets_info.keys(),  # type: ignore[reportArgumentType]
+        portfolio_data.assets_info.keys(),
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
@@ -61,7 +61,7 @@ def preprocess(
 
     logger.info("End of preprocess.")
 
-    return (  # type: ignore[reportReturnType]
+    return (
         config,
         portfolio_data,
         asset_data[
@@ -284,22 +284,20 @@ def _load_ticker_data(
         f"close_unadj_local_currency_dividends_{position_type}",
     )
 
-    return (  # type: ignore[reportReturnType]
-        asset_data.rename(
-            columns={
-                "ticker": f"ticker_{position_type}",
-                "split": f"split_{position_type}",
-            },
-        )[
-            [
-                "date",
-                f"ticker_{position_type}",
-                f"split_{position_type}",
-                f"close_unadj_local_currency_{position_type}",
-                f"close_unadj_local_currency_dividends_{position_type}",
-            ]
+    return asset_data.rename(
+        columns={
+            "ticker": f"ticker_{position_type}",
+            "split": f"split_{position_type}",
+        },
+    )[
+        [
+            "date",
+            f"ticker_{position_type}",
+            f"split_{position_type}",
+            f"close_unadj_local_currency_{position_type}",
+            f"close_unadj_local_currency_dividends_{position_type}",
         ]
-    )
+    ]
 
 
 def _load_prices_and_dividends(
@@ -350,7 +348,7 @@ def _load_prices_and_dividends(
         ticker=ticker,
     )
 
-    return asset_data[  # type: ignore[reportReturnType]
+    return asset_data[
         [
             "date",
             "ticker",
@@ -382,7 +380,7 @@ def _convert_to_unadj(
     Returns:
         Adjusted price and dividends.
     """
-    return (  # type: ignore[reportReturnType]
+    return (
         pd.DataFrame(
             {"date": reversed(pd.date_range(start=start_date, end=end_date, freq="D"))},
         )

@@ -21,7 +21,7 @@ def sort_at_end() -> Callable:
 
             for df, sorting_column in zip(
                 (dfs,) if single_df else dfs,
-                sorting_columns,  # type: ignore[reportArgumentType]
+                sorting_columns,
                 strict=False,
             ):
                 output.append(

@@ -98,7 +98,7 @@ def calc_curr_gain(
         curr_money_in += max(0, trans_val[-i])
         money_in[-i] = curr_val[-i] + curr_money_in
 
-    df = (  # type: ignore[reportAssignmentType]
+    df = (
         df.assign(
             money_out=money_out,
             money_in=money_in,

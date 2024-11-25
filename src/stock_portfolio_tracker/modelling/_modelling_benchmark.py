@@ -66,7 +66,7 @@ def model_benchmark_absolute(
         benchmark_gain_evolution,
         how="left",
         on=["date"],
-    )  # type: ignore[reportReturnType]
+    )
 
 
 @sort_at_end()
