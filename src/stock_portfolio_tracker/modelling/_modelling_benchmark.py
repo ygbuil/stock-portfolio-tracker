@@ -217,22 +217,22 @@ def _simulate_benchmark_proportional(
     latest_curr_qty_benchmark = 0
     ever_purchased = False
 
-    for i in range(1, df_dim + 1):
-        latest_curr_qty_benchmark *= split_benchmark[-i]
+    for i in range(df_dim):
+        latest_curr_qty_benchmark *= split_benchmark[~i]
 
-        if not ever_purchased and trans_qty_asset[-i] != 0:
-            trans_qty_benchmark[-i] = (
-                -trans_val_asset[-i] / close_unadj_local_currency_benchmark[-i]
+        if not ever_purchased and trans_qty_asset[~i] != 0:
+            trans_qty_benchmark[~i] = (
+                -trans_val_asset[~i] / close_unadj_local_currency_benchmark[~i]
             )
-            latest_curr_qty_benchmark += trans_qty_benchmark[-i]
+            latest_curr_qty_benchmark += trans_qty_benchmark[~i]
             ever_purchased = True
 
-        elif trans_qty_asset[-i] != 0:
-            yesterdas_curr_qty = curr_qty_asset[-(i - 1)] * split_asset[-i]
-            trans_qty_benchmark[-i] = (
-                (trans_qty_asset[-i] + yesterdas_curr_qty) / yesterdas_curr_qty - 1
+        elif trans_qty_asset[~i] != 0:
+            yesterdas_curr_qty = curr_qty_asset[~i + 1] * split_asset[~i]
+            trans_qty_benchmark[~i] = (
+                (trans_qty_asset[~i] + yesterdas_curr_qty) / yesterdas_curr_qty - 1
             ) * latest_curr_qty_benchmark
-            latest_curr_qty_benchmark += trans_qty_benchmark[-i]
+            latest_curr_qty_benchmark += trans_qty_benchmark[~i]
 
     return df.assign(
         trans_qty_benchmark=trans_qty_benchmark,

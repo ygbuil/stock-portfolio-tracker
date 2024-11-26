@@ -32,8 +32,8 @@ def calc_curr_qty(
 
     curr_qty = np.zeros(df_len := len(trans_qty), dtype=np.float64)
 
-    for i in range(1, df_len + 1):
-        curr_qty[-i] = trans_qty[-i] + (0 if i == 1 else curr_qty[-(i - 1)] * split[-i])
+    for i in range(df_len):
+        curr_qty[~i] = trans_qty[~i] + (0 if i == 0 else curr_qty[~i + 1] * split[~i])
 
     return df.assign(**{f"curr_qty_{position_type}": curr_qty})
 
@@ -92,11 +92,11 @@ def calc_curr_gain(
     money_in = np.zeros(df_dim := len(trans_val), dtype=np.float64)
     money_out = np.zeros(df_dim, dtype=np.float64)
 
-    for i in range(1, df_dim + 1):
-        money_out[-i] = (0 if i == 1 else money_out[-(i - 1)]) + min(trans_val[-i], 0)
+    for i in range(df_dim):
+        money_out[~i] = (0 if i == 0 else money_out[~i + 1]) + min(trans_val[~i], 0)
 
-        curr_money_in += max(0, trans_val[-i])
-        money_in[-i] = curr_val[-i] + curr_money_in
+        curr_money_in += max(0, trans_val[~i])
+        money_in[~i] = curr_val[~i] + curr_money_in
 
     df = (
         df.assign(
