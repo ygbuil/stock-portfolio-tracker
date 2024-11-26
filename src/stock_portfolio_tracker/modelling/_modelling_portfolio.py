@@ -64,7 +64,9 @@ def model_portfolio(
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
 
-    portfolio_val_evolution = _calc_val_evol(portfolio_model)
+    portfolio_val_evolution = _calc_val_evol(
+        portfolio_model, sorting_columns=[{"columns": ["date"], "ascending": [False]}]
+    )
 
     portfolio_perc_evolution = utils.calc_curr_gain(
         portfolio_val_evolution.merge(
@@ -179,11 +181,13 @@ def _calc_dividends(asset_dividends: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
     ].sum().reset_index()
 
 
-def _calc_val_evol(portfolio_model: pd.DataFrame) -> pd.DataFrame:
+@sort_at_end()
+def _calc_val_evol(portfolio_model: pd.DataFrame, sorting_columns: list[dict]) -> pd.DataFrame:  # noqa: ARG001
     """Calculate total daily value of the portfolio based on all the assets.
 
     Args:
         portfolio_model: Portfolio with curr_qty and curr_val for each asset.
+        sorting_columns: Columns to sort for each returned dataframe.
 
     Raises:
         UnsortedError: Unsorted input data.
@@ -203,8 +207,5 @@ def _calc_val_evol(portfolio_model: pd.DataFrame) -> pd.DataFrame:
         .groupby("date")["curr_val_asset"]
         .sum()
         .reset_index()
-        .rename(columns={"curr_val_asset": "curr_val_portfolio"})
-        .sort_values(by=["date"], ascending=[False])
-        .reset_index(drop=True)
-        .assign(curr_val_portfolio=lambda df: round(df["curr_val_portfolio"], 2))
-    )
+        .assign(curr_val_portfolio=lambda df: round(df["curr_val_asset"], 2))
+    )[["date", "curr_val_portfolio"]]
