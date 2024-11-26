@@ -23,7 +23,6 @@ def model_portfolio(
         - Quantity of the asset.
     - Asset distribution (in value and percentage) as of latest date.
 
-
     Args:
         portfolio_data: Transactions history and other portfolio data.
         asset_prices: Daily prices of each asset as of Yahoo Finance.
@@ -65,15 +64,7 @@ def model_portfolio(
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
 
-    portfolio_val_evolution = (
-        portfolio_model.groupby("date")["curr_val_asset"]
-        .sum()
-        .reset_index()
-        .rename(columns={"curr_val_asset": "curr_val_portfolio"})
-        .sort_values(by=["date"], ascending=[False])
-        .reset_index(drop=True)
-        .assign(curr_val_portfolio=lambda df: round(df["curr_val_portfolio"], 2))
-    )
+    portfolio_val_evolution = _calc_val_evol(portfolio_model)
 
     portfolio_perc_evolution = utils.calc_curr_gain(
         portfolio_val_evolution.merge(
@@ -186,3 +177,34 @@ def _calc_dividends(asset_dividends: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
     ].sum().reset_index(), asset_dividends.groupby(asset_dividends["date"].dt.year)[
         "total_dividend_asset"
     ].sum().reset_index()
+
+
+def _calc_val_evol(portfolio_model: pd.DataFrame) -> pd.DataFrame:
+    """Calculate total daily value of the portfolio based on all the assets.
+
+    Args:
+        portfolio_model: Portfolio with curr_qty and curr_val for each asset.
+
+    Raises:
+        UnsortedError: Unsorted input data.
+
+    Returns:
+        Portfolio daily value.
+    """
+    if not all(
+        group[1].is_monotonic_decreasing
+        for group in portfolio_model.groupby("ticker_asset")["date"]
+    ):
+        raise UnsortedError
+
+    return (
+        portfolio_model.groupby(["date", "ticker_asset"])
+        .first()
+        .groupby("date")["curr_val_asset"]
+        .sum()
+        .reset_index()
+        .rename(columns={"curr_val_asset": "curr_val_portfolio"})
+        .sort_values(by=["date"], ascending=[False])
+        .reset_index(drop=True)
+        .assign(curr_val_portfolio=lambda df: round(df["curr_val_portfolio"], 2))
+    )
