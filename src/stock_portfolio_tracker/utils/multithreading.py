@@ -6,7 +6,7 @@ from typing import Any
 
 
 def multithreader(func: Callable, args: list[tuple]) -> list[Any]:
-    """Spawns multiple threads in parallel, efective for I/O bount operations such as API calls.
+    """Spawns multiple threads in parallel, efective for I/O bound operations such as API calls.
 
     Args:
         func: Function to parallelize.
