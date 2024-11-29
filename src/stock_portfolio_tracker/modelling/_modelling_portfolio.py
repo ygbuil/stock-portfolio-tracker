@@ -174,11 +174,12 @@ def _calc_dividends(asset_dividends: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
         * asset_dividends["close_unadj_local_currency_dividends_asset"],
     )
 
-    return asset_dividends.groupby("ticker_asset")[
-        "total_dividend_asset"
-    ].sum().reset_index(), asset_dividends.groupby(asset_dividends["date"].dt.year)[
-        "total_dividend_asset"
-    ].sum().reset_index()
+    return (
+        asset_dividends.groupby("ticker_asset")["total_dividend_asset"].sum().reset_index(),
+        asset_dividends.groupby(asset_dividends["date"].dt.year)["total_dividend_asset"]
+        .sum()
+        .reset_index(),
+    )
 
 
 @sort_at_end()
