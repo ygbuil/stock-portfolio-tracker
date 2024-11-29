@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 from loguru import logger
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from stock_portfolio_tracker.exceptions import YahooFinanceError
 from stock_portfolio_tracker.utils import Config, PortfolioData, sort_at_end
@@ -261,9 +262,19 @@ def _load_ticker_data(
     """
     asset_data = []
 
-    for ticker in tickers:
-        logger.info(f"Loading historical asset prices for {ticker}")
-        asset_data.append(_load_prices_and_dividends(ticker, start_date, end_date))
+    with ThreadPoolExecutor() as executor:
+        future_to_ticker = {
+            executor.submit(_load_prices_and_dividends, ticker, start_date, end_date): ticker
+            for ticker in tickers
+        }
+
+        for future in as_completed(future_to_ticker):
+            try:
+                ticker = future_to_ticker[future]
+                logger.info(f"Finished loading data for {ticker}")
+                asset_data.append(future.result())
+            except Exception as e:
+                logger.error(f"Error loading data for {ticker}: {e}")
 
     asset_data = pd.concat(asset_data).merge(
         currency_exchange,
