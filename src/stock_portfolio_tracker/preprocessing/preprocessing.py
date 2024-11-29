@@ -1,13 +1,13 @@
 """Preprocess input data."""
 
 import json
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import yfinance as yf
 from loguru import logger
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from stock_portfolio_tracker.exceptions import YahooFinanceError
 from stock_portfolio_tracker.utils import Config, PortfolioData, sort_at_end
