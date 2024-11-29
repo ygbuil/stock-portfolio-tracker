@@ -182,12 +182,7 @@ def _load_currency_exchange(
 
     Returns:
         Dataframe with the currency exchanges for all assets in the portfolio.
-
     """
-    currency_exchanges = []
-    portfolio_currencies = {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
-        local_currency,
-    }
     full_date_range = pd.DataFrame(
         {
             "date": reversed(
@@ -200,7 +195,15 @@ def _load_currency_exchange(
         },
     )
 
-    for origin_currency in portfolio_currencies:
+    def _multithreader_helper(origin_currency: str) -> pd.DataFrame:
+        """Loads one currency exchange.
+
+        Args:
+            origin_currency: Currency of origin (foreign country).
+
+        Returns:
+            Dataframe with the currency exchanges for the given origin currency.
+        """
         ticker = f"{local_currency}{origin_currency}=X"
         logger.info(f"Loading currency exchange for {ticker}.")
 
@@ -231,8 +234,15 @@ def _load_currency_exchange(
         else:
             currency_exchange = full_date_range.assign(close_currency_rate=1)
 
-        currency_exchange["ticker_exch_rate"] = origin_currency
-        currency_exchanges.append(currency_exchange)
+        return currency_exchange.assign(ticker_exch_rate=origin_currency)
+
+    portfolio_currencies = {item[1]["currency"] for item in portfolio_data.assets_info.items()} | {
+        local_currency,
+    }
+
+    currency_exchanges = utils.multithreader(
+        _multithreader_helper, [(origin_currency,) for origin_currency in portfolio_currencies]
+    )
 
     return pd.concat(currency_exchanges)
 
