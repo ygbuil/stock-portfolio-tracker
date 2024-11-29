@@ -1,7 +1,6 @@
 """Preprocess input data."""
 
 import json
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import numpy as np
@@ -9,6 +8,7 @@ import pandas as pd
 import yfinance as yf
 from loguru import logger
 
+from stock_portfolio_tracker import utils
 from stock_portfolio_tracker.exceptions import YahooFinanceError
 from stock_portfolio_tracker.utils import Config, PortfolioData, sort_at_end
 
@@ -260,21 +260,9 @@ def _load_ticker_data(
     Returns:
         Dataframe with all historical prices and stock splits.
     """
-    asset_data = []
-
-    with ThreadPoolExecutor() as executor:
-        future_to_ticker = {
-            executor.submit(_load_prices_and_dividends, ticker, start_date, end_date): ticker
-            for ticker in tickers
-        }
-
-        for future in as_completed(future_to_ticker):
-            try:
-                ticker = future_to_ticker[future]
-                logger.info(f"Finished loading data for {ticker}")
-                asset_data.append(future.result())
-            except Exception as e:
-                logger.error(f"Error loading data for {ticker}: {e}")
+    asset_data = utils.multithreader(
+        _load_prices_and_dividends, [(ticker, start_date, end_date) for ticker in tickers]
+    )
 
     asset_data = pd.concat(asset_data).merge(
         currency_exchange,
@@ -332,6 +320,7 @@ def _load_prices_and_dividends(
     Returns:
         Dataframe with the historical asset price and stock splits.
     """
+    logger.info(f"Loading historical data for {ticker}")
     try:
         asset = yf.Ticker(ticker)
         asset_data = (
