@@ -1,4 +1,4 @@
-"""Modelling unit tests."""
+"""Test _simulate_benchmark_proportional()."""
 
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ from stock_portfolio_tracker.modelling._modelling_benchmark import _simulate_ben
 
 
 @pytest.fixture
-def df_input_1() -> pd.DataFrame:
+def df_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -38,7 +38,7 @@ def df_input_1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_input_2() -> pd.DataFrame:
+def df_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -66,7 +66,7 @@ def df_input_2() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_input_3() -> pd.DataFrame:
+def df_3() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -94,7 +94,7 @@ def df_input_3() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_output_1() -> pd.DataFrame:
+def benchmark_proportional_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -124,7 +124,7 @@ def df_output_1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_output_2() -> pd.DataFrame:
+def benchmark_proportional_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -154,7 +154,7 @@ def df_output_2() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_output_3() -> pd.DataFrame:
+def benchmark_proportional_3() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -184,28 +184,28 @@ def df_output_3() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize(
-    ("df_input", "df_output"),
+    ("df", "benchmark_proportional"),
     [
-        ("df_input_1", "df_output_1"),
-        ("df_input_2", "df_output_2"),
-        ("df_input_3", "df_output_3"),
+        ("df_1", "benchmark_proportional_1"),
+        ("df_2", "benchmark_proportional_2"),
+        ("df_3", "benchmark_proportional_3"),
     ],
 )
 def test_simulate_benchmark_proportional(
-    df_input: str,
-    df_output: str,
+    df: str,
+    benchmark_proportional: str,
     request: FixtureRequest,
 ) -> None:
     """Test _simulate_benchmark_proportional.
 
     Args:
-        df_input: Input dataframe.
-        df_output: Output dataframe.
+        df: Input dataframe.
+        benchmark_proportional: Output dataframe.
         request: FixtureRequest.
     """
     assert_frame_equal(
-        _simulate_benchmark_proportional(request.getfixturevalue(df_input)),
-        request.getfixturevalue(df_output),
+        _simulate_benchmark_proportional(request.getfixturevalue(df)),
+        request.getfixturevalue(benchmark_proportional),
         rtol=1e-7,
         atol=1e-8,
     )

@@ -1,4 +1,4 @@
-"""Modelling unit tests."""
+"""Test calc_curr_val()."""
 
 import numpy as np
 import pandas as pd
@@ -9,7 +9,7 @@ import stock_portfolio_tracker.modelling._utils as utils
 
 
 @pytest.fixture
-def df_input_1() -> pd.DataFrame:
+def df_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -34,7 +34,7 @@ def df_input_1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_input_2() -> pd.DataFrame:
+def df_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -59,7 +59,7 @@ def df_input_2() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_output_1() -> pd.DataFrame:
+def curr_val_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -85,7 +85,7 @@ def df_output_1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_output_2() -> pd.DataFrame:
+def curr_val_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -111,26 +111,26 @@ def df_output_2() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize(
-    ("df_input", "df_output"),
+    ("df", "curr_val"),
     [
-        ("df_input_1", "df_output_1"),
-        ("df_input_2", "df_output_2"),
+        ("df_1", "curr_val_1"),
+        ("df_2", "curr_val_2"),
     ],
 )
 def test_calc_curr_val(
-    df_input: str,
-    df_output: str,
+    df: str,
+    curr_val: str,
     request: FixtureRequest,
 ) -> None:
     """Test calc_curr_val.
 
     Args:
-        df_input: Input dataframe.
-        df_output: Output dataframe.
+        df: Input dataframe.
+        curr_val: Output dataframe.
         request: FixtureRequest.
     """
     assert utils.calc_curr_val(
-        request.getfixturevalue(df_input),
+        request.getfixturevalue(df),
         "asset",
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
-    ).equals(request.getfixturevalue(df_output))
+    ).equals(request.getfixturevalue(curr_val))

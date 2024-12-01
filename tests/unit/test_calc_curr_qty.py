@@ -1,4 +1,4 @@
-"""Modelling unit tests."""
+"""Test calc_curr_qty()."""
 
 import pandas as pd
 import pytest
@@ -8,7 +8,7 @@ import stock_portfolio_tracker.modelling._utils as utils
 
 
 @pytest.fixture
-def transactions_1() -> pd.DataFrame:
+def df_1() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -32,7 +32,7 @@ def transactions_1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def transactions_2() -> pd.DataFrame:
+def df_2() -> pd.DataFrame:
     """Transsactions."""
     return pd.DataFrame(
         {
@@ -106,25 +106,25 @@ def curr_qty_2() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize(
-    ("transactions", "curr_qty"),
+    ("df", "curr_qty"),
     [
-        ("transactions_1", "curr_qty_1"),
-        ("transactions_2", "curr_qty_2"),
+        ("df_1", "curr_qty_1"),
+        ("df_2", "curr_qty_2"),
     ],
 )
 def test_calc_curr_qty(
-    transactions: str,
+    df: str,
     curr_qty: str,
     request: FixtureRequest,
 ) -> None:
     """Test calc_curr_qty.
 
     Args:
-        transactions: Transactions.
+        df: Input df.
         curr_qty: Resulting dataframe with the percent gain.
         request: FixtureRequest.
     """
     assert utils.calc_curr_qty(
-        request.getfixturevalue(transactions),
+        request.getfixturevalue(df),
         "asset",
     ).equals(request.getfixturevalue(curr_qty))
