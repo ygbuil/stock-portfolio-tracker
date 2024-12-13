@@ -105,7 +105,7 @@ def _plot_portfolio_value_evolution(
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(DIR_OUT / Path("portfolio_value_evolution.png"))
+    plt.savefig(DIR_OUT / Path("value.png"))
     plt.close()
 
 
@@ -194,7 +194,7 @@ def _plot_portfolio_gain_evolution(
     plt.legend(loc="best")
     plt.tight_layout()
     plt.savefig(
-        DIR_OUT / Path(f"portfolio_{gain_type}_gain_evolution.png"),
+        DIR_OUT / Path(f"{gain_type}_gain.png"),
     )
     plt.close()
 

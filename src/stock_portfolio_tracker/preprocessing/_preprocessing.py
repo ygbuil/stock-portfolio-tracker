@@ -218,11 +218,10 @@ def _load_currency_exchange(
                     .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
                 )
             except Exception as exc:
-                msg = f"""Something went wrong retrieving Yahoo Finance data for
-                    ticker {ticker}: {exc}"""
-                raise YahooFinanceError(
-                    msg,
-                ) from exc
+                msg = (
+                    f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}"
+                )
+                raise YahooFinanceError(msg) from exc
 
             currency_exchange = full_date_range.merge(
                 currency_exchange,
@@ -349,9 +348,7 @@ def _load_prices_and_dividends(
         )
     except Exception as exc:
         msg = f"Something went wrong retrieving Yahoo Finance data for ticker {ticker}: {exc}"
-        raise YahooFinanceError(
-            msg,
-        ) from exc
+        raise YahooFinanceError(msg) from exc
 
     asset_data = _convert_to_unadj(start_date, end_date, asset_data).assign(
         origin_currency=asset.info.get("currency"),
