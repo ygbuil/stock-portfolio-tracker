@@ -10,7 +10,11 @@ from stock_portfolio_tracker.utils import PortfolioData
 
 @pytest.fixture
 def portfolio_model_1() -> pd.DataFrame:
-    """Transsactions."""
+    """Test random buys and sells.
+
+    Returns:
+        Dataframe with curr_qty_asset and curr_val_asset.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -57,13 +61,21 @@ def portfolio_model_1() -> pd.DataFrame:
 
 @pytest.fixture
 def portfolio_data_1() -> PortfolioData:
-    """Transsactions."""
+    """Portfolio data.
+
+    Returns:
+        Portfolio data.
+    """
     return PortfolioData(pd.DataFrame(), {}, pd.Timestamp("2024-01-01"), pd.Timestamp("2024-01-04"))
 
 
 @pytest.fixture
 def asset_distribution_1() -> pd.DataFrame:
-    """Transsactions."""
+    """Asset distribution.
+
+    Returns:
+        Asset distribution.
+    """
     return pd.DataFrame(
         {
             "date": [
