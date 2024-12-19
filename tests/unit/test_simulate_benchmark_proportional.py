@@ -1,6 +1,5 @@
 """Test _simulate_benchmark_proportional()."""
 
-import numpy as np
 import pandas as pd
 import pytest
 from pandas.testing import assert_frame_equal
@@ -11,7 +10,11 @@ from stock_portfolio_tracker.modelling._modelling_benchmark import _simulate_ben
 
 @pytest.fixture
 def df_1() -> pd.DataFrame:
-    """Transsactions."""
+    """Test _simulate_benchmark_proportional() with random data.
+
+    Returns:
+        Portfolio model.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -32,14 +35,18 @@ def df_1() -> pd.DataFrame:
             "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
             "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
             "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
-            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, np.nan],
+            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, 0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
 @pytest.fixture
 def df_2() -> pd.DataFrame:
-    """Transsactions."""
+    """Test _simulate_benchmark_proportional() with transaction on split day.
+
+    Returns:
+        Portfolio model.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -60,14 +67,18 @@ def df_2() -> pd.DataFrame:
             "close_unadj_local_currency_asset": [100, 95, 90, 110, 120, 100, 1100, 1000],
             "trans_qty_asset": [0, -10, 30, 0, 0, 30, 2, 0],
             "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
-            "curr_qty_asset": [70, 70, 80, 50, 50, 50, 2, np.nan],
+            "curr_qty_asset": [70, 70, 80, 50, 50, 50, 2, 0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
 @pytest.fixture
 def df_3() -> pd.DataFrame:
-    """Transsactions."""
+    """Test _simulate_benchmark_proportional() with random data.
+
+    Returns:
+        Portfolio model.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -88,14 +99,18 @@ def df_3() -> pd.DataFrame:
             "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
             "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
             "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
-            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, np.nan],
+            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, 0],
         },
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
 @pytest.fixture
 def benchmark_proportional_1() -> pd.DataFrame:
-    """Transsactions."""
+    """Test _simulate_benchmark_proportional() without transaction on split day.
+
+    Returns:
+        Dataframe with benchmark simulation.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -116,7 +131,7 @@ def benchmark_proportional_1() -> pd.DataFrame:
             "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
             "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
             "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
-            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, np.nan],
+            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, 0],
             "trans_qty_benchmark": [0.0, -2.0, 6.0, 0.0, 0.0, 6.0, 4.0, 0.0],
             "trans_val_benchmark": [0.0, 1240.0, -3600.0, 0.0, 0.0, -3480.0, -2200.0, 0.0],
         },
@@ -125,7 +140,11 @@ def benchmark_proportional_1() -> pd.DataFrame:
 
 @pytest.fixture
 def benchmark_proportional_2() -> pd.DataFrame:
-    """Transsactions."""
+    """Test _simulate_benchmark_proportional() with transaction on split day.
+
+    Returns:
+        Dataframe with benchmark simulation.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -146,7 +165,7 @@ def benchmark_proportional_2() -> pd.DataFrame:
             "close_unadj_local_currency_asset": [100, 95, 90, 110, 120, 100, 1100, 1000],
             "trans_qty_asset": [0, -10, 30, 0, 0, 30, 2, 0],
             "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
-            "curr_qty_asset": [70, 70, 80, 50, 50, 50, 2, np.nan],
+            "curr_qty_asset": [70, 70, 80, 50, 50, 50, 2, 0],
             "trans_qty_benchmark": [0.0, -2.0, 6.0, 0.0, 0.0, 6.0, 4.0, 0.0],
             "trans_val_benchmark": [0.0, 1240.0, -3600.0, 0.0, 0.0, -3480.0, -2200.0, 0.0],
         },
@@ -155,7 +174,11 @@ def benchmark_proportional_2() -> pd.DataFrame:
 
 @pytest.fixture
 def benchmark_proportional_3() -> pd.DataFrame:
-    """Transsactions."""
+    """Test _simulate_benchmark_proportional() without transaction on split day.
+
+    Returns:
+        Dataframe with benchmark simulation.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -176,7 +199,7 @@ def benchmark_proportional_3() -> pd.DataFrame:
             "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
             "trans_qty_asset": [0, -1, 3, 0, 0, 3, 2, 0],
             "trans_val_asset": [0, 950, -1800, 0, 0, -3000, -2200, 0],
-            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, np.nan],
+            "curr_qty_asset": [7, 7, 8, 5, 5, 5, 2, 0],
             "trans_qty_benchmark": [0.0, -20.0, 60.0, 0.0, 0.0, 6.0, 4.0, 0.0],
             "trans_val_benchmark": [0.0, 1240.0, -3600.0, 0.0, 0.0, -3480.0, -2200.0, 0.0],
         },
@@ -196,7 +219,7 @@ def test_simulate_benchmark_proportional(
     benchmark_proportional: str,
     request: FixtureRequest,
 ) -> None:
-    """Test _simulate_benchmark_proportional.
+    """Test _simulate_benchmark_proportional().
 
     Args:
         df: Input dataframe.

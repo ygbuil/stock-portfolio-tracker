@@ -13,7 +13,7 @@ def portfolio_model_1() -> pd.DataFrame:
     """Test random buys and sells.
 
     Returns:
-        Dataframe with curr_qty_asset and curr_val_asset.
+        Portfolio model.
     """
     return pd.DataFrame(
         {
@@ -103,7 +103,7 @@ def test_calc_asset_dist(
     asset_distribution: str,
     request: FixtureRequest,
 ) -> None:
-    """Test calc_curr_gain.
+    """Test _calc_curr_gain.
 
     Args:
         portfolio_model: Portfolio with curr_qty and curr_val for each asset.

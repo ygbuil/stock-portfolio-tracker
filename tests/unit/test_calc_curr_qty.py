@@ -8,8 +8,12 @@ import stock_portfolio_tracker.modelling._utils as utils
 
 
 @pytest.fixture
-def df_1() -> pd.DataFrame:
-    """Transsactions."""
+def portfolio_model_1() -> pd.DataFrame:
+    """Test calculate current quantity without buy on split day.
+
+    Returns:
+        Portfolio model.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -32,8 +36,12 @@ def df_1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_2() -> pd.DataFrame:
-    """Transsactions."""
+def portfolio_model_2() -> pd.DataFrame:
+    """Test calculate current quantity with buy on split day.
+
+    Returns:
+        Portfolio model.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -57,7 +65,11 @@ def df_2() -> pd.DataFrame:
 
 @pytest.fixture
 def curr_qty_1() -> pd.DataFrame:
-    """Transsactions."""
+    """Test calculate current quantity without buy on split day.
+
+    Returns:
+        Portfolio model.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -82,7 +94,11 @@ def curr_qty_1() -> pd.DataFrame:
 
 @pytest.fixture
 def curr_qty_2() -> pd.DataFrame:
-    """Transsactions."""
+    """Test calculate current quantity with buy on split day.
+
+    Returns:
+        Portfolio model.
+    """
     return pd.DataFrame(
         {
             "date": [
@@ -106,25 +122,25 @@ def curr_qty_2() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize(
-    ("df", "curr_qty"),
+    ("portfolio_model", "curr_qty"),
     [
-        ("df_1", "curr_qty_1"),
-        ("df_2", "curr_qty_2"),
+        ("portfolio_model_1", "curr_qty_1"),
+        ("portfolio_model_2", "curr_qty_2"),
     ],
 )
 def test_calc_curr_qty(
-    df: str,
+    portfolio_model: str,
     curr_qty: str,
     request: FixtureRequest,
 ) -> None:
     """Test calc_curr_qty.
 
     Args:
-        df: Input df.
+        portfolio_model: Input portfolio_model.
         curr_qty: Resulting dataframe with the percent gain.
         request: FixtureRequest.
     """
     assert utils.calc_curr_qty(
-        request.getfixturevalue(df),
+        request.getfixturevalue(portfolio_model),
         "asset",
     ).equals(request.getfixturevalue(curr_qty))

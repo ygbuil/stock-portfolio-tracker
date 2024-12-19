@@ -12,7 +12,7 @@ def portfolio_model_1() -> pd.DataFrame:
     """Test random buys and sells 1.
 
     Returns:
-        Dataframe with trans_val_asset and curr_val_asset.
+        Portfolio model.
     """
     return pd.DataFrame(
         {
@@ -37,7 +37,7 @@ def portfolio_model_2() -> pd.DataFrame:
     """Test random buys and sells 2.
 
     Returns:
-        Dataframe with trans_val_asset and curr_val_asset.
+        Portfolio model.
     """
     return pd.DataFrame(
         {
@@ -63,7 +63,7 @@ def portfolio_model_3() -> pd.DataFrame:
     """Test complete buys and sells of the same position.
 
     Returns:
-        Dataframe with trans_val_asset and curr_val_asset.
+        Portfolio model.
     """
     return pd.DataFrame(
         {
@@ -89,7 +89,7 @@ def curr_gain_1() -> pd.DataFrame:
     """Test random buys and sells 1.
 
     Returns:
-        Dataframe with curr_abs_gain_asset and curr_perc_gain_asset.
+        Dataframe with absolute and percentual current gain.
     """
     return pd.DataFrame(
         {
@@ -113,7 +113,7 @@ def curr_gain_2() -> pd.DataFrame:
     """Test random buys and sells 2.
 
     Returns:
-        Dataframe with curr_abs_gain_asset and curr_perc_gain_asset.
+        Dataframe with absolute and percentual current gain.
     """
     return pd.DataFrame(
         {
@@ -138,7 +138,7 @@ def curr_gain_3() -> pd.DataFrame:
     """Test complete buys and sells of the same position.
 
     Returns:
-        Dataframe with curr_abs_gain_asset and curr_perc_gain_asset.
+        Dataframe with absolute and percentual current gain.
     """
     return pd.DataFrame(
         {
