@@ -9,7 +9,7 @@ from stock_portfolio_tracker.modelling._modelling_benchmark import _simulate_ben
 
 
 @pytest.fixture
-def df_1() -> pd.DataFrame:
+def portfolio_model_1() -> pd.DataFrame:
     """Test _simulate_benchmark_proportional() with random data.
 
     Returns:
@@ -41,7 +41,7 @@ def df_1() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_2() -> pd.DataFrame:
+def portfolio_model_2() -> pd.DataFrame:
     """Test _simulate_benchmark_proportional() with transaction on split day.
 
     Returns:
@@ -73,7 +73,7 @@ def df_2() -> pd.DataFrame:
 
 
 @pytest.fixture
-def df_3() -> pd.DataFrame:
+def portfolio_model_3() -> pd.DataFrame:
     """Test _simulate_benchmark_proportional() with random data.
 
     Returns:
@@ -207,27 +207,27 @@ def benchmark_proportional_3() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize(
-    ("df", "benchmark_proportional"),
+    ("portfolio_model", "benchmark_proportional"),
     [
-        ("df_1", "benchmark_proportional_1"),
-        ("df_2", "benchmark_proportional_2"),
-        ("df_3", "benchmark_proportional_3"),
+        ("portfolio_model_1", "benchmark_proportional_1"),
+        ("portfolio_model_2", "benchmark_proportional_2"),
+        ("portfolio_model_3", "benchmark_proportional_3"),
     ],
 )
 def test_simulate_benchmark_proportional(
-    df: str,
+    portfolio_model: str,
     benchmark_proportional: str,
     request: FixtureRequest,
 ) -> None:
     """Test _simulate_benchmark_proportional().
 
     Args:
-        df: Input dataframe.
+        portfolio_model: Input dataframe.
         benchmark_proportional: Output dataframe.
         request: FixtureRequest.
     """
     assert_frame_equal(
-        _simulate_benchmark_proportional(request.getfixturevalue(df)),
+        _simulate_benchmark_proportional(request.getfixturevalue(portfolio_model)),
         request.getfixturevalue(benchmark_proportional),
         rtol=1e-7,
         atol=1e-8,

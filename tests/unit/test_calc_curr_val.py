@@ -139,7 +139,7 @@ def test_calc_curr_val(
     curr_val: str,
     request: FixtureRequest,
 ) -> None:
-    """Test calc_curr_val.
+    """Test calc_curr_val().
 
     Args:
         portfolio_model: Input dataframe.

@@ -133,7 +133,7 @@ def test_calc_curr_qty(
     curr_qty: str,
     request: FixtureRequest,
 ) -> None:
-    """Test calc_curr_qty.
+    """Test calc_curr_qty().
 
     Args:
         portfolio_model: Input portfolio_model.

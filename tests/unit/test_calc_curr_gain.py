@@ -171,7 +171,7 @@ def test_calc_curr_gain(
     curr_gain: str,
     request: FixtureRequest,
 ) -> None:
-    """Test calc_curr_gain.
+    """Test calc_curr_gain().
 
     Args:
         portfolio_model: Input portfolio_model.
