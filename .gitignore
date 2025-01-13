@@ -21,3 +21,4 @@ __pycache__/
 !/data/in/example_transactions.csv
 /data/out/*
 !/data/out/.gitkeep
+tests/integration/artifacts/*
