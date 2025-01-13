@@ -2,4 +2,4 @@
 
 from ._exceptions import UnsortedError, YahooFinanceError
 
-__all__ = ["YahooFinanceError", "UnsortedError"]
+__all__ = ["UnsortedError", "YahooFinanceError"]

@@ -130,7 +130,7 @@ def _plot_asset_distribution(
         startangle=90,
         colors=plt.cm.Paired(range(len(tickers))),  # type: ignore
         counterclock=False,
-        autopct=lambda pct: f"{pct:.1f}%\n{(pct/100 * sum(asset_distribution['curr_val_asset']) / 1000):.1f}k",  # noqa: E501
+        autopct=lambda pct: f"{pct:.1f}%\n{(pct / 100 * sum(asset_distribution['curr_val_asset']) / 1000):.1f}k",  # noqa: E501
         wedgeprops={"width": 0.3},
     )
 

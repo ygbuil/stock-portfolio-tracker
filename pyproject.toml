@@ -11,9 +11,6 @@ dependencies = [
     "matplotlib>=3.9.0",
     "loguru>=0.7.2",
     "click>=8.1.7",
-    "pre-commit>=3.7.1",
-    "ruff>=0.4.6",
-    "pytest>=8.2.2",
 ]
 
 [project.scripts]
@@ -32,3 +29,10 @@ lint.ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.0.1",
+    "pytest>=8.3.4",
+    "ruff>=0.9.1",
+]
