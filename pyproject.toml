@@ -3,13 +3,12 @@ name = "stock-portfolio-tracker"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.13"
 dependencies = [
     "requests>=2.32.2",
     "pandas>=2.2.2",
     "yfinance>=0.2.40",
     "pandas-datareader>=0.10.0",
-    "python-dotenv>=1.0.1",
     "matplotlib>=3.9.0",
     "loguru>=0.7.2",
     "click>=8.1.7",
