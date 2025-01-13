@@ -572,7 +572,6 @@ dependencies = [
     { name = "loguru" },
     { name = "matplotlib" },
     { name = "pandas" },
-    { name = "requests" },
     { name = "yfinance" },
 ]
 
@@ -589,7 +588,6 @@ requires-dist = [
     { name = "loguru", specifier = ">=0.7.2" },
     { name = "matplotlib", specifier = ">=3.9.0" },
     { name = "pandas", specifier = ">=2.2.2" },
-    { name = "requests", specifier = ">=2.32.2" },
     { name = "yfinance", specifier = ">=0.2.40" },
 ]
 
