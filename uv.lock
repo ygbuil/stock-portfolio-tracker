@@ -377,20 +377,6 @@ wheels = [
 ]
 
 [[package]]
-name = "pandas-datareader"
-version = "0.10.0"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "lxml" },
-    { name = "pandas" },
-    { name = "requests" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/cf/94/b0363da3981da77d3ec7990e89006e4d4f71fd71a82290ce5c85540a7019/pandas-datareader-0.10.0.tar.gz", hash = "sha256:9fc3c63d39bc0c10c2683f1c6d503ff625020383e38f6cbe14134826b454d5a6", size = 95477 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/3f/16/56c9d648b503619ebe96f726b5f642b68e299b34162ed2d6faa9d7966b7d/pandas_datareader-0.10.0-py3-none-any.whl", hash = "sha256:0b95ff3635bc3ee1a6073521b557ab0e3c39d219f4a3b720b6b0bc6e8cdb4bb7", size = 109460 },
-]
-
-[[package]]
 name = "peewee"
 version = "3.17.8"
 source = { registry = "https://pypi.org/simple" }
@@ -586,7 +572,6 @@ dependencies = [
     { name = "loguru" },
     { name = "matplotlib" },
     { name = "pandas" },
-    { name = "pandas-datareader" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "requests" },
@@ -600,7 +585,6 @@ requires-dist = [
     { name = "loguru", specifier = ">=0.7.2" },
     { name = "matplotlib", specifier = ">=3.9.0" },
     { name = "pandas", specifier = ">=2.2.2" },
-    { name = "pandas-datareader", specifier = ">=0.10.0" },
     { name = "pre-commit", specifier = ">=3.7.1" },
     { name = "pytest", specifier = ">=8.2.2" },
     { name = "requests", specifier = ">=2.32.2" },
