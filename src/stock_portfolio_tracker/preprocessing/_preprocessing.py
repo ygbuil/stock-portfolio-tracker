@@ -5,7 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import yfinance as yf
+import yfinance as yf  # type: ignore
 from loguru import logger
 
 from stock_portfolio_tracker import utils
@@ -171,7 +171,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
 def _load_currency_exchange(
     portfolio_data: PortfolioData,
     local_currency: str,
-    sorting_columns: list[dict],  # noqa: ARG001
+    sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Load currency exchange data from Yahoo Finance.
 
@@ -209,7 +209,7 @@ def _load_currency_exchange(
 
         if origin_currency != local_currency:
             try:
-                currency_exchange = (
+                currency_exchange: pd.DataFrame = (
                     yf.Ticker(ticker)
                     .history(start=portfolio_data.start_date)[["Close"]]
                     .sort_index(ascending=False)
@@ -239,7 +239,7 @@ def _load_currency_exchange(
         local_currency,
     }
 
-    currency_exchanges = utils.multithreader(
+    currency_exchanges: list[pd.DataFrame] = utils.multithreader(
         _multithreader_helper, [(origin_currency,) for origin_currency in portfolio_currencies]
     )
 
@@ -253,7 +253,7 @@ def _load_ticker_data(
     end_date: pd.Timestamp,
     currency_exchange: pd.DataFrame,
     position_type: str,
-    sorting_columns: list[dict],  # noqa: ARG001
+    sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Load historical prices and stock splits for all assets in you portfolio, converted to your
     portfolio currency.
@@ -269,11 +269,13 @@ def _load_ticker_data(
     Returns:
         Dataframe with all historical prices and stock splits.
     """
-    asset_data = utils.multithreader(
-        _load_prices_and_dividends, [(ticker, start_date, end_date) for ticker in tickers]
+    asset_data = pd.concat(
+        utils.multithreader(
+            _load_prices_and_dividends, [(ticker, start_date, end_date) for ticker in tickers]
+        )
     )
 
-    asset_data = pd.concat(asset_data).merge(
+    asset_data = asset_data.merge(
         currency_exchange,
         "left",
         left_on=["date", "origin_currency"],
@@ -292,7 +294,7 @@ def _load_ticker_data(
         f"close_unadj_local_currency_dividends_{position_type}",
     )
 
-    return asset_data.rename(
+    return asset_data.rename(  # type: ignore
         columns={
             "ticker": f"ticker_{position_type}",
             "split": f"split_{position_type}",
@@ -332,7 +334,7 @@ def _load_prices_and_dividends(
     logger.info(f"Loading historical data for {ticker}")
     try:
         asset = yf.Ticker(ticker)
-        asset_data = (
+        asset_data: pd.DataFrame = (
             asset.history(start=start_date)[["Close", "Stock Splits", "Dividends"]]
             .sort_index(ascending=False)
             .reset_index()

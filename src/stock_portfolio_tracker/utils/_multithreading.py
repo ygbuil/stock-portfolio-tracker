@@ -5,7 +5,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any
 
 
-def multithreader(func: Callable, args: list[tuple]) -> list[Any]:
+def multithreader(func: Callable[..., Any], args: list[tuple[Any, ...]]) -> list[Any]:
     """Spawns multiple threads in parallel, efective for I/O bound operations such as API calls.
 
     Args:

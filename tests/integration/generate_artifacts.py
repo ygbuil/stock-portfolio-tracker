@@ -2,6 +2,7 @@
 
 import pickle
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 
@@ -83,7 +84,7 @@ def _delete_current_artifacts(directory: Path) -> None:
             logger.info(f"Deleted: {file_path}")
 
 
-def _save_artifacts(artifacts: dict) -> None:
+def _save_artifacts(artifacts: dict[str, Any]) -> None:
     """Save artifacts.
 
     Args:

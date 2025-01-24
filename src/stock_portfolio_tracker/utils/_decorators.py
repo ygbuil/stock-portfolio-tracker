@@ -8,11 +8,11 @@ import pandas as pd
 from loguru import logger
 
 
-def sort_at_end() -> Callable:
+def sort_at_end() -> Callable[..., Any]:
     """Sort the output dataframe of functions."""
 
-    def decorator(func: Callable) -> Callable:
-        def wrapper(*args, **kwargs) -> pd.DataFrame | list[pd.DataFrame]:
+    def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        def wrapper(*args: Any, **kwargs: Any) -> pd.DataFrame | list[pd.DataFrame]:
             sorting_columns = kwargs["sorting_columns"]
             dfs = func(*args, **kwargs)
 
@@ -38,10 +38,10 @@ def sort_at_end() -> Callable:
     return decorator
 
 
-def timer(func: Callable) -> Callable:
+def timer(func: Callable[..., Any]) -> Callable[..., Any]:
     """Count the time a function takes to execute."""
 
-    def wrapper(*args, **kwargs) -> Any:
+    def wrapper(*args: Any, **kwargs: Any) -> Any:
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()

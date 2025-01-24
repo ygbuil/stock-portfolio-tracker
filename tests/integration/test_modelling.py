@@ -2,6 +2,7 @@
 
 import pickle
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 
@@ -43,7 +44,7 @@ def test_modelling() -> None:
     )
 
 
-def _read_artifacts(artifact_names: list[str]) -> list:
+def _read_artifacts(artifact_names: list[str]) -> list[Any]:
     """Read saved artifacts.
 
     Args:

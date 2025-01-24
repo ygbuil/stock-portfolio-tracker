@@ -18,6 +18,6 @@ class PortfolioData:
     """Portfolio data."""
 
     transactions: pd.DataFrame
-    assets_info: dict
+    assets_info: dict[str, dict[str, str]]
     start_date: pd.Timestamp
     end_date: pd.Timestamp

@@ -11,7 +11,7 @@ from . import _utils as utils
 def model_benchmark_absolute(
     portfolio_data: PortfolioData,
     benchmark_prices: pd.DataFrame,
-    sorting_columns: list[dict],  # noqa: ARG001
+    sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Model the benchmark as if the same transaction value purchased of an asset of the portfolio
     was purchased of the benchmark (in absoulte value). Under these simulation assumptions, the
@@ -73,7 +73,7 @@ def model_benchmark_absolute(
 def model_benchmark_proportional(
     portfolio_model: pd.DataFrame,
     benchmark_prices: pd.DataFrame,
-    sorting_columns: list[dict],  # noqa: ARG001
+    sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Compare individual asset performance against the benchmark proportionally, as explained in
     _simulate_benchmark_proportional().

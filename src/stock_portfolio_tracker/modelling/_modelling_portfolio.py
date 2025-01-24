@@ -11,7 +11,7 @@ def model_portfolio(
     portfolio_data: PortfolioData,
     asset_prices: pd.DataFrame,
     asset_dividends: pd.DataFrame,
-    sorting_columns: list[dict],  # noqa: ARG001
+    sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Caclulates the following metrics for the assets:
     - For the overall portfolio, on a daily basis:
@@ -183,7 +183,10 @@ def _calc_dividends(asset_dividends: pd.DataFrame) -> tuple[pd.DataFrame, pd.Dat
 
 
 @sort_at_end()
-def _calc_val_evol(portfolio_model: pd.DataFrame, sorting_columns: list[dict]) -> pd.DataFrame:  # noqa: ARG001
+def _calc_val_evol(
+    portfolio_model: pd.DataFrame,
+    sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
+) -> pd.DataFrame:
     """Calculate total daily value of the portfolio based on all the assets.
 
     Args:

@@ -13,6 +13,12 @@ repos:
         pass_filenames: false
         language: system
         stages: [pre-commit]
+      - id: mypy-type-checker
+        name: Mypy type checker
+        entry: uv run mypy . --strict
+        pass_filenames: false
+        language: system
+        stages: [pre-commit]
       - id: check-lock
         name: Check lock up to date
         entry: uv lock --locked

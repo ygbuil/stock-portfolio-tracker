@@ -42,7 +42,7 @@ def calc_curr_qty(
 def calc_curr_val(
     df: pd.DataFrame,
     position_type: str,
-    sorting_columns: list[dict],  # noqa: ARG001
+    sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Calculate the daily total value of the asset.
 
@@ -66,7 +66,7 @@ def calc_curr_val(
 def calc_curr_gain(
     df: pd.DataFrame,
     position_type: str,
-    sorting_columns: list[dict],  # noqa: ARG001
+    sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Calculate or the overall portfolio, on a daily basis:
         - Absoulte gain since start.
