@@ -10,8 +10,6 @@ dependencies = [
     "matplotlib>=3.9.0",
     "loguru>=0.7.2",
     "click>=8.1.7",
-    "mypy>=1.14.1",
-    "pandas-stubs>=2.2.3.241126",
 ]
 
 [project.scripts]
@@ -33,6 +31,8 @@ convention = "google"
 
 [dependency-groups]
 dev = [
+    "mypy>=1.14.1",
+    "pandas-stubs>=2.2.3.241126",
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",
     "ruff>=0.9.1",

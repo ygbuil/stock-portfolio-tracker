@@ -612,14 +612,14 @@ dependencies = [
     { name = "click" },
     { name = "loguru" },
     { name = "matplotlib" },
-    { name = "mypy" },
     { name = "pandas" },
-    { name = "pandas-stubs" },
     { name = "yfinance" },
 ]
 
 [package.dev-dependencies]
 dev = [
+    { name = "mypy" },
+    { name = "pandas-stubs" },
     { name = "pre-commit" },
     { name = "pytest" },
     { name = "ruff" },
@@ -630,14 +630,14 @@ requires-dist = [
     { name = "click", specifier = ">=8.1.7" },
     { name = "loguru", specifier = ">=0.7.2" },
     { name = "matplotlib", specifier = ">=3.9.0" },
-    { name = "mypy", specifier = ">=1.14.1" },
     { name = "pandas", specifier = ">=2.2.2" },
-    { name = "pandas-stubs", specifier = ">=2.2.3.241126" },
     { name = "yfinance", specifier = ">=0.2.40" },
 ]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "mypy", specifier = ">=1.14.1" },
+    { name = "pandas-stubs", specifier = ">=2.2.3.241126" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pytest", specifier = ">=8.3.4" },
     { name = "ruff", specifier = ">=0.9.1" },
