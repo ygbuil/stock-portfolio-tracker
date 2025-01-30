@@ -67,8 +67,8 @@ def model_data(
     assets_vs_benchmark = modelling_benchmark.model_benchmark_proportional(
         portfolio_model,
         benchmark_prices,
-        sorting_columns=[{"columns": ["curr_perc_gain_asset"], "ascending": [False]}],
-    )
+        sorting_columns=[{"columns": ["diff"], "ascending": [False]}],
+    ).drop(columns=["diff"])
 
     logger.info("End of modelling.")
 

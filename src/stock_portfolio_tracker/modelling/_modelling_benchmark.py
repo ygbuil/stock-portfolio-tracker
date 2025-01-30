@@ -150,7 +150,10 @@ def model_benchmark_proportional(
             percent_gain_benchmark.iloc[0]["curr_perc_gain_benchmark"],
         ]
 
-    return assets_vs_benchmark
+    return assets_vs_benchmark.assign(
+        diff=assets_vs_benchmark["curr_perc_gain_asset"]
+        - assets_vs_benchmark["curr_perc_gain_benchmark"]
+    )
 
 
 def _simulate_benchmark_absolute(
