@@ -27,7 +27,7 @@ To use the project, follow these steps:
      - `benchmark_ticker`: Ticker to benchmark your portfolio against, as listed in Yahoo Finance.
    
    - `transactions.csv`: Portfolio transactions in CSV format. Fields:
-     - `date`: Date of the transaction. It can be in the format `DD-MM-YYYY` or `YYYY-MM-DD`.
+     - `date`: Date of the transaction. Formats accepted: `DD/MM/YYYY`, `DD-MM-YYYY`, `YYYY/MM/DD` and `YYYY-MM-DD`.
      - `transaction_type`: Type of transaction, which can be either `Purchase` or `Sale`.
      - `ticker`: Ticker symbol of the stock as listed in Yahoo Finance.
      - `trans_qty`: The amount of shares purchased/sold. It can be an integer or float in the format `1234.00`. This field is not sensitive to the sign, the code will convert it to the proper sign based on `transaction_type`.

@@ -123,7 +123,7 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
             },
         )
         .assign(
-            date=lambda df: pd.to_datetime(df["date"], format="%d-%m-%Y"),
+            date=lambda df: pd.to_datetime(df["date"].str.replace("/", "-"), format="%d-%m-%Y"),
             trans_val=lambda df: np.where(
                 df["transaction_type"] == "Sale",
                 abs(df["trans_val"]),
