@@ -113,9 +113,49 @@ def calc_curr_gain(
         .groupby("date")
         .first()
         .reset_index()
-    )[["date", f"curr_abs_gain_{position_type}", f"curr_perc_gain_{position_type}"]]
+    )[
+        [
+            "date",
+            f"curr_abs_gain_{position_type}",
+            f"curr_perc_gain_{position_type}",
+            "money_out",
+            "money_in",
+        ]
+    ]
 
     df.loc[0, f"curr_abs_gain_{position_type}"] = 0
     df.loc[0, f"curr_perc_gain_{position_type}"] = 0
 
     return df
+
+
+def calc_yearly_gain(df: pd.DataFrame) -> pd.DataFrame:
+    if not df["date"].is_monotonic_decreasing:
+        raise UnsortedError
+
+    yearly_gain = {"year": [], "abs_gain": [], "perc_gain": []}
+
+    for group in df.groupby(df["date"].dt.year, sort=False):
+        group = group[1]
+
+        (
+            money_in_end_of_period,
+            money_in_beg_of_period,
+            money_out_end_of_period,
+            money_out_beg_of_period,
+        ) = (
+            group["money_in"].iloc[0],
+            group["money_in"].iloc[-1],
+            group["money_out"].iloc[0],
+            group["money_out"].iloc[-1],
+        )
+
+        money_out_beg_of_period_with_deposits = money_in_beg_of_period + (
+            abs(money_out_end_of_period) - abs(money_out_beg_of_period)
+        )
+
+        yearly_gain["year"].append(group["date"].iloc[0].year)
+        yearly_gain["abs_gain"].append(money_in_end_of_period - money_out_beg_of_period_with_deposits)
+        yearly_gain["perc_gain"].append((money_in_end_of_period / money_out_beg_of_period_with_deposits - 1) * 100)
+
+    return pd.DataFrame(yearly_gain)

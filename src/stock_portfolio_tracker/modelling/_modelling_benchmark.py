@@ -8,7 +8,7 @@ from . import _utils as utils
 
 
 @sort_at_end()
-def model_benchmark_absolute(
+def model_benchmark(
     portfolio_data: PortfolioData,
     benchmark_prices: pd.DataFrame,
     sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
@@ -49,7 +49,7 @@ def model_benchmark_absolute(
         .assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
     )
 
-    benchmark_gain_evolution = utils.calc_curr_gain(
+    benchmark_gains = utils.calc_curr_gain(
         benchmark_val_evolution_abs[["date", "ticker_benchmark", "curr_val_benchmark"]]
         .merge(
             portfolio_data.transactions[["date", "trans_val_asset"]],
@@ -62,15 +62,17 @@ def model_benchmark_absolute(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
+    benchmark_yearly_gains = utils.calc_yearly_gain(benchmark_gains)
+
     return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].merge(
-        benchmark_gain_evolution,
+        benchmark_gains.drop(columns=["money_out", "money_in"]),
         how="left",
         on=["date"],
     )
 
 
 @sort_at_end()
-def model_benchmark_proportional(
+def model_assets_vs_benchmark(
     portfolio_model: pd.DataFrame,
     benchmark_prices: pd.DataFrame,
     sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
@@ -136,13 +138,13 @@ def model_benchmark_proportional(
             group,
             "benchmark",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
-        )
+        ).drop(columns=["money_out", "money_in"])
 
         percent_gain_asset = utils.calc_curr_gain(
             group,
             "asset",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
-        )
+        ).drop(columns=["money_out", "money_in"])
 
         assets_vs_benchmark.loc[len(assets_vs_benchmark)] = [
             group.iloc[0]["ticker_asset"],

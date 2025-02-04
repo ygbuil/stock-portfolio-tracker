@@ -68,7 +68,7 @@ def model_portfolio(
         portfolio_model, sorting_columns=[{"columns": ["date"], "ascending": [False]}]
     )
 
-    portfolio_perc_evolution = utils.calc_curr_gain(
+    portfolio_gains = utils.calc_curr_gain(
         portfolio_val_evolution.merge(
             portfolio_data.transactions[["date", "trans_val_asset"]],
             how="left",
@@ -80,6 +80,8 @@ def model_portfolio(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
+    portfolio_yearly_gains = utils.calc_yearly_gain(portfolio_gains)
+
     asset_distribution = _calc_asset_dist(
         portfolio_model,
         portfolio_data,
@@ -88,7 +90,7 @@ def model_portfolio(
 
     return (
         portfolio_val_evolution.merge(
-            portfolio_perc_evolution,
+            portfolio_gains.drop(columns=["money_out", "money_in"]),
             how="left",
             on=["date"],
         ),

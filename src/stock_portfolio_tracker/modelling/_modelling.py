@@ -53,8 +53,8 @@ def model_data(
         ],
     )
 
-    logger.info("Modelling benchmark absolute.")
-    benchmark_evolution = modelling_benchmark.model_benchmark_absolute(
+    logger.info("Modelling benchmark.")
+    benchmark_evolution = modelling_benchmark.model_benchmark(
         portfolio_data,
         benchmark_prices,
         sorting_columns=[
@@ -63,8 +63,8 @@ def model_data(
         ],
     )
 
-    logger.info("Modelling benchmark proportional.")
-    assets_vs_benchmark = modelling_benchmark.model_benchmark_proportional(
+    logger.info("Modelling assets vs benchmark.")
+    assets_vs_benchmark = modelling_benchmark.model_assets_vs_benchmark(
         portfolio_model,
         benchmark_prices,
         sorting_columns=[{"columns": ["diff"], "ascending": [False]}],
