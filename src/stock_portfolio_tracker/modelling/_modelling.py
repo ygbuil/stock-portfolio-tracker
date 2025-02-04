@@ -40,6 +40,7 @@ def model_data(
         portfolio_model,
         dividends_company,
         dividends_year,
+        portfolio_yearly_gains,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
@@ -50,16 +51,17 @@ def model_data(
             {"columns": ["ticker_asset", "date"], "ascending": [True, False]},
             {"columns": ["total_dividend_asset"], "ascending": [False]},
             {"columns": ["date"], "ascending": [True]},
+            {"columns": ["year"], "ascending": [False]},
         ],
     )
 
     logger.info("Modelling benchmark.")
-    benchmark_evolution = modelling_benchmark.model_benchmark(
+    benchmark_evolution, benchmark_yearly_gains = modelling_benchmark.model_benchmark(
         portfolio_data,
         benchmark_prices,
         sorting_columns=[
             {"columns": ["date"], "ascending": [False]},
-            {"columns": ["date"], "ascending": [False]},
+            {"columns": ["year"], "ascending": [False]},
         ],
     )
 

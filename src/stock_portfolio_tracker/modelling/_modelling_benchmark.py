@@ -68,7 +68,7 @@ def model_benchmark(
         benchmark_gains.drop(columns=["money_out", "money_in"]),
         how="left",
         on=["date"],
-    )
+    ), benchmark_yearly_gains
 
 
 @sort_at_end()

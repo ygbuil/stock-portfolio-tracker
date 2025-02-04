@@ -98,6 +98,7 @@ def model_portfolio(
         portfolio_model,
         dividends_company,
         dividends_year,
+        portfolio_yearly_gains
     )
 
 
