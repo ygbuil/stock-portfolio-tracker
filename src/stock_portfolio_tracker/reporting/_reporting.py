@@ -20,6 +20,7 @@ def generate_reports(
     assets_vs_benchmark: pd.DataFrame,
     dividends_company: pd.DataFrame,
     dividends_year: pd.DataFrame,
+    yearly_gains: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
@@ -31,6 +32,7 @@ def generate_reports(
         assets_vs_benchmark: Individual asset percetnage returns vs benchmark.
         dividends_company: Total dividends paied by company.
         dividends_year: Total dividends paied by year.
+        yearly_gains: Yearly gains.
     """
     logger.info("Plotting portfolio value evolution.")
     _plot_portfolio_value_evolution(
@@ -65,6 +67,9 @@ def generate_reports(
 
     logger.info("Plotting dividends by year.")
     _plot_dividends_year(config.portfolio_currency, dividends_year)
+
+    logger.info("Plotting yearly gains.")
+    _plot_yearly_gains(yearly_gains)
 
     logger.info("End of generate reports.")
 
@@ -395,6 +400,37 @@ def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) 
         DIR_OUT
         / Path(
             "dividends_year.png",
+        ),
+    )
+    plt.close()
+
+
+def _plot_yearly_gains(yearly_gains: pd.DataFrame) -> None:
+    """Plot yearly gains.
+
+    Args:
+        yearly_gains: Yearly gains.
+    """
+    # Create figure and axis
+    fig, ax = plt.subplots(figsize=(12, 7))
+    ax.set_axis_off()  # Hide axes
+
+    # Create table
+    yearly_gains["year"] = yearly_gains["year"].astype(str)
+
+    ax.table(
+        cellText=yearly_gains.values,  # type: ignore
+        colLabels=yearly_gains.columns,  # type: ignore
+        cellLoc="center",
+        loc="center",
+    )
+
+    # Adjust layout
+    plt.tight_layout()
+    plt.savefig(
+        DIR_OUT
+        / Path(
+            "yearly_gains.png",
         ),
     )
     plt.close()

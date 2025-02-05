@@ -49,6 +49,7 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
         assets_vs_benchmark,
         dividends_company,
         dividends_year,
+        yearly_gains,
     ) = modelling.model_data(
         portfolio_data,
         asset_prices,
@@ -65,6 +66,7 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
             "assets_vs_benchmark": assets_vs_benchmark,
             "dividends_company": dividends_company,
             "dividends_year": dividends_year,
+            "yearly_gains": yearly_gains,
         },
     )
 

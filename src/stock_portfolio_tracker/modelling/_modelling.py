@@ -21,6 +21,7 @@ def model_data(
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
+    pd.DataFrame,
 ]:
     """Calculate all necessary metrics.
 
@@ -81,4 +82,13 @@ def model_data(
         assets_vs_benchmark,
         dividends_company,
         dividends_year,
+        portfolio_yearly_gains.merge(benchmark_yearly_gains, how="left", on=["year"])[
+            [
+                "year",
+                "abs_gain_benchmark",
+                "abs_gain_portfolio",
+                "perc_gain_benchmark",
+                "perc_gain_portfolio",
+            ]
+        ],
     )
