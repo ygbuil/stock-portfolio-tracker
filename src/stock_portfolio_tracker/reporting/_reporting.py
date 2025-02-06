@@ -55,6 +55,7 @@ def generate_reports(
         benchmark_evolution,
         "perc",
     )
+    _plot_portfolio_gain_evolution_diff(portfolio_evolution, benchmark_evolution)
 
     logger.info("Plotting asset distribution.")
     _plot_asset_distribution(config, asset_distribution)
@@ -200,6 +201,43 @@ def _plot_portfolio_gain_evolution(
     plt.tight_layout()
     plt.savefig(
         DIR_OUT / Path(f"{gain_type}_gain.png"),
+    )
+    plt.close()
+
+
+def _plot_portfolio_gain_evolution_diff(
+    portfolio_evolution: pd.DataFrame,
+    benchmark_evolution: pd.DataFrame,
+) -> None:
+    """Plot portfolio gain evolution.
+
+    Args:
+        portfolio_currency: Currency of the portfolio.
+        portfolio_evolution: Portfolio value and gains evolution.
+        benchmark_evolution: Benchmark value and gains evolution.
+        gain_type: Type of gain. "perc" or "abs".
+    """
+    plt.figure(figsize=(10, 6))
+    plt.plot(
+        portfolio_evolution["date"],
+        portfolio_evolution["curr_perc_gain_portfolio"]
+        - benchmark_evolution["curr_perc_gain_benchmark"],
+        linestyle="-",
+        color="blue",
+        label=f"Current outperformance: {round(portfolio_evolution['curr_perc_gain_portfolio'].iloc[0] - benchmark_evolution['curr_perc_gain_benchmark'].iloc[0], 2)} %",  # noqa: E501
+    )
+    plt.xlabel("Date (YYYY-MM)")
+    plt.ylabel("Perc gain diff (%)")
+    plt.title(
+        f"Date ({benchmark_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
+    )
+    plt.grid(True)  # noqa: FBT003
+    plt.xticks(rotation=45)
+    plt.axhline(y=0, color="red", linestyle="--")
+    plt.legend(loc="best")
+    plt.tight_layout()
+    plt.savefig(
+        DIR_OUT / Path("perc_gain_diff.png"),
     )
     plt.close()
 
