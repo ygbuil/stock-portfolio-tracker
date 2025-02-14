@@ -224,10 +224,10 @@ def _plot_portfolio_gain_evolution_diff(
         - benchmark_evolution["curr_perc_gain_benchmark"],
         linestyle="-",
         color="blue",
-        label=f"Current outperformance: {round(portfolio_evolution['curr_perc_gain_portfolio'].iloc[0] - benchmark_evolution['curr_perc_gain_benchmark'].iloc[0], 2)} %",  # noqa: E501
+        label=f"Current outperformance: {round(portfolio_evolution['curr_perc_gain_portfolio'].iloc[0] - benchmark_evolution['curr_perc_gain_benchmark'].iloc[0], 2)} percentage points",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
-    plt.ylabel("Perc gain diff (%)")
+    plt.ylabel("Perc gain diff (percentage points)")
     plt.title(
         f"Date ({benchmark_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
