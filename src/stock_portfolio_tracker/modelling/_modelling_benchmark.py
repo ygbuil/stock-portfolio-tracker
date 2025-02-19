@@ -62,10 +62,10 @@ def model_benchmark(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    benchmark_yearly_gains = utils.calc_yearly_gain(benchmark_gains, "benchmark")
+    benchmark_yearly_gains = utils.calc_yearly_returns(benchmark_gains, "benchmark")
 
     return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].merge(
-        benchmark_gains.drop(columns=["money_out", "money_in"]),
+        benchmark_gains.drop(columns=["curr_val_benchmark", "trans_val_benchmark", "money_out", "money_in"]),
         how="left",
         on=["date"],
     ), benchmark_yearly_gains
@@ -138,13 +138,13 @@ def model_assets_vs_benchmark(
             group,
             "benchmark",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
-        ).drop(columns=["money_out", "money_in"])
+        ).drop(columns=["curr_val_benchmark", "trans_val_benchmark", "money_out", "money_in"])
 
         percent_gain_asset = utils.calc_curr_gain(
             group,
             "asset",
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
-        ).drop(columns=["money_out", "money_in"])
+        ).drop(columns=["curr_val_asset", "trans_val_asset", "money_out", "money_in"])
 
         assets_vs_benchmark.loc[len(assets_vs_benchmark)] = [
             group.iloc[0]["ticker_asset"],
