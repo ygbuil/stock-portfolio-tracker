@@ -65,7 +65,9 @@ def model_benchmark(
     benchmark_yearly_gains = utils.calc_yearly_returns(benchmark_gains, "benchmark")
 
     return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].merge(
-        benchmark_gains.drop(columns=["curr_val_benchmark", "trans_val_benchmark", "money_out", "money_in"]),
+        benchmark_gains.drop(
+            columns=["curr_val_benchmark", "trans_val_benchmark", "money_out", "money_in"]
+        ),
         how="left",
         on=["date"],
     ), benchmark_yearly_gains

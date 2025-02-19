@@ -32,7 +32,6 @@ def portfolio_model_1() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
-
 @pytest.fixture
 def twr_1() -> pd.DataFrame:
     """Test random buys and sells 1.
@@ -48,6 +47,7 @@ def twr_1() -> pd.DataFrame:
             "twr_asset": [55.52],
         }
     )
+
 
 @pytest.mark.parametrize(
     ("portfolio_model", "twr"),

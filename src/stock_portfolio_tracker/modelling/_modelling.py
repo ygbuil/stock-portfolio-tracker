@@ -87,8 +87,10 @@ def model_data(
                 "year",
                 "abs_gain_benchmark",
                 "abs_gain_portfolio",
-                "perc_gain_benchmark",
-                "perc_gain_portfolio",
+                "simple_return_benchmark",
+                "simple_return_portfolio",
+                "twr_benchmark",
+                "twr_portfolio",
             ]
         ],
     )

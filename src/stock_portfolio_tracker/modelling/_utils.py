@@ -1,6 +1,8 @@
+import math
+
 import numpy as np
 import pandas as pd
-import math
+
 from stock_portfolio_tracker.exceptions import UnsortedError
 from stock_portfolio_tracker.utils import sort_at_end
 
@@ -139,14 +141,14 @@ def calc_yearly_returns(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
 
     twr = calc_twr(df, position_type)
 
-    return simple_returns
+    return simple_returns.merge(twr, on="year", how="left")
 
 
-def calc_simple_return(df: pd.DataFrame, position_type: str) -> None:
+def calc_simple_return(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     yearly_returns: dict[str, list[float]] = {
         "year": [],
         f"abs_gain_{position_type}": [],
-        f"perc_gain_{position_type}": [],
+        f"simple_return_{position_type}": [],
     }
 
     for _, group in df.groupby(df["date"].dt.year, sort=False):
@@ -170,42 +172,42 @@ def calc_simple_return(df: pd.DataFrame, position_type: str) -> None:
         yearly_returns[f"abs_gain_{position_type}"].append(
             round(money_in_end_of_period - money_out_beg_of_period_with_deposits, 2)
         )
-        yearly_returns[f"perc_gain_{position_type}"].append(
+        yearly_returns[f"simple_return_{position_type}"].append(
             round((money_in_end_of_period / money_out_beg_of_period_with_deposits - 1) * 100, 2)
         )
 
     return pd.DataFrame(yearly_returns)
 
-def calc_twr(df: pd.DataFrame, position_type: str) -> None:
+
+def calc_twr(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     twrs: dict[str, list[float]] = {
         "year": [],
         f"twr_{position_type}": [],
     }
 
     for _, group in df.groupby(df["date"].dt.year, sort=False):
-
         returns_period = []
-        
-        trans_val, curr_val = list(reversed(group[f"trans_val_{position_type}"].values)), list(reversed(group[f"curr_val_{position_type}"].values))
+
+        trans_val, curr_val = (
+            list(reversed(group[f"trans_val_{position_type}"].values)),
+            list(reversed(group[f"curr_val_{position_type}"].values)),
+        )
 
         for i in range(len(trans_val)):
             # if first day
             if i == 0:
-                init_val = curr_val[i]      
+                init_val = curr_val[i]
             # if final day
-            elif i == len(trans_val)-1:
-                returns_period.append(curr_val[i]/init_val)
+            elif i == len(trans_val) - 1:
+                returns_period.append(curr_val[i] / init_val)
             # if transaction
             elif trans_val[i]:
-                returns_period.append(curr_val[i-1]/init_val)
+                returns_period.append(curr_val[i - 1] / init_val)
                 init_val = curr_val[i]
 
-        twr = round((float(math.prod(returns_period) - 1)*100), 2)
+        twr = round((float(math.prod(returns_period) - 1) * 100), 2)
 
         twrs["year"].append(group["date"].iloc[0].year)
         twrs[f"twr_{position_type}"].append(twr)
 
     return pd.DataFrame(twrs)
-
-    
-

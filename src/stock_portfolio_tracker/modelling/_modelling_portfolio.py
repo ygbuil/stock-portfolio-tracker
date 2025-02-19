@@ -90,7 +90,9 @@ def model_portfolio(
 
     return (
         portfolio_val_evolution.merge(  # type: ignore
-            portfolio_gains.drop(columns=["curr_val_portfolio", "trans_val_portfolio", "money_out", "money_in"]),
+            portfolio_gains.drop(
+                columns=["curr_val_portfolio", "trans_val_portfolio", "money_out", "money_in"]
+            ),
             how="left",
             on=["date"],
         ),

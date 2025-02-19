@@ -35,6 +35,7 @@ def test_modelling() -> None:
             "assets_vs_benchmark",
             "dividends_company",
             "dividends_year",
+            "yearly_gains",
         ],
     )
 
