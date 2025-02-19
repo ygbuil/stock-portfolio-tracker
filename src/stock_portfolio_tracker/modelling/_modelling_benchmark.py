@@ -95,6 +95,7 @@ def model_assets_vs_benchmark(
             "ticker_asset": [],
             "curr_perc_gain_asset": [],
             "curr_perc_gain_benchmark": [],
+            "position_status": [],
         },
     )
 
@@ -152,6 +153,7 @@ def model_assets_vs_benchmark(
             group.iloc[0]["ticker_asset"],
             percent_gain_asset.iloc[0]["curr_perc_gain_asset"],
             percent_gain_benchmark.iloc[0]["curr_perc_gain_benchmark"],
+            "open" if group["curr_qty_asset"].iloc[0] else "closed",
         ]
 
     return assets_vs_benchmark.assign(

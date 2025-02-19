@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
+from stock_portfolio_tracker import utils
 from stock_portfolio_tracker.utils import Config
 
 DIR_OUT = Path("/workspaces/Stock-Portfolio-Tracker/data/out/")
@@ -34,6 +35,9 @@ def generate_reports(
         dividends_year: Total dividends paied by year.
         yearly_gains: Yearly gains.
     """
+    logger.info("Cleaning current output artifacts.")
+    utils.delete_current_artifacts(DIR_OUT)
+
     logger.info("Plotting portfolio value evolution.")
     _plot_portfolio_value_evolution(
         config,
@@ -61,7 +65,8 @@ def generate_reports(
     _plot_asset_distribution(config, asset_distribution)
 
     logger.info("Plotting individual assets vs benchmark.")
-    _plot_assets_vs_benchmark(assets_vs_benchmark)
+    for position_status in ["open", "closed"]:
+        _plot_assets_vs_benchmark(assets_vs_benchmark, position_status)
 
     logger.info("Plotting dividends by company.")
     _plot_dividends_company(config.portfolio_currency, dividends_company)
@@ -111,7 +116,9 @@ def _plot_portfolio_value_evolution(
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(DIR_OUT / Path("value.png"))
+    output_path = DIR_OUT / "portfolio_evolution" / "total_value.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, bbox_inches="tight")
     plt.close()
 
 
@@ -153,10 +160,9 @@ def _plot_asset_distribution(
     ax.legend(wedges, legend_tickers, loc="center left", bbox_to_anchor=(-0.6, 0.5))
     ax.set(aspect="equal", title="Asset Distribution")
 
-    plt.savefig(
-        DIR_OUT / Path("asset_distribution.png"),
-        bbox_inches="tight",
-    )
+    output_path = DIR_OUT / "asset_distribution" / "asset_distribution.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, bbox_inches="tight")
     plt.close()
 
 
@@ -199,9 +205,9 @@ def _plot_portfolio_gain_evolution(
     plt.xticks(rotation=45)
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(
-        DIR_OUT / Path(f"{gain_type}_gain.png"),
-    )
+    output_path = DIR_OUT / "portfolio_evolution" / f"{gain_type}_gain.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, bbox_inches="tight")
     plt.close()
 
 
@@ -236,20 +242,22 @@ def _plot_portfolio_gain_evolution_diff(
     plt.axhline(y=0, color="red", linestyle="--")
     plt.legend(loc="best")
     plt.tight_layout()
-    plt.savefig(
-        DIR_OUT / Path("perc_gain_diff.png"),
-    )
+    output_path = DIR_OUT / "portfolio_evolution" / "perc_gain_diff.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, bbox_inches="tight")
     plt.close()
 
 
-def _plot_assets_vs_benchmark(
-    assets_vs_benchmark: pd.DataFrame,
-) -> None:
+def _plot_assets_vs_benchmark(assets_vs_benchmark: pd.DataFrame, position_status: str) -> None:
     """Plot assets vs benchmark.
 
     Args:
         assets_vs_benchmark: Individual asset percetnage returns vs benchmark.
+        position_status: Weather the position is open or closed.
     """
+    assets_vs_benchmark = assets_vs_benchmark[
+        assets_vs_benchmark["position_status"] == position_status
+    ]
     tickers, asset_gains, benchmark_gains = (
         assets_vs_benchmark["ticker_asset"],
         assets_vs_benchmark["curr_perc_gain_asset"],
@@ -291,7 +299,7 @@ def _plot_assets_vs_benchmark(
         plt.text(
             i,
             y_offset,
-            f"{assets_vs_benchmark['curr_perc_gain_asset'][i]:.2f}%",
+            f"{assets_vs_benchmark['curr_perc_gain_asset'].iloc[i]:.2f}%",
             ha="center",
             color="blue",
             fontweight="bold",
@@ -300,19 +308,16 @@ def _plot_assets_vs_benchmark(
         plt.text(
             i + bar_width,
             y_offset,
-            f"{assets_vs_benchmark['curr_perc_gain_benchmark'][i]:.2f}%",
+            f"{assets_vs_benchmark['curr_perc_gain_benchmark'].iloc[i]:.2f}%",
             ha="center",
             color="orange",
             fontweight="bold",
             rotation=40,
         )
 
-    plt.savefig(
-        DIR_OUT
-        / Path(
-            "assets_vs_benchmark.png",
-        ),
-    )
+    output_path = DIR_OUT / "assets_vs_benchmark" / f"assets_vs_benchmark_{position_status}.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
     plt.close()
 
 
@@ -372,12 +377,9 @@ def _plot_dividends_company(
             rotation=0,
         )
 
-    plt.savefig(
-        DIR_OUT
-        / Path(
-            "dividends_company.png",
-        ),
-    )
+    output_path = DIR_OUT / "dividends" / "dividends_by_company.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
     plt.close()
 
 
@@ -434,12 +436,9 @@ def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) 
             rotation=0,
         )
 
-    plt.savefig(
-        DIR_OUT
-        / Path(
-            "dividends_year.png",
-        ),
-    )
+    output_path = DIR_OUT / "dividends" / "dividends_by_year.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path)
     plt.close()
 
 
@@ -465,10 +464,7 @@ def _plot_yearly_gains(yearly_gains: pd.DataFrame) -> None:
 
     # Adjust layout
     plt.tight_layout()
-    plt.savefig(
-        DIR_OUT
-        / Path(
-            "yearly_gains.png",
-        ),
-    )
+    output_path = DIR_OUT / "yearly_metrics" / "returns.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, bbox_inches="tight")
     plt.close()

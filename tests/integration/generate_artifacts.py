@@ -6,7 +6,7 @@ from typing import Any
 
 from loguru import logger
 
-from stock_portfolio_tracker import modelling, preprocessing
+from stock_portfolio_tracker import modelling, preprocessing, utils
 
 ARTIFACTS_PATH = Path("tests/integration/artifacts")
 
@@ -20,7 +20,7 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
         transactions_file_name: File name for transactions.
     """
     logger.info("Start of execution.")
-    _delete_current_artifacts(ARTIFACTS_PATH)
+    utils.delete_current_artifacts(ARTIFACTS_PATH)
 
     logger.info("Start of preprocess.")
     config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
@@ -71,19 +71,6 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
     )
 
     logger.info("End of execution.")
-
-
-def _delete_current_artifacts(directory: Path) -> None:
-    """Delete all artifacts in the specified directory except for `.gitkeep` files.
-
-    Args:
-        directory: The path to the directory where files should be deleted.
-    """
-    logger.info("Deleting existing artifacts.")
-    for file_path in directory.iterdir():
-        if file_path.name != ".gitkeep" and file_path.is_file():
-            file_path.unlink()
-            logger.info(f"Deleted: {file_path}")
 
 
 def _save_artifacts(artifacts: dict[str, Any]) -> None:
