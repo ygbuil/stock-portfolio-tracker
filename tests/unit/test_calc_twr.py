@@ -67,7 +67,6 @@ def test_calc_twr(
         twr: Resulting dataframe with the percent gain.
         request: FixtureRequest.
     """
-    assert utils.calc_twr(
-        request.getfixturevalue(portfolio_model),
-        "asset",
-    ).equals(request.getfixturevalue(twr))
+    assert utils.calc_twr(request.getfixturevalue(portfolio_model), "asset", "yearly").equals(
+        request.getfixturevalue(twr)
+    )

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from stock_portfolio_tracker.exceptions import UnsortedError
-from stock_portfolio_tracker.utils import sort_at_end
+from stock_portfolio_tracker.utils import TwrFreq, sort_at_end
 
 
 def calc_curr_qty(
@@ -139,7 +139,7 @@ def calc_yearly_returns(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
 
     simple_returns = calc_simple_return(df, position_type)
 
-    twr = calc_twr(df, position_type)
+    twr = calc_twr(df, position_type, "yearly")
 
     return simple_returns.merge(twr, on="year", how="left")
 
@@ -179,13 +179,15 @@ def calc_simple_return(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     return pd.DataFrame(yearly_returns)
 
 
-def calc_twr(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
+def calc_twr(df: pd.DataFrame, position_type: str, freq: str) -> pd.DataFrame:
     twrs: dict[str, list[float]] = {
         "year": [],
         f"twr_{position_type}": [],
     }
 
-    for _, group in df.groupby(df["date"].dt.year, sort=False):
+    for _, group in (
+        df.groupby(df["date"].dt.year, sort=False) if freq == TwrFreq.YEARLY.value else [(None, df)]
+    ):
         returns_period = []
 
         trans_val, curr_val = (
