@@ -5,6 +5,7 @@ import pytest
 from pytest import FixtureRequest  # noqa: PT013
 
 import stock_portfolio_tracker.modelling._utils as utils
+from stock_portfolio_tracker.utils import PositionType
 
 
 @pytest.fixture
@@ -148,6 +149,6 @@ def test_calc_curr_val(
     """
     assert utils.calc_curr_val(
         request.getfixturevalue(portfolio_model),
-        "asset",
+        PositionType.ASSET,
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     ).equals(request.getfixturevalue(curr_val))

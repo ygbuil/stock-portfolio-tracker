@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from stock_portfolio_tracker.exceptions import UnsortedError
-from stock_portfolio_tracker.utils import PortfolioData, sort_at_end
+from stock_portfolio_tracker.utils import PortfolioData, PositionType, sort_at_end
 
 from . import _utils as utils
 
@@ -31,12 +31,12 @@ def model_benchmark(
 
     benchmark_val_evolution_abs = utils.calc_curr_qty(
         benchmark_val_evolution_abs,
-        "benchmark",
+        PositionType.BENCHMARK,
     )
 
     benchmark_val_evolution_abs = utils.calc_curr_val(
         benchmark_val_evolution_abs,
-        "benchmark",
+        PositionType.BENCHMARK,
         sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
     )
 
@@ -58,11 +58,11 @@ def model_benchmark(
         )
         .assign(trans_val_asset=lambda df: df["trans_val_asset"].fillna(0))
         .rename(columns={"trans_val_asset": "trans_val_benchmark"}),
-        "benchmark",
+        PositionType.BENCHMARK,
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    benchmark_yearly_gains = utils.calc_yearly_returns(benchmark_gains, "benchmark")
+    benchmark_yearly_gains = utils.calc_yearly_returns(benchmark_gains, PositionType.BENCHMARK)
 
     return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].merge(
         benchmark_gains.drop(
@@ -128,24 +128,24 @@ def model_assets_vs_benchmark(
 
         group = utils.calc_curr_qty(  # noqa: PLW2901
             group,
-            "benchmark",
+            PositionType.BENCHMARK,
         )
 
         group = utils.calc_curr_val(  # noqa: PLW2901
             group,
-            "benchmark",
+            PositionType.BENCHMARK,
             sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
         )
 
         percent_gain_benchmark = utils.calc_curr_gain(
             group,
-            "benchmark",
+            PositionType.BENCHMARK,
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         ).drop(columns=["curr_val_benchmark", "trans_val_benchmark", "money_out", "money_in"])
 
         percent_gain_asset = utils.calc_curr_gain(
             group,
-            "asset",
+            PositionType.ASSET,
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         ).drop(columns=["curr_val_asset", "trans_val_asset", "money_out", "money_in"])
 

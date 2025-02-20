@@ -1,7 +1,7 @@
 import pandas as pd
 
 from stock_portfolio_tracker.exceptions import UnsortedError
-from stock_portfolio_tracker.utils import PortfolioData, sort_at_end
+from stock_portfolio_tracker.utils import PortfolioData, PositionType, sort_at_end
 
 from . import _utils as utils
 
@@ -34,7 +34,7 @@ def model_portfolio(
     """
     portfolio_model = pd.concat(
         [
-            utils.calc_curr_qty(group, "asset")
+            utils.calc_curr_qty(group, PositionType.ASSET)
             for _, group in (
                 asset_prices.merge(
                     portfolio_data.transactions,
@@ -60,7 +60,7 @@ def model_portfolio(
 
     portfolio_model = utils.calc_curr_val(
         portfolio_model,
-        "asset",
+        PositionType.ASSET,
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
 
@@ -76,16 +76,16 @@ def model_portfolio(
         )
         .assign(trans_val_asset=lambda df: df["trans_val_asset"].fillna(0))
         .rename(columns={"trans_val_asset": "trans_val_portfolio"}),
-        "portfolio",
+        PositionType.PORTFOLIO,
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    portfolio_yearly_gains = utils.calc_yearly_returns(portfolio_gains, "portfolio")
+    portfolio_yearly_gains = utils.calc_yearly_returns(portfolio_gains, PositionType.PORTFOLIO)
 
     asset_distribution = _calc_asset_dist(
         portfolio_model,
         portfolio_data,
-        "asset",
+        PositionType.ASSET,
     )
 
     return (
@@ -107,7 +107,7 @@ def model_portfolio(
 def _calc_asset_dist(
     portfolio_model: pd.DataFrame,
     portfolio_data: PortfolioData,
-    position_type: str,
+    position_type: PositionType,
 ) -> pd.DataFrame:
     """Calculate the percentage in size each asset represents to the overall portfolio as well as
     the value of each asset, both at end date.
@@ -123,9 +123,9 @@ def _calc_asset_dist(
     asset_distribution = portfolio_model[portfolio_model["date"] == portfolio_data.end_date][
         [
             "date",
-            f"ticker_{position_type}",
-            f"curr_qty_{position_type}",
-            f"curr_val_{position_type}",
+            f"ticker_{position_type.value}",
+            f"curr_qty_{position_type.value}",
+            f"curr_val_{position_type.value}",
         ]
     ].reset_index(
         drop=True,
@@ -135,19 +135,19 @@ def _calc_asset_dist(
         asset_distribution[asset_distribution["curr_qty_asset"] != 0]
         .assign(
             percent=round(
-                asset_distribution[f"curr_val_{position_type}"]
-                / asset_distribution[f"curr_val_{position_type}"].sum()
+                asset_distribution[f"curr_val_{position_type.value}"]
+                / asset_distribution[f"curr_val_{position_type.value}"].sum()
                 * 100,
                 2,
             ),
             **{
-                f"curr_val_{position_type}": round(
-                    asset_distribution[f"curr_val_{position_type}"],
+                f"curr_val_{position_type.value}": round(
+                    asset_distribution[f"curr_val_{position_type.value}"],
                     2,
                 ),
             },
         )
-        .sort_values([f"curr_val_{position_type}"], ascending=False)
+        .sort_values([f"curr_val_{position_type.value}"], ascending=False)
         .reset_index(drop=True)
     )
 

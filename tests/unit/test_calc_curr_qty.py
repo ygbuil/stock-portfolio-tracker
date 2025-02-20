@@ -5,6 +5,7 @@ import pytest
 from pytest import FixtureRequest  # noqa: PT013
 
 import stock_portfolio_tracker.modelling._utils as utils
+from stock_portfolio_tracker.utils import PositionType
 
 
 @pytest.fixture
@@ -142,5 +143,5 @@ def test_calc_curr_qty(
     """
     assert utils.calc_curr_qty(
         request.getfixturevalue(portfolio_model),
-        "asset",
+        PositionType.ASSET,
     ).equals(request.getfixturevalue(curr_qty))

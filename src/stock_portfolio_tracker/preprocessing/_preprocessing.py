@@ -10,7 +10,7 @@ from loguru import logger
 
 from stock_portfolio_tracker import utils
 from stock_portfolio_tracker.exceptions import YahooFinanceError
-from stock_portfolio_tracker.utils import Config, PortfolioData, sort_at_end
+from stock_portfolio_tracker.utils import Config, PortfolioData, PositionType, sort_at_end
 
 DIR_IN = Path("/workspaces/Stock-Portfolio-Tracker/data/in/")
 
@@ -48,7 +48,7 @@ def preprocess(
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
-        "asset",
+        PositionType.ASSET,
         sorting_columns=[{"columns": ["ticker_asset", "date"], "ascending": [True, False]}],
     )
     benchmark_data = _load_ticker_data(
@@ -56,7 +56,7 @@ def preprocess(
         portfolio_data.start_date,
         portfolio_data.end_date,
         currency_exchanges,
-        "benchmark",
+        PositionType.BENCHMARK,
         sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
     )
 
@@ -252,7 +252,7 @@ def _load_ticker_data(
     start_date: pd.Timestamp,
     end_date: pd.Timestamp,
     currency_exchange: pd.DataFrame,
-    position_type: str,
+    position_type: PositionType,
     sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Load historical prices and stock splits for all assets in you portfolio, converted to your
@@ -285,27 +285,27 @@ def _load_ticker_data(
     asset_data = _convert_to_local_currency(
         asset_data,
         "close_unadj_origin_currency",
-        f"close_unadj_local_currency_{position_type}",
+        f"close_unadj_local_currency_{position_type.value}",
     )
 
     asset_data = _convert_to_local_currency(
         asset_data,
         "close_unadj_origin_currency_dividends",
-        f"close_unadj_local_currency_dividends_{position_type}",
+        f"close_unadj_local_currency_dividends_{position_type.value}",
     )
 
     return asset_data.rename(  # type: ignore
         columns={
-            "ticker": f"ticker_{position_type}",
-            "split": f"split_{position_type}",
+            "ticker": f"ticker_{position_type.value}",
+            "split": f"split_{position_type.value}",
         },
     )[
         [
             "date",
-            f"ticker_{position_type}",
-            f"split_{position_type}",
-            f"close_unadj_local_currency_{position_type}",
-            f"close_unadj_local_currency_dividends_{position_type}",
+            f"ticker_{position_type.value}",
+            f"split_{position_type.value}",
+            f"close_unadj_local_currency_{position_type.value}",
+            f"close_unadj_local_currency_dividends_{position_type.value}",
         ]
     ]
 

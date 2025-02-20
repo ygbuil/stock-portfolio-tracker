@@ -4,12 +4,12 @@ import numpy as np
 import pandas as pd
 
 from stock_portfolio_tracker.exceptions import UnsortedError
-from stock_portfolio_tracker.utils import TwrFreq, sort_at_end
+from stock_portfolio_tracker.utils import PositionType, TwrFreq, sort_at_end
 
 
 def calc_curr_qty(
     df: pd.DataFrame,
-    position_type: str,
+    position_type: PositionType,
 ) -> pd.DataFrame:
     """Calculate the daily quantity of share for an asset based on the buy / sale transactions and
     the stock splits.
@@ -28,8 +28,8 @@ def calc_curr_qty(
         raise UnsortedError
 
     trans_qty, split = (
-        df[f"trans_qty_{position_type}"].to_numpy(),
-        df[f"split_{position_type}"].to_numpy(),
+        df[f"trans_qty_{position_type.value}"].to_numpy(),
+        df[f"split_{position_type.value}"].to_numpy(),
     )
 
     curr_qty = np.zeros(df_len := len(trans_qty), dtype=np.float64)
@@ -37,13 +37,13 @@ def calc_curr_qty(
     for i in range(df_len):
         curr_qty[~i] = trans_qty[~i] + (0 if i == 0 else curr_qty[~i + 1] * split[~i])
 
-    return df.assign(**{f"curr_qty_{position_type}": curr_qty})
+    return df.assign(**{f"curr_qty_{position_type.value}": curr_qty})
 
 
 @sort_at_end()
 def calc_curr_val(
     df: pd.DataFrame,
-    position_type: str,
+    position_type: PositionType,
     sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Calculate the daily total value of the asset.
@@ -58,8 +58,8 @@ def calc_curr_val(
     """
     return df.assign(
         **{
-            f"curr_val_{position_type}": df[f"curr_qty_{position_type}"]
-            * df[f"close_unadj_local_currency_{position_type}"],
+            f"curr_val_{position_type.value}": df[f"curr_qty_{position_type.value}"]
+            * df[f"close_unadj_local_currency_{position_type.value}"],
         },
     )
 
@@ -67,7 +67,7 @@ def calc_curr_val(
 @sort_at_end()
 def calc_curr_gain(
     df: pd.DataFrame,
-    position_type: str,
+    position_type: PositionType,
     sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
     """Calculate or the overall portfolio, on a daily basis:
@@ -89,8 +89,8 @@ def calc_curr_gain(
         raise UnsortedError
 
     curr_money_in = 0
-    trans_val = df[f"trans_val_{position_type}"].to_numpy()
-    curr_val = df[f"curr_val_{position_type}"].to_numpy()
+    trans_val = df[f"trans_val_{position_type.value}"].to_numpy()
+    curr_val = df[f"curr_val_{position_type.value}"].to_numpy()
     money_in = np.zeros(df_dim := len(trans_val), dtype=np.float64)
     money_out = np.zeros(df_dim, dtype=np.float64)
 
@@ -104,9 +104,9 @@ def calc_curr_gain(
         df.assign(
             money_out=money_out,
             money_in=money_in,
-            **{f"curr_abs_gain_{position_type}": np.round(money_out + money_in, 2)},
+            **{f"curr_abs_gain_{position_type.value}": np.round(money_out + money_in, 2)},
             **{
-                f"curr_perc_gain_{position_type}": [
+                f"curr_perc_gain_{position_type.value}": [
                     round((abs(x / y) - 1) * 100, 2) if y != 0 else np.float64(0)
                     for x, y in zip(money_in, money_out, strict=False)
                 ],
@@ -118,22 +118,22 @@ def calc_curr_gain(
     )[
         [
             "date",
-            f"trans_val_{position_type}",
-            f"curr_val_{position_type}",
-            f"curr_abs_gain_{position_type}",
-            f"curr_perc_gain_{position_type}",
+            f"trans_val_{position_type.value}",
+            f"curr_val_{position_type.value}",
+            f"curr_abs_gain_{position_type.value}",
+            f"curr_perc_gain_{position_type.value}",
             "money_out",
             "money_in",
         ]
     ]
 
-    df.loc[0, f"curr_abs_gain_{position_type}"] = 0
-    df.loc[0, f"curr_perc_gain_{position_type}"] = 0
+    df.loc[0, f"curr_abs_gain_{position_type.value}"] = 0
+    df.loc[0, f"curr_perc_gain_{position_type.value}"] = 0
 
     return df
 
 
-def calc_yearly_returns(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
+def calc_yearly_returns(df: pd.DataFrame, position_type: PositionType) -> pd.DataFrame:
     if not df["date"].is_monotonic_decreasing:
         raise UnsortedError
 
@@ -144,11 +144,11 @@ def calc_yearly_returns(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     return simple_returns.merge(twr, on="year", how="left")
 
 
-def calc_simple_return(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
+def calc_simple_return(df: pd.DataFrame, position_type: PositionType) -> pd.DataFrame:
     yearly_returns: dict[str, list[float]] = {
         "year": [],
-        f"abs_gain_{position_type}": [],
-        f"simple_return_{position_type}": [],
+        f"abs_gain_{position_type.value}": [],
+        f"simple_return_{position_type.value}": [],
     }
 
     for _, group in df.groupby(df["date"].dt.year, sort=False):
@@ -169,17 +169,17 @@ def calc_simple_return(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
         )
 
         yearly_returns["year"].append(group["date"].iloc[0].year)
-        yearly_returns[f"abs_gain_{position_type}"].append(
+        yearly_returns[f"abs_gain_{position_type.value}"].append(
             round(money_in_end_of_period - money_out_beg_of_period_with_deposits, 2)
         )
-        yearly_returns[f"simple_return_{position_type}"].append(
+        yearly_returns[f"simple_return_{position_type.value}"].append(
             round((money_in_end_of_period / money_out_beg_of_period_with_deposits - 1) * 100, 2)
         )
 
     return pd.DataFrame(yearly_returns)
 
 
-def calc_twr(df: pd.DataFrame, position_type: str, freq: TwrFreq) -> pd.DataFrame:
+def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: TwrFreq) -> pd.DataFrame:
     """Calculate time weighted returns.
 
     Args:
@@ -192,7 +192,7 @@ def calc_twr(df: pd.DataFrame, position_type: str, freq: TwrFreq) -> pd.DataFram
     """
     twrs: dict[str, list[float]] = {
         "year": [],
-        f"twr_{position_type}": [],
+        f"twr_{position_type.value}": [],
     }
 
     for _, group in (
@@ -201,8 +201,8 @@ def calc_twr(df: pd.DataFrame, position_type: str, freq: TwrFreq) -> pd.DataFram
         returns_period = []
 
         trans_val, curr_val = (
-            list(reversed(group[f"trans_val_{position_type}"].values)),
-            list(reversed(group[f"curr_val_{position_type}"].values)),
+            list(reversed(group[f"trans_val_{position_type.value}"].values)),
+            list(reversed(group[f"curr_val_{position_type.value}"].values)),
         )
 
         for i in range(len(trans_val)):
@@ -220,6 +220,6 @@ def calc_twr(df: pd.DataFrame, position_type: str, freq: TwrFreq) -> pd.DataFram
         twr = round((float(math.prod(returns_period) - 1) * 100), 2)
 
         twrs["year"].append(group["date"].iloc[0].year)
-        twrs[f"twr_{position_type}"].append(twr)
+        twrs[f"twr_{position_type.value}"].append(twr)
 
     return pd.DataFrame(twrs)

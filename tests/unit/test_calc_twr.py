@@ -5,7 +5,7 @@ import pytest
 from pytest import FixtureRequest  # noqa: PT013
 
 import stock_portfolio_tracker.modelling._utils as utils
-from stock_portfolio_tracker.utils import TwrFreq
+from stock_portfolio_tracker.utils import PositionType, TwrFreq
 
 
 @pytest.fixture
@@ -68,6 +68,6 @@ def test_calc_twr(
         twr: Resulting dataframe with the percent gain.
         request: FixtureRequest.
     """
-    assert utils.calc_twr(request.getfixturevalue(portfolio_model), "asset", TwrFreq.YEARLY).equals(
-        request.getfixturevalue(twr)
-    )
+    assert utils.calc_twr(
+        request.getfixturevalue(portfolio_model), PositionType.ASSET, TwrFreq.YEARLY
+    ).equals(request.getfixturevalue(twr))

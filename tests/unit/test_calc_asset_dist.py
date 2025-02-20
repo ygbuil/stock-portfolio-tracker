@@ -5,7 +5,7 @@ import pytest
 from pytest import FixtureRequest  # noqa: PT013
 
 from stock_portfolio_tracker.modelling._modelling_portfolio import _calc_asset_dist
-from stock_portfolio_tracker.utils import PortfolioData
+from stock_portfolio_tracker.utils import PortfolioData, PositionType
 
 
 @pytest.fixture
@@ -112,5 +112,7 @@ def test_calc_asset_dist(
         request: FixtureRequest.
     """
     assert _calc_asset_dist(
-        request.getfixturevalue(portfolio_model), request.getfixturevalue(portfolio_data), "asset"
+        request.getfixturevalue(portfolio_model),
+        request.getfixturevalue(portfolio_data),
+        PositionType.ASSET,
     ).equals(request.getfixturevalue(asset_distribution))
