@@ -10,7 +10,13 @@ from loguru import logger
 
 from stock_portfolio_tracker import utils
 from stock_portfolio_tracker.exceptions import YahooFinanceError
-from stock_portfolio_tracker.utils import Config, PortfolioData, PositionType, sort_at_end
+from stock_portfolio_tracker.utils import (
+    Config,
+    PortfolioData,
+    PositionType,
+    TransactionType,
+    sort_at_end,
+)
 
 DIR_IN = Path("/workspaces/Stock-Portfolio-Tracker/data/in/")
 
@@ -125,12 +131,12 @@ def _load_portfolio_data(transactions_file_name: str) -> PortfolioData:
         .assign(
             date=lambda df: pd.to_datetime(df["date"].str.replace("/", "-"), format="%d-%m-%Y"),
             trans_val=lambda df: np.where(
-                df["transaction_type"] == "Sale",
+                df["transaction_type"] == TransactionType.SALE.value,
                 abs(df["trans_val"]),
                 -abs(df["trans_val"]),
             ),
             trans_qty=lambda df: np.where(
-                df["transaction_type"] == "Sale",
+                df["transaction_type"] == TransactionType.SALE.value,
                 -abs(df["trans_qty"]),
                 abs(df["trans_qty"]),
             ),

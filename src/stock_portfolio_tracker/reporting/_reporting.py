@@ -8,7 +8,7 @@ import pandas as pd
 from loguru import logger
 
 from stock_portfolio_tracker import utils
-from stock_portfolio_tracker.utils import Config
+from stock_portfolio_tracker.utils import Config, PositionStatus
 
 DIR_OUT = Path("/workspaces/Stock-Portfolio-Tracker/data/out/")
 
@@ -65,7 +65,7 @@ def generate_reports(
     _plot_asset_distribution(config, asset_distribution)
 
     logger.info("Plotting individual assets vs benchmark.")
-    for position_status in ["open", "closed"]:
+    for position_status in [PositionStatus.OPEN.value, PositionStatus.CLOSED.value]:
         _plot_assets_vs_benchmark(assets_vs_benchmark, position_status)
 
     logger.info("Plotting dividends by company.")

@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from stock_portfolio_tracker.exceptions import UnsortedError
-from stock_portfolio_tracker.utils import PortfolioData, PositionType, sort_at_end
+from stock_portfolio_tracker.utils import PortfolioData, PositionStatus, PositionType, sort_at_end
 
 from . import _utils as utils
 
@@ -153,7 +153,9 @@ def model_assets_vs_benchmark(
             group.iloc[0]["ticker_asset"],
             percent_gain_asset.iloc[0]["curr_perc_gain_asset"],
             percent_gain_benchmark.iloc[0]["curr_perc_gain_benchmark"],
-            "open" if group["curr_qty_asset"].iloc[0] else "closed",
+            PositionStatus.OPEN.value
+            if group["curr_qty_asset"].iloc[0]
+            else PositionStatus.CLOSED.value,
         ]
 
     return assets_vs_benchmark.assign(
