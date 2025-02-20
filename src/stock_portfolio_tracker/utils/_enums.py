@@ -13,8 +13,8 @@ class PositionType(Enum):
 
 
 class TransactionType(Enum):
-    SALE = "sale"
-    PURCHASE = "purchase"
+    SALE = "Sale"
+    PURCHASE = "Purchase"
 
 
 class PositionStatus(Enum):

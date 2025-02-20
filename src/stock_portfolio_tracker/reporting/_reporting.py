@@ -66,7 +66,16 @@ def generate_reports(
 
     logger.info("Plotting individual assets vs benchmark.")
     for position_status in [PositionStatus.OPEN.value, PositionStatus.CLOSED.value]:
-        _plot_assets_vs_benchmark(assets_vs_benchmark, position_status)
+        _plot_barchar_2_cols(
+            df=assets_vs_benchmark[assets_vs_benchmark["position_status"] == position_status],
+            col_name_x_labels="ticker_asset",
+            col_name_bars_1="curr_perc_gain_asset",
+            col_name_bars_2="curr_perc_gain_benchmark",
+            y_axis_title="Percentage Gain (%)",
+            plot_title="Assets vs benchmark",
+            plot_folder="assets_vs_benchmark",
+            plot_name=f"assets_vs_benchmark_{position_status}",
+        )
 
     logger.info("Plotting dividends by company.")
     _plot_dividends_company(config.portfolio_currency, dividends_company)
@@ -76,7 +85,17 @@ def generate_reports(
 
     logger.info("Plotting yearly gains.")
     _plot_yearly_gains(yearly_gains)
-
+    for return_type in ["simple_return", "twr"]:
+        _plot_barchar_2_cols(
+            df=yearly_gains.sort_values(by="year"),
+            col_name_x_labels="year",
+            col_name_bars_1=f"{return_type}_portfolio",
+            col_name_bars_2=f"{return_type}_benchmark",
+            y_axis_title=utils.parse_underscore_text(return_type),
+            plot_title=utils.parse_underscore_text(return_type),
+            plot_folder="yearly_metrics",
+            plot_name=return_type,
+        )
     logger.info("End of generate reports.")
 
 
@@ -248,32 +267,44 @@ def _plot_portfolio_gain_evolution_diff(
     plt.close()
 
 
-def _plot_assets_vs_benchmark(assets_vs_benchmark: pd.DataFrame, position_status: str) -> None:
-    """Plot assets vs benchmark.
+def _plot_barchar_2_cols(
+    df: pd.DataFrame,
+    col_name_x_labels: str,
+    col_name_bars_1: str,
+    col_name_bars_2: str,
+    y_axis_title: str,
+    plot_title: str,
+    plot_folder: str,
+    plot_name: str,
+) -> None:
+    """Plot a bar chart comparing two columns of data.
 
     Args:
-        assets_vs_benchmark: Individual asset percetnage returns vs benchmark.
-        position_status: Weather the position is open or closed.
+        df: DataFrame containing the data to be plotted.
+        col_name_x_labels: Column name for the x-axis labels.
+        col_name_bars_1: Column name for the first set of bars.
+        col_name_bars_2: Column name for the second set of bars.
+        y_axis_title: Label for the y-axis.
+        plot_title: Title of the plot.
+        plot_folder: Directory where the plot will be saved.
+        plot_name: Name of the output plot file.
     """
-    assets_vs_benchmark = assets_vs_benchmark[
-        assets_vs_benchmark["position_status"] == position_status
-    ]
-    tickers, asset_gains, benchmark_gains = (
-        assets_vs_benchmark["ticker_asset"],
-        assets_vs_benchmark["curr_perc_gain_asset"],
-        assets_vs_benchmark["curr_perc_gain_benchmark"],
+    x_labels, bars_1, bars_2 = (
+        df[col_name_x_labels],
+        df[col_name_bars_1],
+        df[col_name_bars_2],
     )
-    n = len(tickers)
+    n = len(x_labels)
     bar_width = 0.4
     index = np.arange(n)
 
     fig, ax = plt.subplots(figsize=(12, 7))
 
-    ax.bar(index, asset_gains, bar_width, label="Asset Gains", color="blue")
-    ax.bar(index + bar_width, benchmark_gains, bar_width, label="Benchmark Gains", color="orange")
+    ax.bar(index, bars_1, bar_width, label=col_name_bars_1, color="blue")
+    ax.bar(index + bar_width, bars_2, bar_width, label=col_name_bars_2, color="orange")
 
-    top_y_lim = max(list(asset_gains) + list(benchmark_gains))
-    bottom_y_lim = min(list(asset_gains) + list(benchmark_gains))
+    top_y_lim = max(list(bars_1) + list(bars_2))
+    bottom_y_lim = min(list(bars_1) + list(bars_2))
     margin = (abs(top_y_lim) + abs(bottom_y_lim)) * 0.02
 
     top_y_lim += margin
@@ -285,10 +316,10 @@ def _plot_assets_vs_benchmark(assets_vs_benchmark: pd.DataFrame, position_status
     ax.set_ylim((bottom_y_lim, top_y_lim))
 
     # Add labels and title
-    ax.set_ylabel("Percentage Gain (%)")
-    ax.set_title("Asset vs Benchmark Percentage Gains")
+    ax.set_ylabel(y_axis_title)
+    ax.set_title(plot_title)
     ax.set_xticks(index + bar_width / 2)
-    ax.set_xticklabels(tickers)
+    ax.set_xticklabels(x_labels)
 
     # Add legend
     ax.legend()
@@ -299,7 +330,7 @@ def _plot_assets_vs_benchmark(assets_vs_benchmark: pd.DataFrame, position_status
         plt.text(
             i,
             y_offset,
-            f"{assets_vs_benchmark['curr_perc_gain_asset'].iloc[i]:.2f}%",
+            f"{bars_1.iloc[i]:.2f}%",
             ha="center",
             color="blue",
             fontweight="bold",
@@ -308,14 +339,14 @@ def _plot_assets_vs_benchmark(assets_vs_benchmark: pd.DataFrame, position_status
         plt.text(
             i + bar_width,
             y_offset,
-            f"{assets_vs_benchmark['curr_perc_gain_benchmark'].iloc[i]:.2f}%",
+            f"{bars_2.iloc[i]:.2f}%",
             ha="center",
             color="orange",
             fontweight="bold",
             rotation=40,
         )
 
-    output_path = DIR_OUT / "assets_vs_benchmark" / f"assets_vs_benchmark_{position_status}.png"
+    output_path = DIR_OUT / plot_folder / f"{plot_name}.png"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(output_path)
     plt.close()

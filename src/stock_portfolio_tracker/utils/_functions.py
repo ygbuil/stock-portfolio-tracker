@@ -51,3 +51,7 @@ def multithreader(func: Callable[..., Any], args: list[tuple[Any, ...]]) -> list
             result.append(future.result())  # noqa: PERF401
 
     return result
+
+
+def parse_underscore_text(text: str) -> str:
+    return f"{text[0].upper()}{text[1:]}".replace("_", " ")
