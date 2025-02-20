@@ -219,7 +219,11 @@ def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: TwrFreq) -> pd
 
         twr = round((float(math.prod(returns_period) - 1) * 100), 2)
 
-        twrs["year"].append(group["date"].iloc[0].year)
+        twrs["year"].append(
+            group["date"].iloc[0].year
+            if freq == TwrFreq.YEARLY  # type: ignore
+            else f"{group['date'].iloc[0].year} - {group['date'].iloc[-1].year}"
+        )
         twrs[f"twr_{position_type.value}"].append(twr)
 
     return pd.DataFrame(twrs)
