@@ -139,7 +139,7 @@ def calc_yearly_returns(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
 
     simple_returns = calc_simple_return(df, position_type)
 
-    twr = calc_twr(df, position_type, "yearly")
+    twr = calc_twr(df, position_type, TwrFreq.YEARLY)
 
     return simple_returns.merge(twr, on="year", how="left")
 
@@ -179,14 +179,24 @@ def calc_simple_return(df: pd.DataFrame, position_type: str) -> pd.DataFrame:
     return pd.DataFrame(yearly_returns)
 
 
-def calc_twr(df: pd.DataFrame, position_type: str, freq: str) -> pd.DataFrame:
+def calc_twr(df: pd.DataFrame, position_type: str, freq: TwrFreq) -> pd.DataFrame:
+    """Calculate time weighted returns.
+
+    Args:
+        df: Dataframe with transactions and current portfolio value.
+        position_type: Type of position.
+        freq: Frequency on which to calculate TWR.
+
+    Returns:
+        Time weighted returns
+    """
     twrs: dict[str, list[float]] = {
         "year": [],
         f"twr_{position_type}": [],
     }
 
     for _, group in (
-        df.groupby(df["date"].dt.year, sort=False) if freq == TwrFreq.YEARLY.value else [(None, df)]
+        df.groupby(df["date"].dt.year, sort=False) if freq == TwrFreq.YEARLY else [(None, df)]
     ):
         returns_period = []
 
