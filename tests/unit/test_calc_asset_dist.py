@@ -103,7 +103,7 @@ def test_calc_asset_dist(
     asset_distribution: str,
     request: FixtureRequest,
 ) -> None:
-    """Test _calc_curr_gain().
+    """Test _calc_simple_return_daily().
 
     Args:
         portfolio_model: Portfolio with curr_qty and curr_val for each asset.

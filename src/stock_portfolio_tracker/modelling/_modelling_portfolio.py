@@ -16,8 +16,8 @@ def model_portfolio(
     """Caclulates the following metrics for the assets:
     - For the overall portfolio, on a daily basis:
         - Value of the portfolio.
-        - Absoulte gain since start.
-        - Percentage gain since start.
+        - Simple return since start, in absolute terms.
+        - Simple return since start, in percentage terms.
     - For each asset, on a daily basis:
         - Value of the asset.
         - Quantity of the asset.
@@ -68,7 +68,7 @@ def model_portfolio(
         portfolio_model, sorting_columns=[{"columns": ["date"], "ascending": [False]}]
     )
 
-    portfolio_gains = utils.calc_curr_gain(
+    portfolio_gains = utils.calc_simple_return_daily(
         portfolio_val_evolution.merge(
             portfolio_data.transactions[["date", "trans_val_asset"]],
             how="left",

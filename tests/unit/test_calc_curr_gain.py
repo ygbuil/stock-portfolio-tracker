@@ -1,4 +1,4 @@
-"""Test _calc_curr_gain()."""
+"""Test _calc_simple_return_daily()."""
 
 import pandas as pd
 import pytest
@@ -179,19 +179,19 @@ def curr_gain_3() -> pd.DataFrame:
         ("portfolio_model_3", "curr_gain_3"),
     ],
 )
-def test_calc_curr_gain(
+def test_calc_simple_return_daily(
     portfolio_model: str,
     curr_gain: str,
     request: FixtureRequest,
 ) -> None:
-    """Test calc_curr_gain().
+    """Test calc_simple_return_daily().
 
     Args:
         portfolio_model: Input portfolio_model.
         curr_gain: Resulting dataframe with the percent gain.
         request: FixtureRequest.
     """
-    assert utils.calc_curr_gain(
+    assert utils.calc_simple_return_daily(
         request.getfixturevalue(portfolio_model),
         PositionType.ASSET,
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],

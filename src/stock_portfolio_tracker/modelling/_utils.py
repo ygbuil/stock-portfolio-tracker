@@ -65,14 +65,14 @@ def calc_curr_val(
 
 
 @sort_at_end()
-def calc_curr_gain(
+def calc_simple_return_daily(
     df: pd.DataFrame,
     position_type: PositionType,
     sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
 ) -> pd.DataFrame:
-    """Calculate or the overall portfolio, on a daily basis:
-        - Absoulte gain since start.
-        - Percentage gain since start.
+    """Calculate on a daily basis:
+        - Simple return since start, in absolute terms.
+        - Simple return since start, in percentage terms.
 
     Args:
         df: Dataframe with the daily portfolio value and the transaction value.
@@ -134,6 +134,20 @@ def calc_curr_gain(
 
 
 def calc_yearly_returns(df: pd.DataFrame, position_type: PositionType) -> pd.DataFrame:
+    """Calculate the yearly returns using the following approaches:
+        - Simple returns.
+        - Time weighted returns (TWR).
+
+    Args:
+        df: Portfolio data
+        position_type: Type of position.
+
+    Raises:
+        UnsortedError: Unsorted input data.
+
+    Returns:
+        Returns
+    """
     if not df["date"].is_monotonic_decreasing:
         raise UnsortedError
 

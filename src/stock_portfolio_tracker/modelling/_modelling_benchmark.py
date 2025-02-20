@@ -49,7 +49,7 @@ def model_benchmark(
         .assign(curr_val_benchmark=lambda df: round(df["curr_val_benchmark"], 2))
     )
 
-    benchmark_gains = utils.calc_curr_gain(
+    benchmark_gains = utils.calc_simple_return_daily(
         benchmark_val_evolution_abs[["date", "ticker_benchmark", "curr_val_benchmark"]]
         .merge(
             portfolio_data.transactions[["date", "trans_val_asset"]],
@@ -137,13 +137,13 @@ def model_assets_vs_benchmark(
             sorting_columns=[{"columns": ["ticker_benchmark", "date"], "ascending": [True, False]}],
         )
 
-        percent_gain_benchmark = utils.calc_curr_gain(
+        percent_gain_benchmark = utils.calc_simple_return_daily(
             group,
             PositionType.BENCHMARK,
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
         ).drop(columns=["curr_val_benchmark", "trans_val_benchmark", "money_out", "money_in"])
 
-        percent_gain_asset = utils.calc_curr_gain(
+        percent_gain_asset = utils.calc_simple_return_daily(
             group,
             PositionType.ASSET,
             sorting_columns=[{"columns": ["date"], "ascending": [False]}],
