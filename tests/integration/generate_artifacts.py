@@ -50,6 +50,7 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
         dividends_company,
         dividends_year,
         yearly_returns,
+        overall_returns,
     ) = modelling.model_data(
         portfolio_data,
         asset_prices,
@@ -67,6 +68,7 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
             "dividends_company": dividends_company,
             "dividends_year": dividends_year,
             "yearly_returns": yearly_returns,
+            "overall_returns": overall_returns,
         },
     )
 

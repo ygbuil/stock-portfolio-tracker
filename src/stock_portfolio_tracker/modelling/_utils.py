@@ -161,7 +161,7 @@ def calc_overall_returns(
     twr_cagr = calc_cagr(twr_all[f"twr_{position_type.value}"].iloc[0], twr_all["year"].iloc[0])
 
     return simple_returns_yearly.merge(twr_yearly, on="year", how="left"), pd.DataFrame(
-        {"twr_cagr": [twr_cagr]}
+        {f"twr_cagr_{position_type.value}": [twr_cagr]}
     )
 
 
@@ -251,5 +251,5 @@ def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: TwrFreq) -> pd
 
 
 def calc_cagr(total_return: float, years: float) -> float:
-    cagr: float = ((total_return / 100 + 1) ** (1 / years) - 1) * 100
+    cagr: float = round(((total_return / 100 + 1) ** (1 / years) - 1) * 100, 2)
     return cagr

@@ -22,6 +22,7 @@ def model_data(
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
+    pd.DataFrame,
 ]:
     """Calculate all necessary metrics.
 
@@ -42,6 +43,7 @@ def model_data(
         dividends_company,
         dividends_year,
         portfolio_yearly_returns,
+        portfolio_twr_cagr,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
@@ -53,17 +55,21 @@ def model_data(
             {"columns": ["total_dividend_asset"], "ascending": [False]},
             {"columns": ["date"], "ascending": [True]},
             {"columns": ["year"], "ascending": [False]},
+            {"columns": ["twr_cagr_portfolio"], "ascending": [False]},
         ],
     )
 
     logger.info("Modelling benchmark.")
-    benchmark_evolution, benchmark_yearly_returns = modelling_benchmark.model_benchmark(
-        portfolio_data,
-        benchmark_prices,
-        sorting_columns=[
-            {"columns": ["date"], "ascending": [False]},
-            {"columns": ["year"], "ascending": [False]},
-        ],
+    benchmark_evolution, benchmark_yearly_returns, benchmark_twr_cagr = (
+        modelling_benchmark.model_benchmark(
+            portfolio_data,
+            benchmark_prices,
+            sorting_columns=[
+                {"columns": ["date"], "ascending": [False]},
+                {"columns": ["year"], "ascending": [False]},
+                {"columns": ["twr_cagr_benchmark"], "ascending": [False]},
+            ],
+        )
     )
 
     logger.info("Modelling assets vs benchmark.")
@@ -93,4 +99,5 @@ def model_data(
                 "twr_portfolio",
             ]
         ],
+        pd.concat([portfolio_twr_cagr, benchmark_twr_cagr], axis=1),
     )

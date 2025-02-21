@@ -22,6 +22,7 @@ def generate_reports(
     dividends_company: pd.DataFrame,
     dividends_year: pd.DataFrame,
     yearly_returns: pd.DataFrame,
+    overall_returns: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
@@ -34,6 +35,7 @@ def generate_reports(
         dividends_company: Total dividends paied by company.
         dividends_year: Total dividends paied by year.
         yearly_returns: Yearly gains.
+        overall_returns: Return metrics for the entire portfolio lifetime.
     """
     logger.info("Cleaning current output artifacts.")
     utils.delete_current_artifacts(DIR_OUT)
@@ -84,7 +86,7 @@ def generate_reports(
     _plot_dividends_year(config.portfolio_currency, dividends_year)
 
     logger.info("Plotting yearly gains.")
-    _plot_yearly_returns(yearly_returns)
+    _plot_overall_returns(overall_returns)
     for return_type in ["simple_return", "twr"]:
         _plot_barchar_2_cols(
             df=yearly_returns.sort_values(by="year"),
@@ -93,7 +95,7 @@ def generate_reports(
             col_name_bars_2=f"{return_type}_benchmark",
             y_axis_title=utils.parse_underscore_text(return_type),
             plot_title=utils.parse_underscore_text(return_type),
-            plot_folder="yearly_metrics",
+            plot_folder="summary_returns",
             plot_name=return_type,
         )
     logger.info("End of generate reports.")
@@ -473,29 +475,24 @@ def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) 
     plt.close()
 
 
-def _plot_yearly_returns(yearly_returns: pd.DataFrame) -> None:
-    """Plot yearly gains.
+def _plot_overall_returns(overall_returns: pd.DataFrame) -> None:
+    """Plot overall gains.
 
     Args:
-        yearly_returns: Yearly gains.
+        overall_returns: Overall returns.
     """
-    # Create figure and axis
     fig, ax = plt.subplots(figsize=(12, 7))
     ax.set_axis_off()  # Hide axes
 
-    # Create table
-    yearly_returns["year"] = yearly_returns["year"].astype(str)
-
     ax.table(
-        cellText=yearly_returns.values,  # type: ignore
-        colLabels=yearly_returns.columns,  # type: ignore
+        cellText=overall_returns.values,  # type: ignore
+        colLabels=overall_returns.columns,  # type: ignore
         cellLoc="center",
         loc="center",
     )
 
-    # Adjust layout
     plt.tight_layout()
-    output_path = DIR_OUT / "yearly_metrics" / "returns.png"
+    output_path = DIR_OUT / "summary_returns" / "summary_returns.png"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(output_path, bbox_inches="tight")
     plt.close()

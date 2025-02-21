@@ -12,7 +12,7 @@ def model_benchmark(
     portfolio_data: PortfolioData,
     benchmark_prices: pd.DataFrame,
     sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Model the benchmark as if the same transaction value purchased of an asset of the portfolio
     was purchased of the benchmark (in absoulte value). Under these simulation assumptions, the
     metrics calculated are, on a daily basis:
@@ -62,17 +62,21 @@ def model_benchmark(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    benchmark_yearly_returns, _ = utils.calc_overall_returns(
+    benchmark_yearly_returns, benchmark_twr_cagr = utils.calc_overall_returns(
         benchmark_gains, PositionType.BENCHMARK
     )
 
-    return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].merge(
-        benchmark_gains.drop(
-            columns=["curr_val_benchmark", "trans_val_benchmark", "money_out", "money_in"]
+    return (
+        benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].merge(
+            benchmark_gains.drop(
+                columns=["curr_val_benchmark", "trans_val_benchmark", "money_out", "money_in"]
+            ),
+            how="left",
+            on=["date"],
         ),
-        how="left",
-        on=["date"],
-    ), benchmark_yearly_returns
+        benchmark_yearly_returns,
+        benchmark_twr_cagr,
+    )
 
 
 @sort_at_end()

@@ -12,7 +12,7 @@ def model_portfolio(
     asset_prices: pd.DataFrame,
     asset_dividends: pd.DataFrame,
     sorting_columns: list[dict[str, list[str | bool]]],  # noqa: ARG001
-) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Caclulates the following metrics for the assets:
     - For the overall portfolio, on a daily basis:
         - Value of the portfolio.
@@ -80,7 +80,7 @@ def model_portfolio(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    portfolio_yearly_returns, _ = utils.calc_overall_returns(
+    portfolio_yearly_returns, portfolio_twr_cagr = utils.calc_overall_returns(
         portfolio_gains, PositionType.PORTFOLIO
     )
 
@@ -103,6 +103,7 @@ def model_portfolio(
         dividends_company,
         dividends_year,
         portfolio_yearly_returns,
+        portfolio_twr_cagr,
     )
 
 
