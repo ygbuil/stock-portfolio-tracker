@@ -133,7 +133,9 @@ def calc_simple_return_daily(
     return df
 
 
-def calc_yearly_returns(df: pd.DataFrame, position_type: PositionType) -> pd.DataFrame:
+def calc_overall_returns(
+    df: pd.DataFrame, position_type: PositionType
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Calculate the yearly returns using the following approaches:
         - Simple returns.
         - Time weighted returns (TWR).
@@ -151,11 +153,16 @@ def calc_yearly_returns(df: pd.DataFrame, position_type: PositionType) -> pd.Dat
     if not df["date"].is_monotonic_decreasing:
         raise UnsortedError
 
-    simple_returns = calc_simple_return(df, position_type)
+    simple_returns_yearly = calc_simple_return(df, position_type)
 
-    twr = calc_twr(df, position_type, TwrFreq.YEARLY)
+    twr_yearly = calc_twr(df, position_type, TwrFreq.YEARLY)
 
-    return simple_returns.merge(twr, on="year", how="left")
+    twr_all = calc_twr(df, position_type, TwrFreq.ALL)
+    twr_cagr = calc_cagr(twr_all[f"twr_{position_type.value}"].iloc[0], twr_all["year"].iloc[0])
+
+    return simple_returns_yearly.merge(twr_yearly, on="year", how="left"), pd.DataFrame(
+        {"twr_cagr": [twr_cagr]}
+    )
 
 
 def calc_simple_return(df: pd.DataFrame, position_type: PositionType) -> pd.DataFrame:
@@ -235,9 +242,14 @@ def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: TwrFreq) -> pd
 
         twrs["year"].append(
             group["date"].iloc[0].year
-            if freq == TwrFreq.YEARLY  # type: ignore
-            else f"{group['date'].iloc[0].year} - {group['date'].iloc[-1].year}"
+            if freq == TwrFreq.YEARLY
+            else round((group["date"].iloc[0] - group["date"].iloc[-1]).days / 365, 2)
         )
         twrs[f"twr_{position_type.value}"].append(twr)
 
     return pd.DataFrame(twrs)
+
+
+def calc_cagr(total_return: float, years: float) -> float:
+    cagr: float = ((total_return / 100 + 1) ** (1 / years) - 1) * 100
+    return cagr

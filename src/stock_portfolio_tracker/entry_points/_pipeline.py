@@ -46,7 +46,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         assets_vs_benchmark,
         dividends_company,
         dividends_year,
-        yearly_gains,
+        yearly_returns,
     ) = modelling.model_data(
         portfolio_data,
         asset_prices,
@@ -63,7 +63,7 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
         assets_vs_benchmark,
         dividends_company,
         dividends_year,
-        yearly_gains,
+        yearly_returns,
     )
 
     logger.info("End of execution.")

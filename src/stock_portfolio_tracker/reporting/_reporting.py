@@ -21,7 +21,7 @@ def generate_reports(
     assets_vs_benchmark: pd.DataFrame,
     dividends_company: pd.DataFrame,
     dividends_year: pd.DataFrame,
-    yearly_gains: pd.DataFrame,
+    yearly_returns: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
@@ -33,7 +33,7 @@ def generate_reports(
         assets_vs_benchmark: Individual asset percetnage returns vs benchmark.
         dividends_company: Total dividends paied by company.
         dividends_year: Total dividends paied by year.
-        yearly_gains: Yearly gains.
+        yearly_returns: Yearly gains.
     """
     logger.info("Cleaning current output artifacts.")
     utils.delete_current_artifacts(DIR_OUT)
@@ -84,10 +84,10 @@ def generate_reports(
     _plot_dividends_year(config.portfolio_currency, dividends_year)
 
     logger.info("Plotting yearly gains.")
-    _plot_yearly_gains(yearly_gains)
+    _plot_yearly_returns(yearly_returns)
     for return_type in ["simple_return", "twr"]:
         _plot_barchar_2_cols(
-            df=yearly_gains.sort_values(by="year"),
+            df=yearly_returns.sort_values(by="year"),
             col_name_x_labels="year",
             col_name_bars_1=f"{return_type}_portfolio",
             col_name_bars_2=f"{return_type}_benchmark",
@@ -473,22 +473,22 @@ def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) 
     plt.close()
 
 
-def _plot_yearly_gains(yearly_gains: pd.DataFrame) -> None:
+def _plot_yearly_returns(yearly_returns: pd.DataFrame) -> None:
     """Plot yearly gains.
 
     Args:
-        yearly_gains: Yearly gains.
+        yearly_returns: Yearly gains.
     """
     # Create figure and axis
     fig, ax = plt.subplots(figsize=(12, 7))
     ax.set_axis_off()  # Hide axes
 
     # Create table
-    yearly_gains["year"] = yearly_gains["year"].astype(str)
+    yearly_returns["year"] = yearly_returns["year"].astype(str)
 
     ax.table(
-        cellText=yearly_gains.values,  # type: ignore
-        colLabels=yearly_gains.columns,  # type: ignore
+        cellText=yearly_returns.values,  # type: ignore
+        colLabels=yearly_returns.columns,  # type: ignore
         cellLoc="center",
         loc="center",
     )

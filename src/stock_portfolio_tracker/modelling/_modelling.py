@@ -41,7 +41,7 @@ def model_data(
         portfolio_model,
         dividends_company,
         dividends_year,
-        portfolio_yearly_gains,
+        portfolio_yearly_returns,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
@@ -57,7 +57,7 @@ def model_data(
     )
 
     logger.info("Modelling benchmark.")
-    benchmark_evolution, benchmark_yearly_gains = modelling_benchmark.model_benchmark(
+    benchmark_evolution, benchmark_yearly_returns = modelling_benchmark.model_benchmark(
         portfolio_data,
         benchmark_prices,
         sorting_columns=[
@@ -82,7 +82,7 @@ def model_data(
         assets_vs_benchmark,
         dividends_company,
         dividends_year,
-        portfolio_yearly_gains.merge(benchmark_yearly_gains, how="left", on=["year"])[
+        portfolio_yearly_returns.merge(benchmark_yearly_returns, how="left", on=["year"])[
             [
                 "year",
                 "abs_gain_benchmark",

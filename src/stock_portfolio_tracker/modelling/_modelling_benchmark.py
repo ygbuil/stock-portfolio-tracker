@@ -62,7 +62,9 @@ def model_benchmark(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    benchmark_yearly_gains = utils.calc_yearly_returns(benchmark_gains, PositionType.BENCHMARK)
+    benchmark_yearly_returns, _ = utils.calc_overall_returns(
+        benchmark_gains, PositionType.BENCHMARK
+    )
 
     return benchmark_val_evolution_abs[["date", "curr_val_benchmark"]].merge(
         benchmark_gains.drop(
@@ -70,7 +72,7 @@ def model_benchmark(
         ),
         how="left",
         on=["date"],
-    ), benchmark_yearly_gains
+    ), benchmark_yearly_returns
 
 
 @sort_at_end()
