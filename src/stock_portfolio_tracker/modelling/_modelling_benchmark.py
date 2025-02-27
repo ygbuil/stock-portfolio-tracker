@@ -251,6 +251,9 @@ def _simulate_benchmark_proportional(
             ) * latest_curr_qty_benchmark
             latest_curr_qty_benchmark += trans_qty_benchmark[~i]
 
+            if not latest_curr_qty_benchmark:
+                ever_purchased = False
+
     return df.assign(
         trans_qty_benchmark=trans_qty_benchmark,
         trans_val_benchmark=-close_unadj_local_currency_benchmark * trans_qty_benchmark,

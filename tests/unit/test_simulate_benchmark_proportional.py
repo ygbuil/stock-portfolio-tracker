@@ -105,6 +105,38 @@ def portfolio_model_3() -> pd.DataFrame:
 
 
 @pytest.fixture
+def portfolio_model_4() -> pd.DataFrame:
+    """Test _simulate_benchmark_proportional() with complet sell of position and then re-enter.
+
+    Returns:
+        Portfolio model.
+    """
+    return pd.DataFrame(
+        {
+            "date": [
+                "2024-01-08",
+                "2024-01-07",
+                "2024-01-06",
+                "2024-01-05",
+                "2024-01-04",
+                "2024-01-03",
+                "2024-01-02",
+                "2024-01-01",
+            ],
+            "ticker_benchmark": ["IUSA.DE"] * 8,
+            "split_benchmark": [1] * 8,
+            "close_unadj_local_currency_benchmark": [140, 620, 600, 800, 540, 580, 550, 100],
+            "ticker_asset": ["NVDA"] * 8,
+            "split_asset": [1] * 8,
+            "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
+            "trans_qty_asset": [0, 0, 0, 2, -2, 0, 2, 0],
+            "trans_val_asset": [0, 0, 0, -2200, 2400, 0, -2200, 0],
+            "curr_qty_asset": [2, 2, 2, 2, 0, 2, 2, 0],
+        },
+    ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
+
+
+@pytest.fixture
 def benchmark_proportional_1() -> pd.DataFrame:
     """Test _simulate_benchmark_proportional() without transaction on split day.
 
@@ -206,12 +238,47 @@ def benchmark_proportional_3() -> pd.DataFrame:
     ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
 
 
+@pytest.fixture
+def benchmark_proportional_4() -> pd.DataFrame:
+    """Test _simulate_benchmark_proportional() with complet sell of position and then re-enter.
+
+    Returns:
+        Dataframe with benchmark simulation.
+    """
+    return pd.DataFrame(
+        {
+            "date": [
+                "2024-01-08",
+                "2024-01-07",
+                "2024-01-06",
+                "2024-01-05",
+                "2024-01-04",
+                "2024-01-03",
+                "2024-01-02",
+                "2024-01-01",
+            ],
+            "ticker_benchmark": ["IUSA.DE"] * 8,
+            "split_benchmark": [1] * 8,
+            "close_unadj_local_currency_benchmark": [140, 620, 600, 800, 540, 580, 550, 100],
+            "ticker_asset": ["NVDA"] * 8,
+            "split_asset": [1] * 8,
+            "close_unadj_local_currency_asset": [1000, 950, 900, 1100, 1200, 1000, 1100, 1000],
+            "trans_qty_asset": [0, 0, 0, 2, -2, 0, 2, 0],
+            "trans_val_asset": [0, 0, 0, -2200, 2400, 0, -2200, 0],
+            "curr_qty_asset": [2, 2, 2, 2, 0, 2, 2, 0],
+            "trans_qty_benchmark": [0.0, 0.0, 0.0, 2.75, -4.0, 0.0, 4.0, 0.0],
+            "trans_val_benchmark": [0.0, 0.0, 0.0, -2200, 2160.0, 0.0, -2200.0, 0.0],
+        },
+    ).assign(date=lambda df: pd.to_datetime(df["date"], format="%Y-%m-%d"))
+
+
 @pytest.mark.parametrize(
     ("portfolio_model", "benchmark_proportional"),
     [
         ("portfolio_model_1", "benchmark_proportional_1"),
         ("portfolio_model_2", "benchmark_proportional_2"),
         ("portfolio_model_3", "benchmark_proportional_3"),
+        ("portfolio_model_4", "benchmark_proportional_4"),
     ],
 )
 def test_simulate_benchmark_proportional(
