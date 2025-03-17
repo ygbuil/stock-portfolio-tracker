@@ -1,9 +1,11 @@
 """Main module to execute the project."""
 
 import click
+import yfinance as yf  # type: ignore
 from loguru import logger
 
-from stock_portfolio_tracker import modelling, preprocessing, reporting
+from stock_portfolio_tracker import modelling, reporting
+from stock_portfolio_tracker.preprocessing import Preprocessor
 from stock_portfolio_tracker.utils import timer
 
 
@@ -31,8 +33,9 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
     logger.info("Start of execution.")
 
     logger.info("Start of preprocess.")
+
     config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
-        preprocessing.preprocess(
+        Preprocessor(api=yf.Ticker).preprocess(
             config_file_name,
             transactions_file_name,
         )
