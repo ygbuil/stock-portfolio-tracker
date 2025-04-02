@@ -16,7 +16,3 @@ def _main() -> None:
         entry_point.add_command(command)
 
     entry_point()
-
-
-if __name__ == "__main__":
-    _main()
