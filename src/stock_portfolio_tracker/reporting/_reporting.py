@@ -330,7 +330,7 @@ def _plot_barchar_2_cols(
 
     for i in index:
         plt.text(
-            i,
+            i,  # type: ignore
             y_offset,
             f"{bars_1.iloc[i]:.2f}%",
             ha="center",
@@ -401,9 +401,9 @@ def _plot_dividends_company(
 
     for i in index:
         plt.text(
-            i,
+            i,  # type: ignore
             y_offset,
-            f"{dividends_company['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",
+            f"{dividends_company['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",  # type: ignore
             ha="center",
             color="blue",
             fontweight="bold",
@@ -460,9 +460,9 @@ def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) 
 
     for i in index:
         plt.text(
-            i,
+            i,  # type: ignore
             y_offset,
-            f"{dividends_year['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",
+            f"{dividends_year['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",  # type: ignore
             ha="center",
             color="blue",
             fontweight="bold",
