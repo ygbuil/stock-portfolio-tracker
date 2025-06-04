@@ -18,12 +18,14 @@ from stock_portfolio_tracker.utils import (
     sort_at_end,
 )
 
+from . import factories
+
 DIR_IN = Path("/workspaces/Stock-Portfolio-Tracker/data/in/")
 
 
 class Preprocessor:
-    def __init__(self, api: Any) -> None:
-        self.api = api
+    def __init__(self, data_api_type: Any) -> None:
+        self.data_api = factories.create_data_api(data_api_type=data_api_type)
 
     def preprocess(
         self,
@@ -165,11 +167,9 @@ class Preprocessor:
         assets_info = {}
 
         for ticker in sorted(transactions["ticker_asset"].unique()):
-            asset = self.api(ticker)
-
             assets_info[ticker] = {
-                "name": asset.info.get("shortName"),
-                "currency": asset.info.get("currency"),
+                "name": self.data_api.get_ticker_name(ticker),
+                "currency": self.data_api.get_ticker_currency(ticker),
             }
 
         return PortfolioData(
@@ -228,13 +228,10 @@ class Preprocessor:
 
             if origin_currency != local_currency:
                 try:
-                    currency_exchange: pd.DataFrame = (
-                        self.api(ticker)
-                        .history(start=portfolio_data.start_date)[["Close"]]
-                        .sort_index(ascending=False)
-                        .reset_index()
-                        .rename(columns={"Close": "close_currency_rate", "Date": "date"})
-                        .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
+                    currency_exchange: pd.DataFrame = self.data_api.get_currency_exchange_rate(
+                        origin_currency=origin_currency,
+                        local_currency=local_currency,
+                        start_date=portfolio_data.start_date,
                     )
 
                 except Exception as exc:
@@ -357,21 +354,9 @@ class Preprocessor:
         logger.info(f"Loading historical data for {ticker}")
 
         try:
-            asset = self.api(ticker)
-
-            asset_data: pd.DataFrame = (
-                asset.history(start=start_date)[["Close", "Stock Splits", "Dividends"]]
-                .sort_index(ascending=False)
-                .reset_index()
-                .rename(
-                    columns={
-                        "Close": "close_adj_origin_currency",
-                        "Date": "date",
-                        "Stock Splits": "split",
-                        "Dividends": "close_adj_origin_currency_dividends",
-                    },
-                )
-                .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
+            asset_data = self.data_api.get_asset_historical_data(
+                ticker=ticker,
+                start_date=start_date,
             )
 
         except Exception as exc:
@@ -380,7 +365,7 @@ class Preprocessor:
             raise YahooFinanceError(msg) from exc
 
         asset_data = self._convert_to_unadj(start_date, end_date, asset_data).assign(
-            origin_currency=asset.info.get("currency"),
+            origin_currency=self.data_api.get_ticker_currency(ticker),
             ticker=ticker,
         )
 

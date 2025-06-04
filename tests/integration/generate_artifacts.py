@@ -4,11 +4,11 @@ import pickle
 from pathlib import Path
 from typing import Any
 
-import yfinance as yf  # type: ignore
 from loguru import logger
 
 from stock_portfolio_tracker import modelling, utils
 from stock_portfolio_tracker.preprocessing import Preprocessor
+from stock_portfolio_tracker.utils import DataApiType
 
 ARTIFACTS_PATH = Path("tests/integration/artifacts")
 
@@ -26,7 +26,7 @@ def generate_artifacts(config_file_name: str, transactions_file_name: str) -> No
 
     logger.info("Start of preprocess.")
     config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
-        Preprocessor(api=yf.Ticker).preprocess(
+        Preprocessor(data_api_type=DataApiType.YAHOO_FINANCE.value).preprocess(
             config_file_name,
             transactions_file_name,
         )

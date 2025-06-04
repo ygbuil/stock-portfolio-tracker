@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class DataApiType(Enum):
+    YAHOO_FINANCE = "yahoo_finance"
+    TESTING = "testing"
+
+
 class TwrFreq(Enum):
     YEARLY = "yearly"
     ALL = "all"
