@@ -12,12 +12,11 @@
                 "python.testing.pytestArgs": ["tests"],
                 "python.testing.unittestEnabled": false,
                 "python.testing.pytestEnabled": true,
-                "python.analysis.inlayHints.functionReturnTypes": true,
+                "python.analysis.inlayHints.functionReturnTypes": false,
                 "autoDocstring.docstringFormat": "google-notypes"
             },
             "extensions": [
                 "ms-python.python",
-                "ms-python.vscode-pylance",
                 "ms-azuretools.vscode-docker",
                 "njpwerner.autodocstring",
                 "ms-toolsai.jupyter",
