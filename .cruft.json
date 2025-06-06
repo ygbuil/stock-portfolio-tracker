@@ -5,8 +5,7 @@
         "cookiecutter": {
             "project_slug": "stock_portfolio_tracker",
             "project_description": "Add your description here",
-            "_template": "https://github.com/ygbuil/cookiecutter-python-modern-ecosystem.git",
-            "_commit": "f67ee4ee018818b0881389358132ac801014cbac"
+            "_template": "https://github.com/ygbuil/cookiecutter-python-modern-ecosystem.git"
         }
     },
     "directory": null
