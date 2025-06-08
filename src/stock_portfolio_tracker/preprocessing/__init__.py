@@ -1,4 +1,4 @@
-"""__init__.py for preprocessing package."""
+"""Preprocessing."""
 
 from ._preprocessing import Preprocessor
 

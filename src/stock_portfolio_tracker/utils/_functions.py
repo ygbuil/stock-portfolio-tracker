@@ -56,6 +56,14 @@ def multithreader(func: Callable[..., Any], args: list[tuple[Any, ...]]) -> list
 
 
 def parse_underscore_text(text: str) -> str:
+    """Parse snake case text to normal readable text.
+
+    Args:
+        text: Snake case text.
+
+    Returns:
+        The parsed text with underscores replaced by spaces and the first letter capitalized.
+    """
     return f"{text[0].upper()}{text[1:]}".replace("_", " ")
 
 

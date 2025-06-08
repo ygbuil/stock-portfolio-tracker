@@ -1,4 +1,4 @@
-"""__init__.py for objects package."""
+"""Util objects for the project."""
 
 from ._decorators import sort_at_end, timer
 from ._enums import DataApiType, PositionStatus, PositionType, TransactionType, TwrFreq

@@ -1,4 +1,4 @@
-"""__init__.py for reporting package."""
+"""Reporting."""
 
 from ._reporting import generate_reports
 

@@ -23,6 +23,13 @@ from . import _factories
 
 class Preprocessor:
     def __init__(self, data_api_type: Any, input_data_dir: Path, end_date: pd.Timestamp) -> None:
+        """Initialize the Preprocessor.
+
+        Args:
+            data_api_type: Type of data API to use (e.g., Yahoo Finance, Testing).
+            input_data_dir: Directory where the input data files are located.
+            end_date: End date for the portfolio modelling.
+        """
         self.data_api = _factories.create_data_api(data_api_type=data_api_type)
         self.input_data_dir = input_data_dir
         self.end_date = end_date
@@ -210,16 +217,11 @@ class Preprocessor:
         def _multithreader_helper(origin_currency: str) -> pd.DataFrame:
             """Loads one currency exchange.
 
-
-
             Args:
                 origin_currency: Currency of origin (foreign country).
 
-
-
             Returns:
                 Dataframe with the currency exchanges for the given origin currency.
-
             """
             ticker = f"{local_currency}{origin_currency}=X"
 
