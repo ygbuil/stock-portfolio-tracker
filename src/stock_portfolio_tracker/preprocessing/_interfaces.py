@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 import yfinance as yf  # type: ignore
@@ -185,7 +184,7 @@ class TestingApi(DataApi):
         origin_currency: str,  # noqa: ARG002
         local_currency: str,  # noqa: ARG002
         start_date: pd.Timestamp,  # noqa: ARG002
-    ) -> pd.DataFrame | Any:
+    ) -> pd.DataFrame:
         """Get the exchange rate between two currencies.
 
         Args:
