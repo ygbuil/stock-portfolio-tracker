@@ -1,9 +1,11 @@
+import pickle
 import shutil
 from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
 from loguru import logger
 
 
@@ -55,3 +57,17 @@ def multithreader(func: Callable[..., Any], args: list[tuple[Any, ...]]) -> list
 
 def parse_underscore_text(text: str) -> str:
     return f"{text[0].upper()}{text[1:]}".replace("_", " ")
+
+
+def load_pickle(file_path: Path, file_name: str) -> pd.DataFrame | Any:
+    """Read saved artifacts.
+
+    Args:
+        file_path: Path to the directory containing the artifacts.
+        file_name: Name of the file containing the artifacts.
+
+    Returns:
+        Artifact object.
+    """
+    with Path.open(file_path / file_name, "rb") as file:
+        return pickle.load(file)  # noqa: S301
