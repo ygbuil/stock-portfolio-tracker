@@ -1,6 +1,9 @@
 """Main module to execute the project."""
 
+from pathlib import Path
+
 import click
+import pandas as pd
 from loguru import logger
 
 from stock_portfolio_tracker import modelling, reporting
@@ -18,23 +21,49 @@ def pipeline(config_file_name: str, transactions_file_name: str) -> None:
         config_file_name: File name for config.
         transactions_file_name: File name for transactions.
     """
-    _pipeline(config_file_name, transactions_file_name)
+    _pipeline(
+        config_file_name=config_file_name,
+        transactions_file_name=transactions_file_name,
+        end_date=pd.Timestamp.today().normalize(),
+        data_api_type=DataApiType.YAHOO_FINANCE,
+        input_data_dir=Path("/workspaces/Stock-Portfolio-Tracker/data/in/"),
+    )
 
 
 @timer
-def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
+def _pipeline(
+    config_file_name: str,
+    transactions_file_name: str,
+    end_date: pd.Timestamp,
+    data_api_type: DataApiType,
+    input_data_dir: Path,
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+    pd.DataFrame,
+]:
     """Execute the project end to end.
 
     Args:
         config_file_name: File name for config.
         transactions_file_name: File name for transactions.
+        end_date: End date to use for the portfolio analysis.
+        data_api_type: Type of data API to use.
+        input_data_dir: Directory where input data files are located.
     """
     logger.info("Start of execution.")
 
     logger.info("Start of preprocess.")
 
     config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
-        Preprocessor(data_api_type=DataApiType.YAHOO_FINANCE.value).preprocess(
+        Preprocessor(
+            data_api_type=data_api_type.value, input_data_dir=input_data_dir, end_date=end_date
+        ).preprocess(
             config_file_name,
             transactions_file_name,
         )
@@ -71,3 +100,14 @@ def _pipeline(config_file_name: str, transactions_file_name: str) -> None:
     )
 
     logger.info("End of execution.")
+
+    return (
+        portfolio_evolution,
+        benchmark_evolution,
+        asset_distribution,
+        assets_vs_benchmark,
+        dividends_company,
+        dividends_year,
+        yearly_returns,
+        overall_returns,
+    )

@@ -1,4 +1,7 @@
+import pickle
 from abc import ABC, abstractmethod
+from pathlib import Path
+from typing import Any
 
 import pandas as pd
 import yfinance as yf  # type: ignore
@@ -64,3 +67,48 @@ class YahooFinanceApi(DataApi):
             .rename(columns={"Close": "close_currency_rate", "Date": "date"})
             .assign(date=lambda df: pd.to_datetime(df["date"].dt.strftime("%Y-%m-%d")))
         )
+
+
+class TestingApi(DataApi):
+    def __init__(self) -> None:
+        self.api = yf.Ticker
+
+    def get_ticker_name(self, ticker: str) -> str:  # noqa: ARG002
+        return "NA"
+
+    def get_ticker_currency(self, ticker: str) -> str:  # noqa: ARG002
+        return "USD"
+
+    def get_asset_historical_data(
+        self,
+        ticker: str,
+        start_date: pd.Timestamp,  # noqa: ARG002
+    ) -> pd.DataFrame | Any:
+        return _load_pickle(
+            file_path=Path("tests/integration/api_mocked_artifacts"), file_name=f"{ticker}_data.pkl"
+        )
+
+    def get_currency_exchange_rate(
+        self,
+        origin_currency: str,  # noqa: ARG002
+        local_currency: str,  # noqa: ARG002
+        start_date: pd.Timestamp,  # noqa: ARG002
+    ) -> pd.DataFrame | Any:
+        return _load_pickle(
+            file_path=Path("tests/integration/api_mocked_artifacts"),
+            file_name="currency_exchange_rate.pkl",
+        )
+
+
+def _load_pickle(file_path: Path, file_name: str) -> pd.DataFrame | Any:
+    """Read saved artifacts.
+
+    Args:
+        file_path: Path to the directory containing the artifacts.
+        file_name: Name of the file containing the artifacts.
+
+    Returns:
+        Artifact object.
+    """
+    with Path.open(file_path / file_name, "rb") as file:
+        return pickle.load(file)  # noqa: S301

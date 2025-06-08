@@ -4,60 +4,47 @@ import pickle
 from pathlib import Path
 from typing import Any
 
+import pandas as pd
 from loguru import logger
 
-from stock_portfolio_tracker import modelling
-
-ARTIFACTS_PATH = Path("tests/integration/artifacts")
+from stock_portfolio_tracker.entry_points._pipeline import _pipeline
+from stock_portfolio_tracker.utils import DataApiType
 
 
 def test_modelling() -> None:
     """Test the entire module package."""
     logger.info("Read artifacts.")
 
-    config, portfolio_data, asset_prices, asset_dividends, benchmark_prices = _read_artifacts(
-        ["config", "portfolio_data", "asset_prices", "asset_dividends", "benchmark_prices"],
-    )
-
-    logger.info("Start of modelling.")
-    outputs = modelling.model_data(
-        portfolio_data,
-        asset_prices,
-        asset_dividends,
-        benchmark_prices,
+    pipeline_outputs = _pipeline(
+        config_file_name="example_config.json",
+        transactions_file_name="example_transactions.csv",
+        data_api_type=DataApiType.TESTING,
+        input_data_dir=Path("data/in/"),
+        end_date=pd.Timestamp("31-12-2024"),
     )
 
     expected_outputs = _read_artifacts(
-        [
-            "portfolio_evolution",
-            "benchmark_evolution",
-            "asset_distribution",
-            "assets_vs_benchmark",
-            "dividends_company",
-            "dividends_year",
-            "yearly_returns",
-        ],
+        file_path=Path("tests/integration/pipeline_output_artifacts"),
+        file_name="pipeline_outputs.pkl",
     )
 
     assert all(
-        output.equals(expected_output)
-        for output, expected_output in zip(outputs, expected_outputs, strict=False)
-    )
+        pipeline_output.equals(expected_output)
+        for pipeline_output, expected_output in zip(
+            pipeline_outputs, expected_outputs, strict=False
+        )
+    ), "Pipeline outputs do not match expected outputs."
 
 
-def _read_artifacts(artifact_names: list[str]) -> list[Any]:
-    """Read saved artifacts.
+def _read_artifacts(file_path: Path, file_name: str) -> Any:
+    """Read pickle file.
 
     Args:
-        artifact_names: Artifact names to read.
+        file_path: Path to the directory containing the artifacts.
+        file_name: Name of the file containing the artifacts.
 
     Returns:
-        Artifact objetcs.
+        Artifact object.
     """
-    artifacts_loaded = []
-
-    for artifact_name in artifact_names:
-        with Path.open(ARTIFACTS_PATH / Path(f"{artifact_name}.pkl"), "rb") as file:
-            artifacts_loaded.append(pickle.load(file))  # noqa: S301
-
-    return artifacts_loaded
+    with Path.open(file_path / file_name, "rb") as file:
+        return pickle.load(file)  # noqa: S301

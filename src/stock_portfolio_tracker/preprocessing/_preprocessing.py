@@ -18,14 +18,14 @@ from stock_portfolio_tracker.utils import (
     sort_at_end,
 )
 
-from . import factories
-
-DIR_IN = Path("/workspaces/Stock-Portfolio-Tracker/data/in/")
+from . import _factories
 
 
 class Preprocessor:
-    def __init__(self, data_api_type: Any) -> None:
-        self.data_api = factories.create_data_api(data_api_type=data_api_type)
+    def __init__(self, data_api_type: Any, input_data_dir: Path, end_date: pd.Timestamp) -> None:
+        self.data_api = _factories.create_data_api(data_api_type=data_api_type)
+        self.input_data_dir = input_data_dir
+        self.end_date = end_date
 
     def preprocess(
         self,
@@ -101,8 +101,7 @@ class Preprocessor:
             ],
         )
 
-    @staticmethod
-    def _load_config(config_file_name: str) -> Config:
+    def _load_config(self, config_file_name: str) -> Config:
         """Load config.json.
 
         Args:
@@ -111,7 +110,7 @@ class Preprocessor:
         Returns:
             Config dataclass with the info of config.json.
         """
-        with (DIR_IN / Path(config_file_name)).open() as file:
+        with (self.input_data_dir / Path(config_file_name)).open() as file:
             return Config(**json.load(file))
 
     def _load_portfolio_data(self, transactions_file_name: str) -> PortfolioData:
@@ -126,7 +125,7 @@ class Preprocessor:
         logger.info("Loading portfolio data.")
 
         transactions = (
-            pd.read_csv(DIR_IN / Path(transactions_file_name))
+            pd.read_csv(self.input_data_dir / Path(transactions_file_name))
             .astype(
                 {
                     "date": str,
@@ -176,7 +175,7 @@ class Preprocessor:
             transactions=transactions,
             assets_info=assets_info,
             start_date=min(transactions["date"]),
-            end_date=pd.Timestamp.today().normalize(),
+            end_date=self.end_date,
         )
 
     @sort_at_end()
