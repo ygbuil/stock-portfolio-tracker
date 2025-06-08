@@ -1,4 +1,4 @@
-"""__init__.py for entry_points package."""
+"""Entry points."""
 
 from ._pipeline import pipeline
 

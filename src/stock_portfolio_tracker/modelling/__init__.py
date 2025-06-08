@@ -1,4 +1,4 @@
-"""__init__.py for modelling package."""
+"""Modelling."""
 
 from ._modelling import model_data
 

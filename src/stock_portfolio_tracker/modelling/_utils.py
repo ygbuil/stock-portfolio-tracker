@@ -251,5 +251,14 @@ def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: TwrFreq) -> pd
 
 
 def calc_cagr(total_return: float, years: float) -> float:
+    """Calculate the compound annual growth rate (CAGR).
+
+    Args:
+        total_return: Total return in percentage between start and end.
+        years: Number of years.
+
+    Returns:
+        CAGR in percentage.
+    """
     cagr: float = round(((total_return / 100 + 1) ** (1 / years) - 1) * 100, 2)
     return cagr

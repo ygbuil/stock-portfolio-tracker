@@ -4,7 +4,7 @@
 class YahooFinanceError(Exception):
     """Error with the Yahoo Finance API."""
 
-    def __init__(self: "YahooFinanceError", msg: None | str = None) -> None:
+    def __init__(self, msg: None | str = None) -> None:
         """Provide the error message or return default.
 
         Args:
@@ -17,7 +17,7 @@ class YahooFinanceError(Exception):
 class UnsortedError(Exception):
     """Error with data sorting."""
 
-    def __init__(self: "UnsortedError", msg: None | str = None) -> None:
+    def __init__(self, msg: None | str = None) -> None:
         """Provide the error message or return default.
 
         Args:

@@ -1,4 +1,4 @@
-"""__init__.py for exceptions package."""
+"""Exceptions."""
 
 from ._exceptions import UnsortedError, YahooFinanceError
 
