@@ -9,10 +9,10 @@ def create_data_api(data_api_type: DataApiType) -> DataApi:
     """Factory function to create a DataApi instance based on the specified type.
 
     Args:
-        data_api_type (str): The type of API to create. Currently supports 'yahoo'.
+        data_api_type: The type of API to create.
 
     Returns:
-        DataApi: An instance of the specified DataApi type.
+    An instance of the specified DataApi type.
     """
     match data_api_type:
         case DataApiType.YAHOO_FINANCE.value:
