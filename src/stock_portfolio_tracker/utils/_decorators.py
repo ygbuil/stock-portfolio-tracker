@@ -1,4 +1,4 @@
-"""Module to store various util objects."""
+"""Decorators."""
 
 import time
 from collections.abc import Callable
