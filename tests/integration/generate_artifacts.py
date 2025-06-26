@@ -7,8 +7,7 @@ from typing import Any
 import pandas as pd
 from loguru import logger
 
-from stock_portfolio_tracker import utils
-from stock_portfolio_tracker.entry_points._pipeline import _pipeline
+from stock_portfolio_tracker import pipeline, utils
 from stock_portfolio_tracker.preprocessing import Preprocessor
 from stock_portfolio_tracker.preprocessing._interfaces import YahooFinanceApi
 from stock_portfolio_tracker.utils import DataApiType
@@ -70,7 +69,7 @@ def generate_pipeline_output_artifacts(config_file_name: str, transactions_file_
         config_file_name: File name for config.
         transactions_file_name: File name for transactions.
     """
-    artifacts = _pipeline(
+    artifacts = pipeline(
         config_file_name=config_file_name,
         transactions_file_name=transactions_file_name,
         data_api_type=DataApiType.TESTING,

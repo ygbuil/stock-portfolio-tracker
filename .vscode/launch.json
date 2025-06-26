@@ -8,7 +8,7 @@
             "justMyCode": false,
             "program": "${workspaceFolder}/.venv/bin/stock-portfolio-tracker",
             "args": [
-                "pipeline",
+                "execute-cli-pipeline",
                 "--config-file-name", "config.json",
                 "--transactions-file-name", "transactions.csv",
             ],

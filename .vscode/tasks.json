@@ -8,7 +8,7 @@
             "args": [
                 "run",
                 "stock-portfolio-tracker",
-                "pipeline",
+                "execute-cli-pipeline",
                 "--config-file-name", "config.json",
                 "--transactions-file-name", "transactions.csv",
             ],

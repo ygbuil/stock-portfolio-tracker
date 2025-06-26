@@ -10,7 +10,7 @@ from loguru import logger
 from stock_portfolio_tracker import utils
 from stock_portfolio_tracker.utils import Config, PositionStatus
 
-DIR_OUT = Path("/workspaces/Stock-Portfolio-Tracker/data/out/")
+DIR_OUT = Path("data/out/")
 
 
 def generate_reports(

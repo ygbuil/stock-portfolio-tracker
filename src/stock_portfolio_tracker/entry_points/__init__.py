@@ -1,5 +1,5 @@
 """Entry points."""
 
-from ._pipeline import pipeline
+from ._pipeline import execute_cli_pipeline
 
-__all__ = ["pipeline"]
+__all__ = ["execute_cli_pipeline"]

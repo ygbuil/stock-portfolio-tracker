@@ -14,29 +14,26 @@ from stock_portfolio_tracker.utils import DataApiType, timer
 @click.command()
 @click.option("--config-file-name")
 @click.option("--transactions-file-name")
-def pipeline(config_file_name: str, transactions_file_name: str) -> None:
+def execute_cli_pipeline(config_file_name: str, transactions_file_name: str) -> None:
     """Entry point for pipeline.
 
     Args:
         config_file_name: File name for config.
         transactions_file_name: File name for transactions.
     """
-    _pipeline(
+    pipeline(
         config_file_name=config_file_name,
         transactions_file_name=transactions_file_name,
-        end_date=pd.Timestamp.today().normalize(),
-        data_api_type=DataApiType.YAHOO_FINANCE,
-        input_data_dir=Path("/workspaces/Stock-Portfolio-Tracker/data/in/"),
     )
 
 
 @timer
-def _pipeline(
+def pipeline(
     config_file_name: str,
     transactions_file_name: str,
-    end_date: pd.Timestamp,
-    data_api_type: DataApiType,
-    input_data_dir: Path,
+    end_date: pd.Timestamp | None = None,
+    data_api_type: DataApiType = DataApiType.YAHOO_FINANCE,
+    input_data_dir: Path = Path("data/in/"),
 ) -> tuple[
     pd.DataFrame,
     pd.DataFrame,
@@ -59,6 +56,9 @@ def _pipeline(
     logger.info("Start of execution.")
 
     logger.info("Start of preprocess.")
+
+    if not end_date:
+        end_date = pd.Timestamp.today().normalize()
 
     config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
         Preprocessor(

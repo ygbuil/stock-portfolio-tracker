@@ -7,7 +7,7 @@ from typing import Any
 import pandas as pd
 from loguru import logger
 
-from stock_portfolio_tracker.entry_points._pipeline import _pipeline
+from stock_portfolio_tracker import pipeline
 from stock_portfolio_tracker.utils import DataApiType
 
 
@@ -15,7 +15,7 @@ def test_modelling() -> None:
     """Test the entire module package."""
     logger.info("Read artifacts.")
 
-    pipeline_outputs = _pipeline(
+    pipeline_outputs = pipeline(
         config_file_name="example_config.json",
         transactions_file_name="example_transactions.csv",
         data_api_type=DataApiType.TESTING,

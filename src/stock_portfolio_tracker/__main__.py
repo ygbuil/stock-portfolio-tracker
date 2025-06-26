@@ -12,7 +12,7 @@ def _main() -> None:
     def entry_point() -> None:
         """Entry point."""
 
-    for command in (entry_points.pipeline,):
+    for command in (entry_points.execute_cli_pipeline,):
         entry_point.add_command(command)
 
     entry_point()
