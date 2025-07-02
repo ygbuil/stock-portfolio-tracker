@@ -31,12 +31,15 @@ class DataApi(ABC):
         """
 
     @abstractmethod
-    def get_asset_historical_data(self, ticker: str, start_date: pd.Timestamp) -> pd.DataFrame:
+    def get_asset_historical_data(
+        self, ticker: str, start_date: pd.Timestamp, end_date: pd.Timestamp
+    ) -> pd.DataFrame:
         """Get the historical data of the asset.
 
         Args:
             ticker: Ticker symbol.
             start_date: Start date for the historical data.
+            end_date: End date for the historical data.
 
         Returns:
             DataFrame with the historical data of the asset.
@@ -44,7 +47,11 @@ class DataApi(ABC):
 
     @abstractmethod
     def get_currency_exchange_rate(
-        self, origin_currency: str, local_currency: str, start_date: pd.Timestamp
+        self,
+        origin_currency: str,
+        local_currency: str,
+        start_date: pd.Timestamp,
+        end_date: pd.Timestamp,
     ) -> pd.DataFrame:
         """Get the exchange rate between two currencies.
 
@@ -52,6 +59,7 @@ class DataApi(ABC):
             origin_currency: Origin currency symbol.
             local_currency: Local currency symbol.
             start_date: Start date for the exchange rate data.
+            end_date: End date for the exchange rate data.
 
         Returns:
             DataFrame with the exchange rate data between the two currencies.
@@ -84,19 +92,22 @@ class YahooFinanceApi(DataApi):
         """
         return self.api(ticker).info.get("currency")  # type: ignore
 
-    def get_asset_historical_data(self, ticker: str, start_date: pd.Timestamp) -> pd.DataFrame:
+    def get_asset_historical_data(
+        self, ticker: str, start_date: pd.Timestamp, end_date: pd.Timestamp
+    ) -> pd.DataFrame:
         """Get the historical data of the asset.
 
         Args:
             ticker: Ticker symbol.
             start_date: Start date for the historical data.
+            end_date: End date for the historical data.
 
         Returns:
             DataFrame with the historical data of the asset.
         """
         return (  # type: ignore
             self.api(ticker)
-            .history(start=start_date)[["Close", "Stock Splits", "Dividends"]]
+            .history(start=start_date, end=end_date)[["Close", "Stock Splits", "Dividends"]]
             .sort_index(ascending=False)
             .reset_index()
             .rename(
@@ -111,7 +122,11 @@ class YahooFinanceApi(DataApi):
         )
 
     def get_currency_exchange_rate(
-        self, origin_currency: str, local_currency: str, start_date: pd.Timestamp
+        self,
+        origin_currency: str,
+        local_currency: str,
+        start_date: pd.Timestamp,
+        end_date: pd.Timestamp,
     ) -> pd.DataFrame:
         """Get the exchange rate between two currencies.
 
@@ -119,6 +134,7 @@ class YahooFinanceApi(DataApi):
             origin_currency: Origin currency symbol.
             local_currency: Local currency symbol.
             start_date: Start date for the exchange rate data.
+            end_date: End date for the exchange rate data.
 
         Returns:
             DataFrame with the exchange rate data between the two currencies.
@@ -127,7 +143,7 @@ class YahooFinanceApi(DataApi):
 
         return (  # type: ignore
             self.api(ticker)
-            .history(start=start_date)[["Close"]]
+            .history(start=start_date, end=end_date)[["Close"]]
             .sort_index(ascending=False)
             .reset_index()
             .rename(columns={"Close": "close_currency_rate", "Date": "date"})
@@ -165,12 +181,14 @@ class TestingApi(DataApi):
         self,
         ticker: str,
         start_date: pd.Timestamp,  # noqa: ARG002
+        end_date: pd.Timestamp,  # noqa: ARG002
     ) -> pd.DataFrame:
         """Get the historical data of the asset.
 
         Args:
             ticker: Ticker symbol.
             start_date: Start date for the historical data.
+            end_date: End date for the historical data.
 
         Returns:
             DataFrame with the historical data of the asset.
@@ -184,6 +202,7 @@ class TestingApi(DataApi):
         origin_currency: str,  # noqa: ARG002
         local_currency: str,  # noqa: ARG002
         start_date: pd.Timestamp,  # noqa: ARG002
+        end_date: pd.Timestamp,  # noqa: ARG002
     ) -> pd.DataFrame:
         """Get the exchange rate between two currencies.
 
@@ -191,6 +210,7 @@ class TestingApi(DataApi):
             origin_currency: Origin currency symbol.
             local_currency: Local currency symbol.
             start_date: Start date for the exchange rate data.
+            end_date: End date for the exchange rate data.
 
         Returns:
             DataFrame with the exchange rate data between the two currencies.

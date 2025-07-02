@@ -31,3 +31,8 @@ repos:
         pass_filenames: false
         language: system
         stages: [pre-push]
+      - id: tag-version-on-push
+        name: Tag version on push if changed
+        entry: ./tag_version.sh
+        language: script
+        stages: [pre-push]

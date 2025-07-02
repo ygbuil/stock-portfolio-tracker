@@ -403,7 +403,7 @@ def _plot_dividends_company(
         plt.text(
             i,  # type: ignore
             y_offset,
-            f"{dividends_company['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",  # type: ignore
+            f"{dividends_company['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",
             ha="center",
             color="blue",
             fontweight="bold",
@@ -462,7 +462,7 @@ def _plot_dividends_year(portfolio_currency: str, dividends_year: pd.DataFrame) 
         plt.text(
             i,  # type: ignore
             y_offset,
-            f"{dividends_year['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",  # type: ignore
+            f"{dividends_year['total_dividend_asset'][i]:.2f}\n{portfolio_currency}",
             ha="center",
             color="blue",
             fontweight="bold",

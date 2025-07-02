@@ -233,6 +233,7 @@ class Preprocessor:
                         origin_currency=origin_currency,
                         local_currency=local_currency,
                         start_date=portfolio_data.start_date,
+                        end_date=portfolio_data.end_date,
                     )
 
                 except Exception as exc:
@@ -315,7 +316,7 @@ class Preprocessor:
             f"close_unadj_local_currency_dividends_{position_type.value}",
         )
 
-        return asset_data.rename(  # type: ignore
+        return asset_data.rename(
             columns={
                 "ticker": f"ticker_{position_type.value}",
                 "split": f"split_{position_type.value}",
@@ -358,6 +359,7 @@ class Preprocessor:
             asset_data = self.data_api.get_asset_historical_data(
                 ticker=ticker,
                 start_date=start_date,
+                end_date=end_date,
             )
 
         except Exception as exc:

@@ -38,14 +38,15 @@ def generate_api_mocked_artifacts(config_file_name: str, transactions_file_name:
         transactions_file_name=transactions_file_name
     )
     api_interface = YahooFinanceApi()
-    start_date = portfolio_data.transactions["date"].min()
 
     for ticker in [
         *portfolio_data.transactions["ticker_asset"].unique().tolist(),
         config.benchmark_ticker,
     ]:
         logger.info(f"Saving data for ticker: {ticker}")
-        artifact = api_interface.get_asset_historical_data(ticker=ticker, start_date=start_date)
+        artifact = api_interface.get_asset_historical_data(
+            ticker=ticker, start_date=portfolio_data.start_date, end_date=portfolio_data.end_date
+        )
         _save_pickle(
             path=API_MOCKED_ARTIFACTS_PATH,
             file_name=f"{ticker}_data",
@@ -53,7 +54,10 @@ def generate_api_mocked_artifacts(config_file_name: str, transactions_file_name:
         )
 
     artifact = api_interface.get_currency_exchange_rate(
-        origin_currency="USD", local_currency=config.portfolio_currency, start_date=start_date
+        origin_currency="USD",
+        local_currency=config.portfolio_currency,
+        start_date=portfolio_data.start_date,
+        end_date=preprocessor.end_date,
     )
     _save_pickle(
         path=API_MOCKED_ARTIFACTS_PATH,

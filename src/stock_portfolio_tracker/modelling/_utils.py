@@ -105,7 +105,7 @@ def calc_simple_return_daily(
             money_out=money_out,
             money_in=money_in,
             **{f"curr_abs_gain_{position_type.value}": np.round(money_out + money_in, 2)},
-            **{
+            **{  # type: ignore
                 f"curr_perc_gain_{position_type.value}": [
                     round((abs(x / y) - 1) * 100, 2) if y != 0 else np.float64(0)
                     for x, y in zip(money_in, money_out, strict=False)
