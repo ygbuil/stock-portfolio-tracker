@@ -25,12 +25,6 @@ repos:
         pass_filenames: false
         language: system
         stages: [pre-commit]
-      - id: tag-version-on-push
-        name: Tag version on push if changed
-        entry: ./tag_version.sh
-        pass_filenames: false
-        language: script
-        stages: [pre-push]
       - id: tests
         name: Tests
         entry: uv run pytest
