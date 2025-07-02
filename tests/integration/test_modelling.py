@@ -28,11 +28,11 @@ def test_modelling() -> None:
         file_name="pipeline_outputs.pkl",
     )
 
+    output_types = pipeline_outputs.keys() | expected_outputs.keys()
+
     assert all(
-        pipeline_output.equals(expected_output)
-        for pipeline_output, expected_output in zip(
-            pipeline_outputs, expected_outputs, strict=False
-        )
+        pipeline_outputs[output_type].equals(expected_outputs[output_type])
+        for output_type in output_types
     ), "Pipeline outputs do not match expected outputs."
 
 

@@ -34,16 +34,7 @@ def pipeline(
     end_date: pd.Timestamp | None = None,
     data_api_type: DataApiType = DataApiType.YAHOO_FINANCE,
     input_data_dir: Path = Path("data/in/"),
-) -> tuple[
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-    pd.DataFrame,
-]:
+) -> dict[str, pd.DataFrame]:
     """Execute the project end to end.
 
     Args:
@@ -101,13 +92,13 @@ def pipeline(
 
     logger.info("End of execution.")
 
-    return (
-        portfolio_evolution,
-        benchmark_evolution,
-        asset_distribution,
-        assets_vs_benchmark,
-        dividends_company,
-        dividends_year,
-        yearly_returns,
-        overall_returns,
-    )
+    return {
+        "portfolio_evolution": portfolio_evolution,
+        "benchmark_evolution": benchmark_evolution,
+        "asset_distribution": asset_distribution,
+        "assets_vs_benchmark": assets_vs_benchmark,
+        "dividends_company": dividends_company,
+        "dividends_year": dividends_year,
+        "yearly_returns": yearly_returns,
+        "overall_returns": overall_returns,
+    }
