@@ -22,7 +22,6 @@ def model_data(
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
-    pd.DataFrame,
 ]:
     """Calculate all necessary metrics.
 
@@ -82,8 +81,13 @@ def model_data(
     logger.info("End of modelling.")
 
     return (
-        portfolio_evolution,
-        benchmark_evolution,
+        portfolio_evolution.merge(benchmark_evolution, on="date", how="left").assign(
+            curr_val_diff=lambda df: df["curr_val_portfolio"] - df["curr_val_benchmark"],
+            curr_abs_gain_diff=lambda df: df["curr_abs_gain_portfolio"]
+            - df["curr_abs_gain_benchmark"],
+            curr_perc_gain_diff=lambda df: df["curr_perc_gain_portfolio"]
+            - df["curr_perc_gain_benchmark"],
+        ),
         asset_distribution,
         assets_vs_benchmark,
         dividends_company,

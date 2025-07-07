@@ -63,7 +63,6 @@ def pipeline(
     logger.info("Start of modelling.")
     (
         portfolio_evolution,
-        benchmark_evolution,
         asset_distribution,
         assets_vs_benchmark,
         dividends_company,
@@ -81,7 +80,6 @@ def pipeline(
     reporting.generate_reports(
         config,
         portfolio_evolution,
-        benchmark_evolution,
         asset_distribution,
         assets_vs_benchmark,
         dividends_company,
@@ -94,7 +92,6 @@ def pipeline(
 
     return {
         "portfolio_evolution": portfolio_evolution,
-        "benchmark_evolution": benchmark_evolution,
         "asset_distribution": asset_distribution,
         "assets_vs_benchmark": assets_vs_benchmark,
         "dividends_company": dividends_company,

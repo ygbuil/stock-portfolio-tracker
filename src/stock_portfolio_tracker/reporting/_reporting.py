@@ -16,7 +16,6 @@ DIR_OUT = Path("data/out/")
 def generate_reports(
     config: Config,
     portfolio_evolution: pd.DataFrame,
-    benchmark_evolution: pd.DataFrame,
     asset_distribution: pd.DataFrame,
     assets_vs_benchmark: pd.DataFrame,
     dividends_company: pd.DataFrame,
@@ -29,7 +28,6 @@ def generate_reports(
     Args:
         config: Config class.
         portfolio_evolution: Portfolio value and gains evolution.
-        benchmark_evolution: Benchmark value and gains evolution.
         asset_distribution: Percentage and amount of each asset held.
         assets_vs_benchmark: Individual asset percetnage returns vs benchmark.
         dividends_company: Total dividends paied by company.
@@ -44,24 +42,21 @@ def generate_reports(
     _plot_portfolio_value_evolution(
         config,
         portfolio_evolution,
-        benchmark_evolution,
     )
 
     logger.info("Plotting portfolio gain evolution.")
     _plot_portfolio_gain_evolution(
         config.portfolio_currency,
         portfolio_evolution,
-        benchmark_evolution,
         "abs",
     )
 
     _plot_portfolio_gain_evolution(
         config.portfolio_currency,
         portfolio_evolution,
-        benchmark_evolution,
         "perc",
     )
-    _plot_portfolio_gain_evolution_diff(portfolio_evolution, benchmark_evolution)
+    _plot_portfolio_gain_evolution_diff(portfolio_evolution)
 
     logger.info("Plotting asset distribution.")
     _plot_asset_distribution(config, asset_distribution)
@@ -104,14 +99,12 @@ def generate_reports(
 def _plot_portfolio_value_evolution(
     config: Config,
     portfolio_evolution: pd.DataFrame,
-    benchmark_evolution: pd.DataFrame,
 ) -> None:
     """Plot portfolio value evolution.
 
     Args:
         config: Config class.
         portfolio_evolution: Portfolio value and gains evolution.
-        benchmark_evolution: Benchmark value and gains evolution.
     """
     plt.figure(figsize=(10, 6))
     plt.plot(
@@ -122,11 +115,11 @@ def _plot_portfolio_value_evolution(
         label=f"Portfolio value. Current: {portfolio_evolution['curr_val_portfolio'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.plot(
-        benchmark_evolution["date"],
-        benchmark_evolution["curr_val_benchmark"],
+        portfolio_evolution["date"],
+        portfolio_evolution["curr_val_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark value. Current: {benchmark_evolution['curr_val_benchmark'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
+        label=f"Benchmark value. Current: {portfolio_evolution['curr_val_benchmark'].iloc[0]} {config.portfolio_currency}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"Value ({config.portfolio_currency})")
@@ -190,7 +183,6 @@ def _plot_asset_distribution(
 def _plot_portfolio_gain_evolution(
     portfolio_currency: str,
     portfolio_evolution: pd.DataFrame,
-    benchmark_evolution: pd.DataFrame,
     gain_type: str,
 ) -> None:
     """Plot portfolio gain evolution.
@@ -198,7 +190,6 @@ def _plot_portfolio_gain_evolution(
     Args:
         portfolio_currency: Currency of the portfolio.
         portfolio_evolution: Portfolio value and gains evolution.
-        benchmark_evolution: Benchmark value and gains evolution.
         gain_type: Type of gain. "perc" or "abs".
     """
     unit = "%" if gain_type == "perc" else portfolio_currency
@@ -211,16 +202,16 @@ def _plot_portfolio_gain_evolution(
         label=f"Portfolio. Current: {portfolio_evolution[f'curr_{gain_type}_gain_portfolio'].iloc[0]} {unit}",  # noqa: E501
     )
     plt.plot(
-        benchmark_evolution["date"],
-        benchmark_evolution[f"curr_{gain_type}_gain_benchmark"],
+        portfolio_evolution["date"],
+        portfolio_evolution[f"curr_{gain_type}_gain_benchmark"],
         linestyle="-",
         color="orange",
-        label=f"Benchmark. Current: {benchmark_evolution[f'curr_{gain_type}_gain_benchmark'].iloc[0]} {unit}",  # noqa: E501
+        label=f"Benchmark. Current: {portfolio_evolution[f'curr_{gain_type}_gain_benchmark'].iloc[0]} {unit}",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel(f"{gain_type[0].upper() + gain_type[1:]} gain ({unit})")
     plt.title(
-        f"Date ({benchmark_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
+        f"Date ({portfolio_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {portfolio_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
@@ -234,29 +225,24 @@ def _plot_portfolio_gain_evolution(
 
 def _plot_portfolio_gain_evolution_diff(
     portfolio_evolution: pd.DataFrame,
-    benchmark_evolution: pd.DataFrame,
 ) -> None:
     """Plot portfolio gain evolution.
 
     Args:
-        portfolio_currency: Currency of the portfolio.
         portfolio_evolution: Portfolio value and gains evolution.
-        benchmark_evolution: Benchmark value and gains evolution.
-        gain_type: Type of gain. "perc" or "abs".
     """
     plt.figure(figsize=(10, 6))
     plt.plot(
         portfolio_evolution["date"],
-        portfolio_evolution["curr_perc_gain_portfolio"]
-        - benchmark_evolution["curr_perc_gain_benchmark"],
+        portfolio_evolution["curr_perc_gain_diff"],
         linestyle="-",
         color="blue",
-        label=f"Current outperformance: {round(portfolio_evolution['curr_perc_gain_portfolio'].iloc[0] - benchmark_evolution['curr_perc_gain_benchmark'].iloc[0], 2)} percentage points",  # noqa: E501
+        label=f"Current outperformance: {round(portfolio_evolution['curr_perc_gain_diff'].iloc[0], 2)} percentage points",  # noqa: E501
     )
     plt.xlabel("Date (YYYY-MM)")
     plt.ylabel("Perc gain diff (percentage points)")
     plt.title(
-        f"Date ({benchmark_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {benchmark_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
+        f"Date ({portfolio_evolution['date'].iloc[-1].date().strftime('%d/%m/%Y')} - {portfolio_evolution['date'].iloc[0].date().strftime('%d/%m/%Y')})",  # noqa: E501
     )
     plt.grid(True)  # noqa: FBT003
     plt.xticks(rotation=45)
