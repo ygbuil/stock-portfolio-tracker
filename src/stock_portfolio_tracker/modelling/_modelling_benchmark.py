@@ -62,7 +62,7 @@ def model_benchmark(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    benchmark_yearly_returns, benchmark_cagr = utils.calc_overall_returns(
+    benchmark_yearly_returns, benchmark_overall_returns = utils.calc_overall_returns(
         benchmark_gains, PositionType.BENCHMARK
     )
 
@@ -75,7 +75,7 @@ def model_benchmark(
             on=["date"],
         ),
         benchmark_yearly_returns,
-        benchmark_cagr,
+        benchmark_overall_returns,
     )
 
 

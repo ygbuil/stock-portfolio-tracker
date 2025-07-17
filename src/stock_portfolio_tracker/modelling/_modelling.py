@@ -42,7 +42,7 @@ def model_data(
         dividends_company,
         dividends_year,
         portfolio_yearly_returns,
-        portfolio_cagr,
+        portfolio_overall_returns,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
@@ -54,19 +54,19 @@ def model_data(
             {"columns": ["total_dividend_asset"], "ascending": [False]},
             {"columns": ["date"], "ascending": [True]},
             {"columns": ["year"], "ascending": [False]},
-            {"columns": ["twr_cagr_portfolio"], "ascending": [False]},
+            {"columns": [], "ascending": []},
         ],
     )
 
     logger.info("Modelling benchmark.")
-    benchmark_evolution, benchmark_yearly_returns, benchmark_cagr = (
+    benchmark_evolution, benchmark_yearly_returns, benchmark_overall_returns = (
         modelling_benchmark.model_benchmark(
             portfolio_data,
             benchmark_prices,
             sorting_columns=[
                 {"columns": ["date"], "ascending": [False]},
                 {"columns": ["year"], "ascending": [False]},
-                {"columns": ["twr_cagr_benchmark"], "ascending": [False]},
+                {"columns": [], "ascending": []},
             ],
         )
     )
@@ -103,5 +103,5 @@ def model_data(
                 "twr_portfolio",
             ]
         ],
-        pd.concat([portfolio_cagr, benchmark_cagr], axis=1),
+        portfolio_overall_returns.merge(benchmark_overall_returns, how="left", on=["type"]),
     )

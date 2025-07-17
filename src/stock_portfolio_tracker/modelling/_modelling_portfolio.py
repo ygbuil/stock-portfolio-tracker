@@ -80,7 +80,7 @@ def model_portfolio(
         sorting_columns=[{"columns": ["date"], "ascending": [False]}],
     )
 
-    portfolio_yearly_returns, portfolio_cagr = utils.calc_overall_returns(
+    portfolio_yearly_returns, portfolio_overall_returns = utils.calc_overall_returns(
         portfolio_gains, PositionType.PORTFOLIO
     )
 
@@ -103,7 +103,7 @@ def model_portfolio(
         dividends_company,
         dividends_year,
         portfolio_yearly_returns,
-        portfolio_cagr,
+        portfolio_overall_returns,
     )
 
 

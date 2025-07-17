@@ -173,8 +173,17 @@ def calc_overall_returns(
 
     return simple_returns_yearly.merge(twr_yearly, on="year", how="left"), pd.DataFrame(
         {
-            f"twr_cagr_{position_type.value}": [twr_cagr],
-            f"simple_returns_cagr_{position_type.value}": [simple_returns_cagr],
+            "type": ["cagr", "abs", "perc"],
+            f"twr_{position_type.value}": [
+                twr_cagr,
+                None,
+                twr_all[f"twr_{position_type.value}"].iloc[0],
+            ],
+            f"simple_returns_{position_type.value}": [
+                simple_returns_cagr,
+                simple_returns_all[f"simple_return_abs_{position_type.value}"].iloc[0],
+                simple_returns_all[f"simple_return_perc_{position_type.value}"].iloc[0],
+            ],
         }
     )
 
