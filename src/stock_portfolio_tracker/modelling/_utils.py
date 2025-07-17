@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from stock_portfolio_tracker.exceptions import UnsortedError
-from stock_portfolio_tracker.utils import PositionType, TwrFreq, sort_at_end
+from stock_portfolio_tracker.utils import Freq, PositionType, sort_at_end
 
 
 def calc_curr_qty(
@@ -153,26 +153,42 @@ def calc_overall_returns(
     if not df["date"].is_monotonic_decreasing:
         raise UnsortedError
 
-    simple_returns_yearly = calc_simple_return(df, position_type)
+    simple_returns_yearly, simple_returns_all = (
+        calc_simple_return(df, position_type, Freq.YEARLY),
+        calc_simple_return(df, position_type, Freq.ALL),
+    )
 
-    twr_yearly = calc_twr(df, position_type, TwrFreq.YEARLY)
+    twr_yearly, twr_all = (
+        calc_twr(df, position_type, Freq.YEARLY),
+        calc_twr(df, position_type, Freq.ALL),
+    )
 
-    twr_all = calc_twr(df, position_type, TwrFreq.ALL)
-    twr_cagr = calc_cagr(twr_all[f"twr_{position_type.value}"].iloc[0], twr_all["year"].iloc[0])
+    twr_cagr, simple_returns_cagr = (
+        calc_cagr(twr_all[f"twr_perc_{position_type.value}"].iloc[0], twr_all["year"].iloc[0]),
+        calc_cagr(
+            simple_returns_all[f"simple_return_perc_{position_type.value}"].iloc[0],
+            simple_returns_all["year"].iloc[0],
+        ),
+    )
 
     return simple_returns_yearly.merge(twr_yearly, on="year", how="left"), pd.DataFrame(
-        {f"twr_cagr_{position_type.value}": [twr_cagr]}
+        {
+            f"twr_cagr_{position_type.value}": [twr_cagr],
+            f"simple_returns_cagr_{position_type.value}": [simple_returns_cagr],
+        }
     )
 
 
-def calc_simple_return(df: pd.DataFrame, position_type: PositionType) -> pd.DataFrame:
-    yearly_returns: dict[str, list[float]] = {
+def calc_simple_return(df: pd.DataFrame, position_type: PositionType, freq: Freq) -> pd.DataFrame:
+    simple_returns: dict[str, list[float]] = {
         "year": [],
-        f"abs_gain_{position_type.value}": [],
-        f"simple_return_{position_type.value}": [],
+        f"simple_return_abs_{position_type.value}": [],
+        f"simple_return_perc_{position_type.value}": [],
     }
 
-    for _, group in df.groupby(df["date"].dt.year, sort=False):
+    for _, group in (
+        df.groupby(df["date"].dt.year, sort=False) if freq == Freq.YEARLY else [(None, df)]
+    ):
         (
             money_in_end_of_period,
             money_in_beg_of_period,
@@ -189,18 +205,22 @@ def calc_simple_return(df: pd.DataFrame, position_type: PositionType) -> pd.Data
             abs(money_out_end_of_period) - abs(money_out_beg_of_period)
         )
 
-        yearly_returns["year"].append(group["date"].iloc[0].year)
-        yearly_returns[f"abs_gain_{position_type.value}"].append(
+        simple_returns["year"].append(
+            group["date"].iloc[0].year
+            if freq == Freq.YEARLY
+            else round((group["date"].iloc[0] - group["date"].iloc[-1]).days / 365, 2)
+        )
+        simple_returns[f"simple_return_abs_{position_type.value}"].append(
             round(money_in_end_of_period - money_out_beg_of_period_with_deposits, 2)
         )
-        yearly_returns[f"simple_return_{position_type.value}"].append(
+        simple_returns[f"simple_return_perc_{position_type.value}"].append(
             round((money_in_end_of_period / money_out_beg_of_period_with_deposits - 1) * 100, 2)
         )
 
-    return pd.DataFrame(yearly_returns)
+    return pd.DataFrame(simple_returns)
 
 
-def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: TwrFreq) -> pd.DataFrame:
+def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: Freq) -> pd.DataFrame:
     """Calculate time weighted returns.
 
     Args:
@@ -213,11 +233,11 @@ def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: TwrFreq) -> pd
     """
     twrs: dict[str, list[float]] = {
         "year": [],
-        f"twr_{position_type.value}": [],
+        f"twr_perc_{position_type.value}": [],
     }
 
     for _, group in (
-        df.groupby(df["date"].dt.year, sort=False) if freq == TwrFreq.YEARLY else [(None, df)]
+        df.groupby(df["date"].dt.year, sort=False) if freq == Freq.YEARLY else [(None, df)]
     ):
         returns_period = []
 
@@ -242,10 +262,10 @@ def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: TwrFreq) -> pd
 
         twrs["year"].append(
             group["date"].iloc[0].year
-            if freq == TwrFreq.YEARLY
+            if freq == Freq.YEARLY
             else round((group["date"].iloc[0] - group["date"].iloc[-1]).days / 365, 2)
         )
-        twrs[f"twr_{position_type.value}"].append(twr)
+        twrs[f"twr_perc_{position_type.value}"].append(twr)
 
     return pd.DataFrame(twrs)
 

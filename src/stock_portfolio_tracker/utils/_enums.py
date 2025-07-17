@@ -6,7 +6,7 @@ class DataApiType(Enum):
     TESTING = "testing"
 
 
-class TwrFreq(Enum):
+class Freq(Enum):
     YEARLY = "yearly"
     ALL = "all"
 

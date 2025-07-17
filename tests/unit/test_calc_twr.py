@@ -5,7 +5,7 @@ import pytest
 from pytest import FixtureRequest  # noqa: PT013
 
 import stock_portfolio_tracker.modelling._utils as utils
-from stock_portfolio_tracker.utils import PositionType, TwrFreq
+from stock_portfolio_tracker.utils import Freq, PositionType
 
 
 @pytest.fixture
@@ -89,7 +89,7 @@ def twr_1() -> pd.DataFrame:
             "year": [
                 2024,
             ],
-            "twr_asset": [55.52],
+            "twr_perc_asset": [55.52],
         }
     )
 
@@ -107,7 +107,7 @@ def twr_2() -> pd.DataFrame:
                 2025,
                 2024,
             ],
-            "twr_asset": [26.04, 55.52],
+            "twr_perc_asset": [26.04, 55.52],
         }
     )
 
@@ -124,7 +124,7 @@ def twr_3() -> pd.DataFrame:
             "year": [
                 0.03,
             ],
-            "twr_asset": [77.87],
+            "twr_perc_asset": [77.87],
         }
     )
 
@@ -132,15 +132,15 @@ def twr_3() -> pd.DataFrame:
 @pytest.mark.parametrize(
     ("portfolio_model", "twr", "freq"),
     [
-        ("portfolio_model_1", "twr_1", TwrFreq.YEARLY),
-        ("portfolio_model_2", "twr_2", TwrFreq.YEARLY),
-        ("portfolio_model_2", "twr_3", TwrFreq.ALL),
+        ("portfolio_model_1", "twr_1", Freq.YEARLY),
+        ("portfolio_model_2", "twr_2", Freq.YEARLY),
+        ("portfolio_model_2", "twr_3", Freq.ALL),
     ],
 )
 def test_calc_twr(
     portfolio_model: str,
     twr: str,
-    freq: TwrFreq,
+    freq: Freq,
     request: FixtureRequest,
 ) -> None:
     """Test calc_twr().
