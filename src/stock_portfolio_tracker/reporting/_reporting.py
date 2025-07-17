@@ -82,12 +82,12 @@ def generate_reports(
 
     logger.info("Plotting yearly gains.")
     _plot_overall_returns(overall_returns)
-    for return_type in ["simple_return", "twr"]:
+    for return_type in ["simple_return_perc", "twr"]:
         _plot_barchar_2_cols(
             df=yearly_returns.sort_values(by="year"),
             col_name_x_labels="year",
-            col_name_bars_1=f"{return_type}_perc_portfolio",
-            col_name_bars_2=f"{return_type}_perc_benchmark",
+            col_name_bars_1=f"{return_type}_portfolio",
+            col_name_bars_2=f"{return_type}_benchmark",
             y_axis_title=utils.parse_underscore_text(return_type),
             plot_title=utils.parse_underscore_text(return_type),
             plot_folder="summary_returns",

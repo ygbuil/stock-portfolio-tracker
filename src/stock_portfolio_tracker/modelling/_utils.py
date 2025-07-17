@@ -164,7 +164,7 @@ def calc_overall_returns(
     )
 
     twr_cagr, simple_returns_cagr = (
-        calc_cagr(twr_all[f"twr_perc_{position_type.value}"].iloc[0], twr_all["year"].iloc[0]),
+        calc_cagr(twr_all[f"twr_{position_type.value}"].iloc[0], twr_all["year"].iloc[0]),
         calc_cagr(
             simple_returns_all[f"simple_return_perc_{position_type.value}"].iloc[0],
             simple_returns_all["year"].iloc[0],
@@ -233,7 +233,7 @@ def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: Freq) -> pd.Da
     """
     twrs: dict[str, list[float]] = {
         "year": [],
-        f"twr_perc_{position_type.value}": [],
+        f"twr_{position_type.value}": [],
     }
 
     for _, group in (
@@ -265,7 +265,7 @@ def calc_twr(df: pd.DataFrame, position_type: PositionType, freq: Freq) -> pd.Da
             if freq == Freq.YEARLY
             else round((group["date"].iloc[0] - group["date"].iloc[-1]).days / 365, 2)
         )
-        twrs[f"twr_perc_{position_type.value}"].append(twr)
+        twrs[f"twr_{position_type.value}"].append(twr)
 
     return pd.DataFrame(twrs)
 

@@ -89,7 +89,7 @@ def twr_1() -> pd.DataFrame:
             "year": [
                 2024,
             ],
-            "twr_perc_asset": [55.52],
+            "twr_asset": [55.52],
         }
     )
 
@@ -107,7 +107,7 @@ def twr_2() -> pd.DataFrame:
                 2025,
                 2024,
             ],
-            "twr_perc_asset": [26.04, 55.52],
+            "twr_asset": [26.04, 55.52],
         }
     )
 
@@ -124,7 +124,7 @@ def twr_3() -> pd.DataFrame:
             "year": [
                 0.03,
             ],
-            "twr_perc_asset": [77.87],
+            "twr_asset": [77.87],
         }
     )
 

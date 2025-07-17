@@ -99,8 +99,8 @@ def model_data(
                 "simple_return_abs_portfolio",
                 "simple_return_perc_benchmark",
                 "simple_return_perc_portfolio",
-                "twr_perc_benchmark",
-                "twr_perc_portfolio",
+                "twr_benchmark",
+                "twr_portfolio",
             ]
         ],
         pd.concat([portfolio_cagr, benchmark_cagr], axis=1),
