@@ -21,7 +21,6 @@ def model_data(
     pd.DataFrame,
     pd.DataFrame,
     pd.DataFrame,
-    pd.DataFrame,
 ]:
     """Calculate all necessary metrics.
 
@@ -41,8 +40,7 @@ def model_data(
         portfolio_model,
         dividends_company,
         dividends_year,
-        portfolio_yearly_returns,
-        portfolio_overall_returns,
+        portfolio_returns,
     ) = modelling_portfolio.model_portfolio(
         portfolio_data,
         asset_prices,
@@ -53,22 +51,18 @@ def model_data(
             {"columns": ["ticker_asset", "date"], "ascending": [True, False]},
             {"columns": ["total_dividend_asset"], "ascending": [False]},
             {"columns": ["date"], "ascending": [True]},
-            {"columns": ["year"], "ascending": [False]},
-            {"columns": [], "ascending": []},
+            {"columns": ["metric_type", "unit_type", "year"], "ascending": [True, True, False]},
         ],
     )
 
     logger.info("Modelling benchmark.")
-    benchmark_evolution, benchmark_yearly_returns, benchmark_overall_returns = (
-        modelling_benchmark.model_benchmark(
-            portfolio_data,
-            benchmark_prices,
-            sorting_columns=[
-                {"columns": ["date"], "ascending": [False]},
-                {"columns": ["year"], "ascending": [False]},
-                {"columns": [], "ascending": []},
-            ],
-        )
+    benchmark_evolution, benchmark_returns = modelling_benchmark.model_benchmark(
+        portfolio_data,
+        benchmark_prices,
+        sorting_columns=[
+            {"columns": ["date"], "ascending": [False]},
+            {"columns": ["metric_type", "unit_type", "year"], "ascending": [True, True, False]},
+        ],
     )
 
     logger.info("Modelling assets vs benchmark.")
@@ -92,16 +86,7 @@ def model_data(
         assets_vs_benchmark,
         dividends_company,
         dividends_year,
-        portfolio_yearly_returns.merge(benchmark_yearly_returns, how="left", on=["year"])[
-            [
-                "year",
-                "simple_return_abs_benchmark",
-                "simple_return_abs_portfolio",
-                "simple_return_perc_benchmark",
-                "simple_return_perc_portfolio",
-                "twr_benchmark",
-                "twr_portfolio",
-            ]
-        ],
-        portfolio_overall_returns.merge(benchmark_overall_returns, how="left", on=["type"]),
+        portfolio_returns.merge(
+            benchmark_returns, how="left", on=["metric_type", "unit_type", "year"]
+        ),
     )

@@ -67,8 +67,7 @@ def pipeline(
         assets_vs_benchmark,
         dividends_company,
         dividends_year,
-        yearly_returns,
-        overall_returns,
+        summary_returns,
     ) = modelling.model_data(
         portfolio_data,
         asset_prices,
@@ -84,8 +83,7 @@ def pipeline(
         assets_vs_benchmark,
         dividends_company,
         dividends_year,
-        yearly_returns,
-        overall_returns,
+        summary_returns,
     )
 
     logger.info("End of execution.")
@@ -96,6 +94,5 @@ def pipeline(
         "assets_vs_benchmark": assets_vs_benchmark,
         "dividends_company": dividends_company,
         "dividends_year": dividends_year,
-        "yearly_returns": yearly_returns,
-        "overall_returns": overall_returns,
+        "summary_returns": summary_returns,
     }

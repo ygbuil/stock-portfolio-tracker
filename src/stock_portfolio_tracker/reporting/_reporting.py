@@ -20,8 +20,7 @@ def generate_reports(
     assets_vs_benchmark: pd.DataFrame,
     dividends_company: pd.DataFrame,
     dividends_year: pd.DataFrame,
-    yearly_returns: pd.DataFrame,
-    overall_returns: pd.DataFrame,
+    summary_returns: pd.DataFrame,
 ) -> None:
     """Generate all final reports for the user.
 
@@ -32,8 +31,7 @@ def generate_reports(
         assets_vs_benchmark: Individual asset percetnage returns vs benchmark.
         dividends_company: Total dividends paied by company.
         dividends_year: Total dividends paied by year.
-        yearly_returns: Yearly gains.
-        overall_returns: Return metrics for the entire portfolio lifetime.
+        summary_returns: Return metrics for the entire portfolio lifetime.
     """
     logger.info("Cleaning current output artifacts.")
     utils.delete_current_artifacts(DIR_OUT)
@@ -81,18 +79,8 @@ def generate_reports(
     _plot_dividends_year(config.portfolio_currency, dividends_year)
 
     logger.info("Plotting yearly gains.")
-    _plot_overall_returns(overall_returns)
-    for return_type in ["simple_return_perc", "twr"]:
-        _plot_barchar_2_cols(
-            df=yearly_returns.sort_values(by="year"),
-            col_name_x_labels="year",
-            col_name_bars_1=f"{return_type}_portfolio",
-            col_name_bars_2=f"{return_type}_benchmark",
-            y_axis_title=utils.parse_underscore_text(return_type),
-            plot_title=utils.parse_underscore_text(return_type),
-            plot_folder="summary_returns",
-            plot_name=return_type,
-        )
+    _plot_overall_returns(summary_returns)
+
     logger.info("End of generate reports.")
 
 

@@ -86,10 +86,12 @@ def twr_1() -> pd.DataFrame:
     """
     return pd.DataFrame(
         {
+            "metric_type": ["twr"],
+            "unit_type": ["perc"],
             "year": [
                 2024,
             ],
-            "twr_asset": [55.52],
+            "return_asset": [55.52],
         }
     )
 
@@ -103,11 +105,13 @@ def twr_2() -> pd.DataFrame:
     """
     return pd.DataFrame(
         {
+            "metric_type": ["twr", "twr"],
+            "unit_type": ["perc", "perc"],
             "year": [
                 2025,
                 2024,
             ],
-            "twr_asset": [26.04, 55.52],
+            "return_asset": [26.04, 55.52],
         }
     )
 
@@ -121,10 +125,10 @@ def twr_3() -> pd.DataFrame:
     """
     return pd.DataFrame(
         {
-            "year": [
-                0.03,
-            ],
-            "twr_asset": [77.87],
+            "metric_type": ["twr"],
+            "unit_type": ["perc"],
+            "year": ["all_time"],
+            "return_asset": [77.87],
         }
     )
 
