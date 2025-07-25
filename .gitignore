@@ -22,5 +22,3 @@ __pycache__/
 /data/in/*
 !/data/in/example_config.json
 !/data/in/example_transactions.csv
-/data/out/*
-!/data/out/.gitkeep

@@ -6,7 +6,7 @@ import click
 import pandas as pd
 from loguru import logger
 
-from stock_portfolio_tracker import modelling, reporting
+from stock_portfolio_tracker import modelling
 from stock_portfolio_tracker.preprocessing import Preprocessor
 from stock_portfolio_tracker.utils import DataApiType, timer
 
@@ -73,17 +73,6 @@ def pipeline(
         asset_prices,
         asset_dividends,
         benchmark_prices,
-    )
-
-    logger.info("Start of generate reports.")
-    reporting.generate_reports(
-        config,
-        portfolio_evolution,
-        asset_distribution,
-        assets_vs_benchmark,
-        dividends_company,
-        dividends_year,
-        summary_returns,
     )
 
     logger.info("End of execution.")
