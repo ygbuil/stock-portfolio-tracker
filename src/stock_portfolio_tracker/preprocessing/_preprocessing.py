@@ -20,6 +20,8 @@ from stock_portfolio_tracker.utils import (
 
 from . import _factories
 
+TIME_DELTA = 0.9999
+
 
 class Preprocessor:
     def __init__(self, data_api_type: Any, input_data_dir: Path, end_date: pd.Timestamp) -> None:
@@ -233,7 +235,7 @@ class Preprocessor:
                         origin_currency=origin_currency,
                         local_currency=local_currency,
                         start_date=portfolio_data.start_date,
-                        end_date=portfolio_data.end_date,
+                        end_date=portfolio_data.end_date + pd.Timedelta(days=TIME_DELTA),
                     )
 
                 except Exception as exc:
@@ -359,7 +361,7 @@ class Preprocessor:
             asset_data = self.data_api.get_asset_historical_data(
                 ticker=ticker,
                 start_date=start_date,
-                end_date=end_date,
+                end_date=end_date + pd.Timedelta(days=TIME_DELTA),
             )
 
         except Exception as exc:

@@ -49,7 +49,7 @@ def pipeline(
     logger.info("Start of preprocess.")
 
     if not end_date:
-        end_date = pd.Timestamp.today().normalize() + pd.Timedelta(days=0.9999)
+        end_date = pd.Timestamp.today().normalize()
 
     config, portfolio_data, asset_prices, asset_dividends, benchmark_prices, benchmark_dividends = (
         Preprocessor(

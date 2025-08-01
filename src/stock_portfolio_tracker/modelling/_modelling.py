@@ -49,7 +49,7 @@ def model_data(
             {"columns": ["date"], "ascending": [False]},
             {"columns": ["curr_val_asset"], "ascending": [False]},
             {"columns": ["ticker_asset", "date"], "ascending": [True, False]},
-            {"columns": ["total_dividend_asset"], "ascending": [False]},
+            {"columns": ["total_dividend_asset"], "ascending": [True]},
             {"columns": ["date"], "ascending": [True]},
             {"columns": ["metric_type", "unit_type", "year"], "ascending": [True, True, False]},
         ],
